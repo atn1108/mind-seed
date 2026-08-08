@@ -1,0 +1,278 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://thrhiyfavbdhjxifahcy.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "mindseed-grow-your-focus",
+      "version": "0.1.0",
+      "title": "MindSeed: Grow Your Focus"
+    },
+    "tools": [
+      {
+        "name": "list_species_and_stages",
+        "title": "List tree species and growth stages",
+        "description": "List MindSeed's unlockable tree species (with the number of grown trees required) and the EXP growth stages of the current tree.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "species": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "emoji": {
+                    "type": "string"
+                  },
+                  "unlockAtTrees": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "name",
+                  "emoji",
+                  "unlockAtTrees"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "stages": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "emoji": {
+                    "type": "string"
+                  },
+                  "expNeeded": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "name",
+                  "emoji",
+                  "expNeeded"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "species",
+            "stages"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "get_focus_quote",
+        "title": "Get a focus quote",
+        "description": "Return a motivational focus quote from MindSeed. Pass an index to get a specific quote, otherwise a random one is returned.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "index": {
+              "type": "integer",
+              "description": "Optional quote index, 0 to 5."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "index": {
+              "type": "number"
+            },
+            "quote": {
+              "type": "string"
+            },
+            "total": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "index",
+            "quote",
+            "total"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "plan_pomodoro",
+        "title": "Plan a Pomodoro study block",
+        "description": "Build a MindSeed-style Pomodoro schedule for a given amount of study time: focus sessions, short breaks and a long break, plus the EXP the tree would gain.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "totalMinutes": {
+              "type": "integer",
+              "description": "Total time available for studying, in minutes."
+            },
+            "sessionMinutes": {
+              "type": "integer",
+              "description": "Length of one focus session in minutes. Defaults to 25."
+            },
+            "breakMinutes": {
+              "type": "integer",
+              "description": "Length of a short break in minutes. Defaults to 5."
+            }
+          },
+          "required": [
+            "totalMinutes"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "focusSessions": {
+              "type": "number"
+            },
+            "focusMinutes": {
+              "type": "number"
+            },
+            "totalScheduledMinutes": {
+              "type": "number"
+            },
+            "expGained": {
+              "type": "number"
+            },
+            "blocks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "minutes": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type",
+                  "minutes"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "focusSessions",
+            "focusMinutes",
+            "totalScheduledMinutes",
+            "expGained",
+            "blocks"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      },
+      {
+        "name": "estimate_focus_score",
+        "title": "Estimate a MindSeed Focus Score",
+        "description": "Compute a MindSeed Focus Score (0-100) from weekly focus minutes, session completion rate and number of distractions, with a short interpretation.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "weeklyFocusMinutes": {
+              "type": "number",
+              "description": "Total focused minutes over the last 7 days."
+            },
+            "completedSessions": {
+              "type": "integer",
+              "description": "Number of finished focus sessions."
+            },
+            "abandonedSessions": {
+              "type": "integer",
+              "description": "Number of focus sessions given up early."
+            },
+            "distractions": {
+              "type": "integer",
+              "description": "Number of recorded distractions in the week. Defaults to 0."
+            }
+          },
+          "required": [
+            "weeklyFocusMinutes",
+            "completedSessions",
+            "abandonedSessions"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "score": {
+              "type": "number"
+            },
+            "completionRate": {
+              "type": "number"
+            },
+            "volumeRatio": {
+              "type": "number"
+            },
+            "distractionPenalty": {
+              "type": "number"
+            },
+            "interpretation": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "score",
+            "completionRate",
+            "volumeRatio",
+            "distractionPenalty",
+            "interpretation"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        }
+      }
+    ]
+  }
+}
