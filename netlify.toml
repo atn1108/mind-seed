@@ -1,3 +1,12 @@
 [build]
-  command = "npm run build"
-  publish = ".netlify"
+command = "npm run build"
+publish = ".netlify"
+
+[build.environment]
+NODE_VERSION = "24"
+
+[[redirects]]
+from = "/assets/*"
+to = "/assets/:splat"
+status = 200
+force = true
