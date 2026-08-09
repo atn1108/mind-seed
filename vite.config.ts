@@ -15,3 +15,5 @@ export default defineConfig({
     server: { entry: "server" },
   },
 });
+
+console.log("test final")
