@@ -6,6 +6,7 @@ import { Mail, Sparkles } from "lucide-react";
 import { LogoWordmark } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { useMindSeed } from "@/lib/mindseed-store";
 
 export const Route = createFileRoute("/")({
@@ -31,11 +32,47 @@ function LoginPage() {
   const { state, ready, login, loginGoogle } = useMindSeed();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"idle" | "email" | "register">("idle");
+  const [language, setLanguage] = useState<"en" | "vi">("en");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const copy = {
+    en: {
+      headline: ["Grow your", "focus", "every day."],
+      subheading: "Build a calmer study rhythm instead of forcing distance from your phone.",
+      google: "Continue with Google",
+      email: "Continue with Email",
+      signup: "Need an account? Sign up",
+      accountName: "Your name",
+      emailInput: "Email",
+      password: "Password",
+      createAccount: "Create account",
+      login: "Log in",
+      back: "Back",
+      processing: "Processing...",
+      footer: "Your data is stored safely with MindSeed.",
+    },
+    vi: {
+      headline: ["Xây dựng", "mức độ tập trung", "mỗi ngày."],
+      subheading: "Tạo nhịp học bình yên thay vì cố gắng tách mình khỏi điện thoại.",
+      google: "Tiếp tục với Google",
+      email: "Tiếp tục bằng Email",
+      signup: "Cần tài khoản? Đăng ký",
+      accountName: "Tên của bạn",
+      emailInput: "Email",
+      password: "Mật khẩu",
+      createAccount: "Tạo tài khoản",
+      login: "Đăng nhập",
+      back: "Quay lại",
+      processing: "Đang xử lý...",
+      footer: "Dữ liệu của bạn được lưu trữ an toàn với MindSeed.",
+    },
+  };
+
+  const strings = copy[language];
 
   useEffect(() => {
     if (ready && state.user) navigate({ to: "/dashboard" });
@@ -46,7 +83,7 @@ function LoginPage() {
     setError(null);
     setSubmitting(true);
     const message = await login(
-      name.trim() || "Learner",
+      name.trim() || (language === "vi" ? "Học viên" : "Learner"),
       email.trim(),
       password,
       mode === "register",
@@ -70,18 +107,27 @@ function LoginPage() {
         className="w-full max-w-md"
       >
         <div className="surface p-7 sm:p-9">
-          <div className="flex justify-center">
-            <LogoWordmark size={52} />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center flex-1">
+              <LogoWordmark size={52} />
+            </div>
+            <div className="flex items-center gap-2 rounded-full border border-border/70 bg-background px-2 py-1">
+              <span className={language === "en" ? "text-[11px] font-semibold text-foreground" : "text-[11px] font-medium text-muted-foreground"}>EN</span>
+              <Switch
+                aria-label="Switch language"
+                checked={language === "vi"}
+                onCheckedChange={(checked) => setLanguage(checked ? "vi" : "en")}
+              />
+              <span className={language === "vi" ? "text-[11px] font-semibold text-foreground" : "text-[11px] font-medium text-muted-foreground"}>VI</span>
+            </div>
           </div>
 
           <h1 className="mt-7 text-center font-display text-2xl font-semibold tracking-tight">
-            Grow your
-            <span className="text-gradient-leaf"> focus </span>
-            every day.
+            {strings.headline[0]}
+            <span className="text-gradient-leaf"> {strings.headline[1]} </span>
+            {strings.headline[2]}
           </h1>
-          <p className="mt-2 text-center text-sm text-muted-foreground">
-            Build a calmer study rhythm instead of forcing distance from your phone.
-          </p>
+          <p className="mt-2 text-center text-sm text-muted-foreground">{strings.subheading}</p>
 
           {error && mode === "idle" && (
             <p className="mt-7 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>
@@ -101,27 +147,27 @@ function LoginPage() {
                 }}
               >
                 <GoogleMark />
-                Continue with Google
+                {strings.google}
               </Button>
               <Button
                 className="h-12 w-full rounded-2xl text-[15px]"
                 onClick={() => setMode("email")}
               >
                 <Mail className="size-4" />
-                Continue with Email
+                {strings.email}
               </Button>
               <button
                 onClick={() => setMode("register")}
                 className="w-full pt-1 text-center text-sm font-medium text-primary hover:underline"
               >
-                Need an account? Sign up
+                {strings.signup}
               </button>
             </div>
           ) : (
             <form onSubmit={submit} className="mt-7 space-y-3">
               {mode === "register" && (
                 <Input
-                  placeholder="Your name"
+                  placeholder={strings.accountName}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="h-12 rounded-2xl"
@@ -129,14 +175,14 @@ function LoginPage() {
               )}
               <Input
                 type="email"
-                placeholder="Email"
+                placeholder={strings.emailInput}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12 rounded-2xl"
               />
               <Input
                 type="password"
-                placeholder="Password"
+                placeholder={strings.password}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 minLength={6}
@@ -148,22 +194,20 @@ function LoginPage() {
               )}
               <Button type="submit" disabled={submitting} className="h-12 w-full rounded-2xl text-[15px]">
                 <Sparkles className="size-4" />
-                {submitting ? "Processing..." : mode === "register" ? "Create account" : "Log in"}
+                {submitting ? strings.processing : mode === "register" ? strings.createAccount : strings.login}
               </Button>
               <button
                 type="button"
                 onClick={() => setMode("idle")}
                 className="w-full pt-1 text-center text-sm text-muted-foreground hover:text-foreground"
               >
-                Back
+                {strings.back}
               </button>
             </form>
           )}
         </div>
 
-        <p className="mt-5 text-center text-xs text-muted-foreground">
-          Your data is stored safely with MindSeed.
-        </p>
+        <p className="mt-5 text-center text-xs text-muted-foreground">{strings.footer}</p>
       </motion.div>
     </div>
   );
