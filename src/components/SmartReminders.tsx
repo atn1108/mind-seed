@@ -12,11 +12,11 @@ export function SmartReminders() {
 
   const items: { icon: typeof Flame; text: string }[] = [];
   if (todaySessions.length === 0)
-    items.push({ icon: AlertCircle, text: "Hôm nay bạn chưa bắt đầu phiên học nào." });
+    items.push({ icon: AlertCircle, text: "You have not started any focus session today." });
   if (streak > 0 && todaySessions.length === 0)
-    items.push({ icon: Flame, text: `Một phiên nữa thôi là bạn giữ được chuỗi ${streak + 1} ngày.` });
+    items.push({ icon: Flame, text: `One more session and you’ll keep a ${streak + 1}-day streak.` });
   if (openTasks > 0)
-    items.push({ icon: ListTodo, text: `Bạn còn ${openTasks} nhiệm vụ chưa hoàn thành.` });
+    items.push({ icon: ListTodo, text: `${openTasks} open task${openTasks === 1 ? "" : "s"} left.` });
 
   if (items.length === 0) return null;
 

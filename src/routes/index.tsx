@@ -15,12 +15,12 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "MindSeed giúp học sinh, sinh viên nuôi dưỡng sự tập trung, giảm Popcorn Brain và xây thói quen học tập bền vững.",
+          "MindSeed helps learners build focus, reduce scattered attention, and create sustainable study rhythms.",
       },
       { property: "og:title", content: "MindSeed — Grow Your Focus" },
       {
         property: "og:description",
-        content: "MindSeed giúp học sinh, sinh viên nuôi dưỡng sự tập trung, giảm Popcorn Brain và xây thói quen học tập bền vững.",
+        content: "MindSeed helps learners build focus, reduce scattered attention, and create sustainable study rhythms.",
       },
     ],
   }),
@@ -46,7 +46,7 @@ function LoginPage() {
     setError(null);
     setSubmitting(true);
     const message = await login(
-      name.trim() || "Bạn học",
+      name.trim() || "Learner",
       email.trim(),
       password,
       mode === "register",
@@ -75,12 +75,12 @@ function LoginPage() {
           </div>
 
           <h1 className="mt-7 text-center font-display text-2xl font-semibold tracking-tight">
-            Cùng nuôi dưỡng khả năng
-            <span className="text-gradient-leaf"> tập trung </span>
-            mỗi ngày.
+            Grow your
+            <span className="text-gradient-leaf"> focus </span>
+            every day.
           </h1>
           <p className="mt-2 text-center text-sm text-muted-foreground">
-            Nuôi dưỡng sự tập trung, thay vì ép bản thân rời xa điện thoại.
+            Build a calmer study rhythm instead of forcing distance from your phone.
           </p>
 
           {error && mode === "idle" && (
@@ -101,27 +101,27 @@ function LoginPage() {
                 }}
               >
                 <GoogleMark />
-                Đăng nhập với Google
+                Continue with Google
               </Button>
               <Button
                 className="h-12 w-full rounded-2xl text-[15px]"
                 onClick={() => setMode("email")}
               >
                 <Mail className="size-4" />
-                Đăng nhập bằng Email
+                Continue with Email
               </Button>
               <button
                 onClick={() => setMode("register")}
                 className="w-full pt-1 text-center text-sm font-medium text-primary hover:underline"
               >
-                Chưa có tài khoản? Đăng ký
+                Need an account? Sign up
               </button>
             </div>
           ) : (
             <form onSubmit={submit} className="mt-7 space-y-3">
               {mode === "register" && (
                 <Input
-                  placeholder="Tên của bạn"
+                  placeholder="Your name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="h-12 rounded-2xl"
@@ -136,7 +136,7 @@ function LoginPage() {
               />
               <Input
                 type="password"
-                placeholder="Mật khẩu"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 minLength={6}
@@ -148,21 +148,21 @@ function LoginPage() {
               )}
               <Button type="submit" disabled={submitting} className="h-12 w-full rounded-2xl text-[15px]">
                 <Sparkles className="size-4" />
-                {submitting ? "Đang xử lý..." : mode === "register" ? "Tạo tài khoản" : "Đăng nhập"}
+                {submitting ? "Processing..." : mode === "register" ? "Create account" : "Log in"}
               </Button>
               <button
                 type="button"
                 onClick={() => setMode("idle")}
                 className="w-full pt-1 text-center text-sm text-muted-foreground hover:text-foreground"
               >
-                Quay lại
+                Back
               </button>
             </form>
           )}
         </div>
 
         <p className="mt-5 text-center text-xs text-muted-foreground">
-          Dữ liệu của bạn được lưu an toàn trên MindSeed.
+          Your data is stored safely with MindSeed.
         </p>
       </motion.div>
     </div>

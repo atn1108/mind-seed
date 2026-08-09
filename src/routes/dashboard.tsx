@@ -20,10 +20,10 @@ import {
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Trang chủ — MindSeed" },
-      { name: "description", content: "Tổng quan khu vườn, thời gian tập trung, nhiệm vụ và Focus Score hôm nay." },
-      { property: "og:title", content: "Trang chủ — MindSeed" },
-      { property: "og:description", content: "Theo dõi sự tập trung của bạn mỗi ngày cùng MindSeed." },
+      { title: "Home — MindSeed" },
+      { name: "description", content: "Overview of your garden, focus time, tasks, and today's Focus Score." },
+      { property: "og:title", content: "Home — MindSeed" },
+      { property: "og:description", content: "Track your daily focus with MindSeed." },
     ],
   }),
   component: DashboardPage,
@@ -45,13 +45,13 @@ function DashboardPage() {
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:justify-between">
         <div className="min-w-0">
           <h1 className="truncate font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-            Xin chào, {state.user?.name ?? "bạn"} 👋
+            Hi, {state.user?.name ?? "there"} 👋
           </h1>
           <p className="mt-1.5 max-w-xl text-sm text-muted-foreground sm:text-[15px]">“{quote}”</p>
         </div>
         <div className="flex shrink-0 items-center gap-2 rounded-2xl bg-accent/25 px-3.5 py-2 text-sm font-semibold text-accent-foreground">
           <Flame className="size-4" />
-          {streak} ngày
+          {streak} days
         </div>
       </header>
 
@@ -60,11 +60,11 @@ function DashboardPage() {
           <div className="flex items-center gap-4">
             <TreeVisual exp={state.exp} size={92} />
             <div className="min-w-0">
-              <p className="text-2xl font-semibold">{state.forest.length} cây</p>
+              <p className="text-2xl font-semibold">{state.forest.length} trees</p>
               <p className="truncate text-sm text-muted-foreground">{stage.name}</p>
               <Progress value={progress} className="mt-3 h-2" />
               <p className="mt-1.5 text-xs text-muted-foreground">
-                {next ? `${progress}% tới ${next.name}` : "Sẵn sàng thu hoạch"}
+                {next ? `${progress}% to ${next.name}` : "Ready to grow"}
               </p>
             </div>
           </div>
@@ -75,16 +75,16 @@ function DashboardPage() {
             {Math.floor(minutes / 60)}
             <span className="text-lg font-medium text-muted-foreground">h </span>
             {minutes % 60}
-            <span className="text-lg font-medium text-muted-foreground">p</span>
+            <span className="text-lg font-medium text-muted-foreground">m</span>
           </p>
-          <p className="mt-1 text-sm text-muted-foreground">Tổng thời gian tập trung hôm nay</p>
+          <p className="mt-1 text-sm text-muted-foreground">Total focus time today</p>
           <Progress value={Math.min(100, (minutes / 120) * 100)} className="mt-4 h-2" />
-          <p className="mt-1.5 text-xs text-muted-foreground">Mục tiêu ngày: 120 phút</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">Daily goal: 120 minutes</p>
         </Card>
 
         <Card title="Today's Tasks" icon={ListTodo} to="/tasks">
           {openTasks.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Bạn đã hoàn thành mọi việc hôm nay 🎉</p>
+            <p className="text-sm text-muted-foreground">You completed everything today 🎉</p>
           ) : (
             <ul className="space-y-2.5">
               {openTasks.slice(0, 3).map((t) => (
@@ -104,7 +104,7 @@ function DashboardPage() {
             </ul>
           )}
           <p className="mt-4 text-xs text-muted-foreground">
-            {state.tasks.filter((t) => t.done).length}/{state.tasks.length} nhiệm vụ đã xong
+            {state.tasks.filter((t) => t.done).length}/{state.tasks.length} tasks completed
           </p>
         </Card>
 
@@ -130,9 +130,9 @@ function DashboardPage() {
           className="group flex items-center justify-between gap-4 rounded-3xl bg-primary px-6 py-6 text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:-translate-y-0.5 sm:px-8"
         >
           <div className="min-w-0">
-            <p className="font-display text-xl font-semibold sm:text-2xl">Bắt đầu phiên học</p>
+            <p className="font-display text-xl font-semibold sm:text-2xl">Start a study session</p>
             <p className="mt-1 truncate text-sm opacity-85">
-              25 phút tập trung — cây của bạn sẽ lớn thêm một chút.
+              25 minutes of focus — your tree will grow a little.
             </p>
           </div>
           <span className="grid size-14 shrink-0 place-items-center rounded-full bg-primary-foreground/15 transition-transform group-hover:scale-110">

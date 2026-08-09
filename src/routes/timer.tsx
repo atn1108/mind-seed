@@ -16,9 +16,9 @@ export const Route = createFileRoute("/timer")({
   head: () => ({
     meta: [
       { title: "Focus Timer — MindSeed" },
-      { name: "description", content: "Pomodoro 25/30/45/60 phút với vòng tiến trình và cây lớn lên sau mỗi phiên." },
+      { name: "description", content: "A 25/30/45/60 minute timer with progress tracking and tree growth after each session." },
       { property: "og:title", content: "Focus Timer — MindSeed" },
-      { property: "og:description", content: "Một phiên tập trung, một chút trưởng thành cho khu vườn của bạn." },
+      { property: "og:description", content: "One focused session, one small step for your garden." },
     ],
   }),
   component: TimerPage,
@@ -45,7 +45,7 @@ function TimerPage() {
       setRunning(false);
       addSession(minutes, true);
       setConfetti(true);
-      toast.success("Hoàn thành phiên học! Cây của bạn vừa lớn thêm 🌿");
+      toast.success("Session complete! Your tree just grew 🌿");
       setTimeout(() => setConfetti(false), 3000);
       setTimeout(() => setReflect(true), 900);
     }
@@ -63,7 +63,7 @@ function TimerPage() {
     setRunning(false);
     setLeft(minutes * 60);
     doneRef.current = false;
-    toast("Đã dừng phiên học. Không sao cả, hãy thử lại nhé.");
+    toast("Session stopped. No problem — try again when you’re ready.");
   };
 
   const total = minutes * 60;
@@ -79,7 +79,7 @@ function TimerPage() {
 
       <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Focus Timer</h1>
       <p className="mt-1.5 text-sm text-muted-foreground">
-        Chọn độ dài phiên học và để mọi thứ khác lắng xuống.
+        Choose a study session length and let everything else fade away.
       </p>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
@@ -95,7 +95,7 @@ function TimerPage() {
                     : "bg-muted text-muted-foreground hover:bg-primary-soft hover:text-primary"
                 }`}
               >
-                {m} phút
+                {m} min
               </button>
             ))}
           </div>
@@ -122,7 +122,7 @@ function TimerPage() {
                 {String(left % 60).padStart(2, "0")}
               </span>
               <span className="mt-1 text-sm text-muted-foreground">
-                {running ? "Đang tập trung…" : "Sẵn sàng"}
+                {running ? "In focus…" : "Ready"}
               </span>
             </div>
           </div>
@@ -136,11 +136,11 @@ function TimerPage() {
               }}
             >
               {running ? <Pause className="size-4" /> : <Play className="size-4 fill-current" />}
-              {running ? "Tạm dừng" : left < total ? "Tiếp tục" : "Bắt đầu"}
+              {running ? "Pause" : left < total ? "Resume" : "Start"}
             </Button>
             <Button variant="outline" className="h-12 rounded-2xl px-6" onClick={stop}>
               <Square className="size-4" />
-              Kết thúc
+              End
             </Button>
           </div>
         </div>
@@ -148,16 +148,16 @@ function TimerPage() {
         <div className="surface flex flex-col items-center justify-center gap-4 p-7">
           <TreeVisual exp={state.exp} size={180} />
           <p className="text-center text-sm text-muted-foreground">
-            Cây sẽ lớn lên khi bạn hoàn thành phiên học. Rời đi giữa chừng, cây chỉ nhận một chút EXP.
+            Your tree grows after each completed session. If you leave mid-session, it only earns a little EXP.
           </p>
           <div className="mt-2 grid w-full grid-cols-2 gap-3 text-center">
             <div className="rounded-2xl bg-primary-soft p-4">
               <p className="font-display text-2xl font-semibold">{state.forest.length}</p>
-              <p className="text-xs text-muted-foreground">Cây đã trồng</p>
+              <p className="text-xs text-muted-foreground">Trees planted</p>
             </div>
             <div className="rounded-2xl bg-accent/25 p-4">
               <p className="font-display text-2xl font-semibold">{state.exp}</p>
-              <p className="text-xs text-muted-foreground">EXP hiện tại</p>
+              <p className="text-xs text-muted-foreground">Current EXP</p>
             </div>
           </div>
         </div>

@@ -83,19 +83,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "MindSeed giúp học sinh, sinh viên nuôi dưỡng sự tập trung, giảm Popcorn Brain và xây thói quen học tập bền vững.",
+          "MindSeed helps learners build focus, reduce scattered attention, and create sustainable study rhythms.",
       },
       { name: "author", content: "MindSeed" },
       { property: "og:title", content: "MindSeed — Grow Your Focus" },
       {
         property: "og:description",
-        content: "MindSeed giúp học sinh, sinh viên nuôi dưỡng sự tập trung, giảm Popcorn Brain và xây thói quen học tập bền vững.",
+        content: "MindSeed helps learners build focus, reduce scattered attention, and create sustainable study rhythms.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "MindSeed — Grow Your Focus" },
-      { name: "twitter:description", content: "MindSeed giúp học sinh, sinh viên nuôi dưỡng sự tập trung, giảm Popcorn Brain và xây thói quen học tập bền vững." },
+      { name: "twitter:description", content: "MindSeed helps learners build focus, reduce scattered attention, and create sustainable study rhythms." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b3bb8f2b-c1d3-43f5-aed9-f89b4a182363" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b3bb8f2b-c1d3-43f5-aed9-f89b4a182363" },
     ],

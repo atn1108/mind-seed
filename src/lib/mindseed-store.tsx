@@ -61,19 +61,19 @@ export type MindSeedState = {
 /* --------------------------------- species -------------------------------- */
 
 export const SPECIES = [
-  { name: "Mầm Đậu", emoji: "🌱", unlockAt: 0 },
-  { name: "Cây Bàng", emoji: "🌳", unlockAt: 1 },
-  { name: "Anh Đào", emoji: "🌸", unlockAt: 3 },
-  { name: "Cọ Biển", emoji: "🌴", unlockAt: 6 },
-  { name: "Thông Xanh", emoji: "🌲", unlockAt: 10 },
-  { name: "Phong Đỏ", emoji: "🍁", unlockAt: 15 },
+  { name: "Sprout", emoji: "🌱", unlockAt: 0 },
+  { name: "Banyan", emoji: "🌳", unlockAt: 1 },
+  { name: "Blossom", emoji: "🌸", unlockAt: 3 },
+  { name: "Sea Palm", emoji: "🌴", unlockAt: 6 },
+  { name: "Evergreen", emoji: "🌲", unlockAt: 10 },
+  { name: "Maple", emoji: "🍁", unlockAt: 15 },
 ] as const;
 
 export const STAGES = [
-  { name: "Hạt giống", emoji: "🌰", need: 0 },
-  { name: "Mầm non", emoji: "🌱", need: 40 },
-  { name: "Cây con", emoji: "🌿", need: 90 },
-  { name: "Cây trưởng thành", emoji: "🌳", need: 150 },
+  { name: "Seed", emoji: "🌰", need: 0 },
+  { name: "Sprout", emoji: "🌱", need: 40 },
+  { name: "Young Tree", emoji: "🌿", need: 90 },
+  { name: "Mature Tree", emoji: "🌳", need: 150 },
 ] as const;
 
 export const DISTRACTIONS = [
@@ -81,18 +81,18 @@ export const DISTRACTIONS = [
   "Facebook",
   "Messenger",
   "Game",
-  "Buồn ngủ",
-  "Tiếng ồn",
-  "Khác",
+  "Sleepy",
+  "Noise",
+  "Other",
 ];
 
 export const QUOTES = [
-  "Mỗi phút tập trung hôm nay sẽ tạo nên thành công ngày mai.",
-  "Sự tập trung là hạt giống, kiên trì là ánh nắng.",
-  "Bạn không cần hoàn hảo, bạn chỉ cần bắt đầu.",
-  "Một khu rừng lớn bắt đầu từ một hạt giống nhỏ.",
-  "Chậm mà sâu, còn hơn nhanh mà rỗng.",
-  "Điện thoại có thể đợi. Ước mơ thì không.",
+  "Every focused minute today becomes tomorrow’s success.",
+  "Focus is a seed; consistency is the sunlight.",
+  "You do not need to be perfect — you only need to begin.",
+  "A great forest starts with one small seed.",
+  "Slow and deep is better than fast and empty.",
+  "Your phone can wait. Your dreams cannot.",
 ];
 
 /* --------------------------------- utils --------------------------------- */
@@ -193,11 +193,11 @@ export function focusScore(state: MindSeedState, day = dayKey(new Date())) {
 }
 
 export function scoreLabel(score: number) {
-  if (score >= 85) return { label: "Excellent", note: "Bạn đang ở trạng thái tập trung tuyệt vời." };
-  if (score >= 65) return { label: "Good", note: "Nhịp học tốt, hãy giữ vững thói quen này." };
+  if (score >= 85) return { label: "Excellent", note: "You are in a truly excellent focus state." };
+  if (score >= 65) return { label: "Good", note: "Your learning rhythm is strong — keep it going." };
   if (score >= 40)
-    return { label: "Average", note: "Ổn, nhưng vẫn còn khoảng trống để tiến bộ hơn." };
-  return { label: "Need Improvement", note: "Hãy bắt đầu bằng một phiên 25 phút thật nhẹ nhàng." };
+    return { label: "Average", note: "You are doing okay, but there is still room to improve." };
+  return { label: "Need Improvement", note: "Start with a gentle 25-minute session." };
 }
 
 export function streakOf(state: MindSeedState) {
@@ -293,7 +293,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
     ].find(Boolean);
 
     if (firstError) throw firstError;
-    if (!profileResult.data) throw new Error("Không tìm thấy hồ sơ MindSeed của tài khoản này.");
+    if (!profileResult.data) throw new Error("MindSeed profile for this account was not found.");
 
     const profile = mapProfile(profileResult.data);
 
@@ -374,7 +374,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
           if (error) throw error;
 
           if (!data.session) {
-            return "Tài khoản đã được tạo. Hãy kiểm tra email để xác nhận tài khoản trước khi đăng nhập.";
+            return "Your account has been created. Please check your email to confirm it before signing in.";
           }
         } else {
           const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -388,7 +388,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
         return null;
       } catch (error) {
         console.error("[MindSeed] Login error:", error);
-        return error instanceof Error ? error.message : "Đăng nhập thất bại.";
+        return error instanceof Error ? error.message : "Sign in failed.";
       }
     },
     [loadUserData],
@@ -405,7 +405,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       return null;
     } catch (error) {
       console.error("[MindSeed] Google login error:", error);
-      return error instanceof Error ? error.message : "Đăng nhập Google thất bại.";
+      return error instanceof Error ? error.message : "Google sign-in failed.";
     }
   }, []);
 
@@ -419,7 +419,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
     async (minutes: number, completed: boolean) => {
       const { data: authData } = await supabase.auth.getUser();
       const userId = authData.user?.id;
-      if (!userId) throw new Error("Bạn chưa đăng nhập.");
+      if (!userId) throw new Error("You are not signed in.");
 
       const { data: inserted, error } = await supabase
         .from("focus_sessions")
@@ -488,7 +488,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
   const addTask = useCallback(async (t: Omit<Task, "id" | "createdAt" | "done">) => {
     const { data: authData } = await supabase.auth.getUser();
     const userId = authData.user?.id;
-    if (!userId) throw new Error("Bạn chưa đăng nhập.");
+    if (!userId) throw new Error("You are not signed in.");
 
     const { data, error } = await supabase
       .from("tasks")
@@ -536,7 +536,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
     if (patch.done === true && !current.done) {
       const { data: authData } = await supabase.auth.getUser();
       const userId = authData.user?.id;
-      if (!userId) throw new Error("Bạn chưa đăng nhập.");
+      if (!userId) throw new Error("You are not signed in.");
 
       const nextExp = state.exp + 12;
       const { error: profileError } = await supabase
@@ -568,7 +568,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
   const addReflection = useCallback(async (rating: number, reasons: string[]) => {
     const { data: authData } = await supabase.auth.getUser();
     const userId = authData.user?.id;
-    if (!userId) throw new Error("Bạn chưa đăng nhập.");
+    if (!userId) throw new Error("You are not signed in.");
 
     const { data, error } = await supabase
       .from("reflections")
@@ -583,7 +583,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
   const setGoal = useCallback(async (hours: number) => {
     const { data: authData } = await supabase.auth.getUser();
     const userId = authData.user?.id;
-    if (!userId) throw new Error("Bạn chưa đăng nhập.");
+    if (!userId) throw new Error("You are not signed in.");
 
     const { data, error } = await supabase
       .from("profiles")

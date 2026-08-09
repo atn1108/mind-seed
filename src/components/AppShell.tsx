@@ -1,12 +1,14 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   BarChart3,
   Home,
   LogOut,
   ListTodo,
+  Moon,
   Sprout,
+  Sun,
   Timer,
   User,
 } from "lucide-react";
@@ -16,22 +18,34 @@ import { SmartReminders } from "@/components/SmartReminders";
 import { useMindSeed } from "@/lib/mindseed-store";
 
 const NAV = [
-  { to: "/dashboard", label: "Trang chủ", icon: Home },
+  { to: "/dashboard", label: "Home", icon: Home },
   { to: "/garden", label: "Focus Garden", icon: Sprout },
   { to: "/timer", label: "Focus Timer", icon: Timer },
-  { to: "/tasks", label: "Nhiệm vụ", icon: ListTodo },
+  { to: "/tasks", label: "Tasks", icon: ListTodo },
   { to: "/insight", label: "Insight", icon: BarChart3 },
-  { to: "/profile", label: "Hồ sơ", icon: User },
+  { to: "/profile", label: "Profile", icon: User },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { state, ready, logout } = useMindSeed();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const stored = window.localStorage.getItem("mindseed-theme");
+    if (stored) return stored === "dark";
+    return true;
+  });
 
   useEffect(() => {
     if (ready && !state.user) navigate({ to: "/" });
   }, [ready, state.user, navigate]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("dark", isDark);
+    window.localStorage.setItem("mindseed-theme", isDark ? "dark" : "light");
+  }, [isDark]);
 
   return (
     <div className="bg-leaf min-h-screen bg-background">
@@ -62,6 +76,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             })}
           </nav>
           <button
+            onClick={() => setIsDark((v) => !v)}
+            className="mt-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            aria-pressed={isDark}
+          >
+            {isDark ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
+            <span>{isDark ? "Light mode" : "Dark mode"}</span>
+          </button>
+          <button
             onClick={() => {
               logout();
               navigate({ to: "/" });
@@ -69,7 +92,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             className="mt-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <LogOut className="size-[18px]" />
-            Đăng xuất
+            Log out
           </button>
         </aside>
 
@@ -80,16 +103,26 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Logo size={30} />
               <span className="truncate font-display text-base font-semibold">MindSeed</span>
             </Link>
-            <button
-              onClick={() => {
-                logout();
-                navigate({ to: "/" });
-              }}
-              className="shrink-0 rounded-full border border-border bg-card p-2 text-muted-foreground"
-              aria-label="Đăng xuất"
-            >
-              <LogOut className="size-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsDark((v) => !v)}
+                className="shrink-0 rounded-full border border-border bg-card p-2 text-muted-foreground"
+                aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                aria-pressed={isDark}
+              >
+                {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+              </button>
+              <button
+                onClick={() => {
+                  logout();
+                  navigate({ to: "/" });
+                }}
+                className="shrink-0 rounded-full border border-border bg-card p-2 text-muted-foreground"
+                aria-label="Log out"
+              >
+                <LogOut className="size-4" />
+              </button>
+            </div>
           </div>
 
           <SmartReminders />

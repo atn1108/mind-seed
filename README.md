@@ -1,56 +1,48 @@
-# MindSeed: Grow Your Focus
+﻿# MindSeed: Grow Your Focus
 
-Bạn là một Senior UI/UX Designer đồng thời là Senior Front-end Developer.
+You are a Senior UI/UX Designer and Senior Front-end Developer.
 
-Hãy thiết kế và lập trình một website hoàn chỉnh (Responsive Web App) có tên "MindSeed" - một nền tảng hỗ trợ cải thiện khả năng tập trung và giảm hiện tượng Popcorn Brain ở học sinh, sinh viên.
-
-========================
-
-MỤC TIÊU DỰ ÁN
+Design and implement a complete website (Responsive Web App) named "MindSeed" ? a platform that supports improving focus and reducing Popcorn Brain behavior for students and learners.
 
 ========================
 
-MindSeed không phải là một ứng dụng quản lí công việc thông thường.
-
-Đây là một hệ thống giúp người dùng:
-
-- tăng khả năng tập trung
-
-- giảm sự phụ thuộc vào các nền tảng video ngắn
-
-- hình thành thói quen học tập lâu dài
-
-- quản lí thời gian hiệu quả
-
-- theo dõi sự tiến bộ của bản thân
-
-Triết lý của dự án:
-
-"Nuôi dưỡng sự tập trung thay vì ép buộc người dùng ngừng sử dụng điện thoại."
-
-Website phải mang cảm giác:
-
-- nhẹ nhàng
-
-- thư giãn
-
-- tập trung
-
-- truyền cảm hứng
-
-- hiện đại
-
-Không được nhiều màu mè.
-
-Không được gây rối mắt.
+PROJECT GOALS
 
 ========================
 
-PHONG CÁCH THIẾT KẾ
+MindSeed is not a typical task management application.
+
+This system helps users:
+
+- improve focus
+- reduce dependence on short-form video platforms
+- build lasting learning habits
+- manage time effectively
+- track their personal progress
+
+Project philosophy:
+
+"Nurture focus instead of forcing users to stop using their phones."
+
+The website should create a feeling of:
+
+- calm
+- relaxing
+- focus
+- inspiring
+- modern
+
+Avoid excessive decoration.
+
+Avoid visual clutter.
 
 ========================
 
-Thiết kế theo phong cách:
+DESIGN STYLE
+
+========================
+
+Design in the style of:
 
 Apple
 
@@ -60,7 +52,7 @@ Forest App
 
 Material Design 3
 
-Tone màu:
+Color palette:
 
 Primary:
 
@@ -90,19 +82,19 @@ Font:
 
 Poppins
 
-Bo góc lớn.
+Large rounded corners.
 
-Nhiều khoảng trắng.
+Generous spacing.
 
-Animation nhẹ.
+Soft animation.
 
-Glassmorphism rất ít.
+Very light glassmorphism.
 
-Shadow mềm.
+Soft shadows.
 
-Hiệu ứng chuyển trang mượt.
+Smooth page transitions.
 
-Responsive cho:
+Responsive for:
 
 Desktop
 
@@ -116,21 +108,21 @@ LOGO
 
 ========================
 
-Logo gồm:
+The logo includes:
 
-một hạt giống
+A seed
 
-↓
+?
 
-mọc thành cây
+Growing into a tree
 
-↓
+?
 
-hình chiếc lá
+A leaf shape
 
-kết hợp biểu tượng bộ não.
+Combined with a brain icon.
 
-Tên:
+Name:
 
 MindSeed
 
@@ -140,75 +132,73 @@ Grow Your Focus.
 
 ========================
 
-TRANG ĐĂNG NHẬP
+LOGIN PAGE
 
 ========================
 
-Có:
+Includes:
 
 Logo
 
-Tên dự án
+Project name
 
-Mô tả ngắn:
+Short description:
 
-"Cùng nuôi dưỡng khả năng tập trung mỗi ngày."
+"Grow your focus one day at a time."
 
-Nút:
+Buttons:
 
-Đăng nhập Google
+Sign in with Google
 
-Đăng nhập Email
+Sign in with Email
 
-Đăng ký
-
-========================
-
-TRANG CHỦ (Dashboard)
+Sign up
 
 ========================
 
-Đây là màn hình quan trọng nhất.
+HOME PAGE (Dashboard)
 
-Hiển thị:
+========================
 
-Xin chào [Tên người dùng]
+This is the most important screen.
 
-Một câu truyền động lực ngẫu nhiên.
+Displays:
 
-Ví dụ:
+Hello [User name]
 
-"Mỗi phút tập trung hôm nay sẽ tạo nên thành công ngày mai."
+A motivational quote.
 
-Phía dưới là 4 thẻ:
+Example:
 
-🌳 Focus Garden
+"Every focused minute today becomes tomorrow's success."
 
-Hiển thị
+Below are 4 cards:
 
-- số cây
+?? Focus Garden
 
-- cây hiện tại
+Shows:
 
-- cấp độ
+- number of trees
+- current tree
+- level
 
-⏳ Focus Time
+? Focus Time
 
-Hiển thị:
+Shows:
 
-Tổng thời gian tập trung hôm nay.
+Total focus time today.
 
-🎯 Today's Tasks
+?? Today's Tasks
 
-Danh sách việc cần làm.
+List of tasks to do.
 
-📈 Focus Score
+?? Focus Score
 
-Điểm tập trung hôm nay.
+Today's focus score.
 
-Bên dưới có nút lớn:
+Below is a large button:
 
-"Bắt đầu phiên học"
+"Start a focus session"
 
 ========================
 
@@ -218,37 +208,37 @@ FOCUS GARDEN
 
 ========================
 
-Đây là điểm nhấn.
+This is the highlight.
 
-Người dùng có:
+Users have:
 
-Hạt giống
+Seed
 
-↓
+?
 
-Cây con
+Young plant
 
-↓
+?
 
-Cây trưởng thành
+Mature tree
 
-↓
+?
 
-Khu rừng
+Forest
 
-Sau mỗi phiên học hoàn thành:
+After each completed focus session:
 
-- cây lớn lên
+- the tree grows
+- a new species is unlocked
 
-- mở khóa loài cây mới
+Includes:
 
-Có:
+Tree growth animation.
 
-Animation cây phát triển.
+Can view:
 
-Có thể xem:
+Forest history.
 
-Lịch sử khu rừng.
 ========================
 
 MODULE 2
@@ -259,23 +249,23 @@ FOCUS TIMER
 
 Pomodoro.
 
-Có thể chọn:
+User can choose:
 
-25 phút
+25 minutes
 
-30 phút
+30 minutes
 
-45 phút
+45 minutes
 
-60 phút
+60 minutes
 
-Hiển thị:
+Displays:
 
-Đồng hồ lớn.
+Large clock.
 
 Progress Circle.
 
-Có:
+Includes:
 
 Pause
 
@@ -283,11 +273,11 @@ Resume
 
 Stop
 
-Sau khi hoàn thành:
+After completion:
 
-Confetti nhẹ.
+Small confetti.
 
-Cây lớn lên.
+Tree grows.
 
 ========================
 
@@ -297,23 +287,23 @@ TASK MANAGER
 
 ========================
 
-Có:
+Includes:
 
-Thêm nhiệm vụ.
+Add task.
 
-Chỉnh sửa.
+Edit.
 
-Xóa.
+Delete.
 
 Deadline.
 
-Độ ưu tiên.
+Priority.
 
 Checkbox.
 
-Nếu hoàn thành:
+If completed:
 
-Cây nhận EXP.
+The tree receives EXP.
 
 ========================
 
@@ -323,37 +313,34 @@ FOCUS INSIGHT
 
 ========================
 
-Đây là module AI.
+This is the AI module.
 
-Không cần AI thật.
+No real AI is required.
 
-Chỉ mô phỏng.
+Only simulation.
 
-Sau mỗi tuần.
+After each week.
 
-Hiển thị báo cáo.
+Shows a report.
 
-Ví dụ:
+Example:
 
-Tuần này bạn đã:
+This week you have:
 
-- hoàn thành 18 phiên học
+- completed 18 focus sessions
+- focused for 9 hours
+- abandoned 3 sessions
+- completed 87% of your goal
 
-- tập trung 9 giờ
+AI analysis:
 
-- bỏ dở 3 phiên
+"You learn most effectively between 8am and 10am."
 
-- hoàn thành 87% mục tiêu
+"You usually lose focus in the evening."
 
-AI phân tích:
+"You should reduce TikTok use after 9pm."
 
-"Bạn học hiệu quả nhất từ 8h đến 10h."
-
-"Bạn thường mất tập trung vào buổi tối."
-
-"Bạn nên giảm sử dụng TikTok sau 21h."
-
-Có biểu đồ.
+Includes charts.
 
 Pie Chart.
 
@@ -369,15 +356,15 @@ SMART REMINDER
 
 ========================
 
-Thông báo thông minh.
+Smart notifications.
 
-Ví dụ:
+Examples:
 
-"Hôm nay bạn chưa bắt đầu phiên học nào."
+"You haven't started a focus session today."
 
-"Còn 5 phút nữa bạn sẽ giữ được chuỗi 7 ngày."
+"In 5 minutes, you'll keep a 7-day streak."
 
-"Bạn còn 2 nhiệm vụ chưa hoàn thành."
+"You have 2 tasks left to finish."
 
 ========================
 
@@ -387,17 +374,17 @@ REFLECTION
 
 ========================
 
-Sau mỗi phiên học.
+After each session.
 
-Hiện popup.
+A popup appears.
 
-Hỏi:
+Asks:
 
-Hôm nay bạn có tập trung không?
+Did you focus today?
 
-★★★★★
+?????
 
-Nguyên nhân mất tập trung:
+Reasons for losing focus:
 
 TikTok
 
@@ -407,13 +394,13 @@ Messenger
 
 Game
 
-Buồn ngủ
+Sleepy
 
-Tiếng ồn
+Noise
 
-Khác
+Other
 
-Lưu dữ liệu.
+Save the data.
 
 ========================
 
@@ -423,21 +410,21 @@ PROFILE
 
 ========================
 
-Hiển thị:
+Displays:
 
-Tên.
+Name.
 
 Avatar.
 
 Streak.
 
-Tổng cây.
+Total trees.
 
-Tổng giờ học.
+Total learning hours.
 
-Focus Score trung bình.
+Average Focus Score.
 
-Mục tiêu tháng.
+Monthly goal.
 
 ========================
 
@@ -445,25 +432,25 @@ FOCUS SCORE
 
 ========================
 
-Thiết kế một hệ thống điểm riêng.
+Design a custom scoring system.
 
-Điểm từ:
+Score from:
 
 0-100.
 
-Tính dựa trên:
+Calculated based on:
 
-Thời gian tập trung.
+Focus time.
 
-Số phiên hoàn thành.
+Number of completed sessions.
 
-Số nhiệm vụ hoàn thành.
+Number of completed tasks.
 
-Tỷ lệ bỏ dở.
+Drop-off rate.
 
 Streak.
 
-Hiển thị:
+Displays:
 
 Excellent
 
@@ -473,27 +460,27 @@ Average
 
 Need Improvement
 
-Có giải thích.
+Includes explanations.
 
 ========================
 
-THỐNG KÊ
+STATISTICS
 
 ========================
 
-Dashboard đẹp.
+Beautiful dashboard.
 
-Hiển thị:
+Shows:
 
-Biểu đồ tuần.
+Weekly chart.
 
-Biểu đồ tháng.
+Monthly chart.
 
-Tổng giờ học.
+Total hours studied.
 
-Số cây.
+Tree count.
 
-Tổng nhiệm vụ.
+Total tasks.
 
 Streak.
 
@@ -501,13 +488,13 @@ Focus Score.
 
 ========================
 
-HIỆU ỨNG
+ANIMATIONS
 
 ========================
 
-Animation mượt.
+Smooth animation.
 
-Hover đẹp.
+Nice hover effects.
 
 Fade.
 
@@ -517,15 +504,15 @@ Slide.
 
 Loading animation.
 
-Không lag.
+No lag.
 
 ========================
 
-YÊU CẦU KỸ THUẬT
+TECHNICAL REQUIREMENTS
 
 ========================
 
-Sử dụng:
+Use:
 
 HTML5
 
@@ -543,21 +530,21 @@ Chart.js
 
 Lucide Icons
 
-Responsive hoàn chỉnh.
+Complete responsiveness.
 
-Code sạch.
+Clean code.
 
-Component rõ ràng.
+Clear components.
 
-Dễ mở rộng.
-
-========================
-
-MỤC TIÊU CUỐI
+Easy to extend.
 
 ========================
 
-Website phải có cảm giác như một sản phẩm thật có thể triển khai trong trường học.
+FINAL GOAL
+
+========================
+
+The website should feel like a real product that can be deployed for schools.
 
 This project was built with [Lovable](https://lovable.dev).
 
@@ -573,7 +560,7 @@ Continue developing this project in the [Lovable editor](https://lovable.dev/pro
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Prefer working locally? You need Node.js and npm ? [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ```sh
 git clone <this-repository-url>

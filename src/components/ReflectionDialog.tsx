@@ -37,15 +37,15 @@ export function ReflectionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-3xl sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl">Hôm nay bạn có tập trung không?</DialogTitle>
+          <DialogTitle className="font-display text-xl">How focused are you today?</DialogTitle>
           <DialogDescription>
-            Ghi lại cảm nhận để MindSeed hiểu nhịp học của bạn hơn.
+            Capture how the session felt so MindSeed can learn from your rhythm.
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex justify-center gap-2 py-2">
           {[1, 2, 3, 4, 5].map((n) => (
-            <button key={n} onClick={() => setRating(n)} aria-label={`${n} sao`}>
+            <button key={n} onClick={() => setRating(n)} aria-label={`${n} stars`}>
               <motion.span whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.92 }} className="block">
                 <Star
                   className={`size-8 transition-colors ${
@@ -58,7 +58,7 @@ export function ReflectionDialog({
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-medium">Nguyên nhân mất tập trung</p>
+          <p className="mb-2 text-sm font-medium">What pulled your attention away?</p>
           <div className="flex flex-wrap gap-2">
             {DISTRACTIONS.map((d) => (
               <button
@@ -83,7 +83,7 @@ export function ReflectionDialog({
             onOpenChange(false);
           }}
         >
-          Lưu nhật ký
+          Save reflection
         </Button>
       </DialogContent>
     </Dialog>
