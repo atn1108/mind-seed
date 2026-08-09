@@ -1,570 +1,137 @@
-﻿# MindSeed: Grow Your Focus
+﻿
+# MindSeed: Grow Your Focus
 
-You are a Senior UI/UX Designer and Senior Front-end Developer.
+> **MindSeed** là nền tảng hỗ trợ cải thiện khả năng tập trung, xây dựng thói quen học tập bền vững và giảm thiểu hội chứng "Popcorn Brain" (não bỏng ngô) dành cho học sinh, sinh viên và người học.
 
-Design and implement a complete website (Responsive Web App) named "MindSeed" ? a platform that supports improving focus and reducing Popcorn Brain behavior for students and learners.
+---
 
-========================
+## 🌟 Triết lý Dự án
 
-PROJECT GOALS
+> *"Ươm mầm sự tập trung thay vì ép buộc người dùng ngừng sử dụng điện thoại."*
 
-========================
+MindSeed không chỉ là một ứng dụng quản lý công việc thông thường. Hệ thống mang lại trải nghiệm:
 
-MindSeed is not a typical task management application.
+* **Thư thái & êm dịu**
+* **Tập trung & truyền cảm hứng**
+* **Hiện đại & tối giản** (không chi tiết thừa, không gây rối mắt)
 
-This system helps users:
+---
 
-- improve focus
-- reduce dependence on short-form video platforms
-- build lasting learning habits
-- manage time effectively
-- track their personal progress
+## 🎨 Phong cách Thiết kế & Giao diện
 
-Project philosophy:
+* **Cảm hứng thiết kế:** Kết hợp từ Apple, Notion, Forest App và Material Design 3.
+* **Đặc trưng visual:** Góc bo tròn lớn, khoảng cách thoáng đãng (generous spacing), chuyển động mượt mà, hiệu ứng glassmorphism nhẹ và bóng đổ mềm.
+* **Phông chữ:** Poppins
+* **Bảng màu chủ đạo:**
+  * **Primary:** `#4CAF50` (Xanh lá chính)
+  * **Secondary:** `#81C784` (Xanh lá nhạt)
+  * **Background:** `#F6FFF8` (Xanh nhạt dịu)
+  * **Card:** `#FFFFFF` (Trắng)
+  * **Accent:** `#FFD54F` (Vàng nhấn)
+  * **Text:** `#222222` (Xám đen)
+* **Tính tương thích:** Responsive hoàn hảo trên Desktop, Tablet và Mobile.
 
-"Nurture focus instead of forcing users to stop using their phones."
+---
 
-The website should create a feeling of:
+## 🎯 Tính năng Chính & Các Module
 
-- calm
-- relaxing
-- focus
-- inspiring
-- modern
+### 1. 🔐 Trang Đăng nhập (Login)
 
-Avoid excessive decoration.
+* Logo MindSeed (kết hợp hình ảnh Hạt giống ➔ Cây lớn ➔ Lá & Não bộ).
+* Thông điệp: *"Grow your focus one day at a time."*
+* Các tùy chọn: Đăng nhập bằng Google, Email, Đăng ký.
 
-Avoid visual clutter.
+### 2. 🏠 Trang chủ (Dashboard)
 
-========================
+* Lời chào cá nhân hóa (`Hello [User name]`) & Câu nói truyền cảm hứng.
+* **4 thẻ tổng quan:**
+  * **Focus Garden:** Số lượng cây, cây hiện tại, cấp độ.
+  * **Focus Time:** Tổng thời gian tập trung trong ngày.
+  * **Today's Tasks:** Danh sách nhiệm vụ cần làm.
+  * **Focus Score:** Điểm tập trung hôm nay.
+* Nút hành động nổi bật: **"Start a focus session"**.
 
-DESIGN STYLE
+### 3. 🌳 Module 1: Vườn Tập Trung (Focus Garden)
 
-========================
+* Tiến trình phát triển: **Hạt giống ➔ Cây non ➔ Cây trưởng thành ➔ Khu rừng**.
+* Hoàn thành phiên tập trung giúp cây phát triển và mở khóa các loài cây mới.
+* Tích hợp hiệu ứng chuyển động lớn của cây & lịch sử khu rừng.
 
-Design in the style of:
+### 4. ⏱️ Module 2: Đồng Hồ Tập Trung (Focus Timer)
 
-Apple
+* Đồng hồ Pomodoro tùy chỉnh: 25, 30, 45, 60 phút.
+* Giao diện đồng hồ lớn kèm vòng tiến trình (Progress Circle).
+* Bộ điều khiển: Tạm dừng, Tiếp tục, Dừng lại.
+* Hiệu ứng Confetti và tăng trưởng cây sau khi hoàn thành.
 
-Notion
+### 5. 📋 Module 3: Quản Lý Nhiệm Vụ (Task Manager)
 
-Forest App
+* Thêm, sửa, xóa nhiệm vụ, đặt hạn chót (Deadline) và độ ưu tiên.
+* Đánh dấu hoàn thành để tích lũy EXP cho cây.
 
-Material Design 3
+### 6. 📊 Module 4: Phân Tích Thông Minh (Focus Insight)
 
-Color palette:
+* Mô phỏng báo cáo tổng kết hàng tuần.
+* Thống kê buổi tập trung, thời gian, tỉ lệ hủy và phần trăm đạt mục tiêu.
+* **Nhận xét thông minh:** Phân tích khung giờ tập trung hiệu quả nhất và đưa ra lời khuyên cải thiện thói quen.
+* Đồ thị trực quan: Pie Chart, Line Chart, Bar Chart.
 
-Primary:
+### 7. 🔔 Module 5: Nhắc Nhở Thông Minh (Smart Reminder)
 
-#4CAF50
+* Thông báo nhắc nhở duy trì chuỗi (streak), hoàn thành bài học và nhắc nhở khi bỏ dở mục tiêu trong ngày.
 
-Secondary:
+### 8. 📝 Module 6: Đánh Giá Sau Phiên (Reflection)
 
-#81C784
+* Hỏi nhanh mức độ tập trung sau mỗi phiên (thang điểm 1–5 sao).
+* Ghi nhận các nguyên nhân gây xao nhãng (TikTok, Facebook, Game, Tiếng ồn, Buồn ngủ,...).
 
-Background:
+### 9. 👤 Module 7: Cá Nhân (Profile)
 
-#F6FFF8
+* Thông tin người dùng, chuỗi ngày (streak), tổng số cây, tổng số giờ học, điểm tập trung trung bình và mục tiêu hàng tháng.
 
-Card:
+---
 
-White
+## 💯 Hệ thống Điểm Tập Trung (Focus Score)
 
-Accent:
+Trang bị hệ thống tính điểm tùy chỉnh từ **0 – 100**, dựa trên:
 
-#FFD54F
+1. Thời gian tập trung.
+2. Số phiên hoàn thành.
+3. Số nhiệm vụ hoàn thành.
+4. Tỉ lệ bỏ dở (Drop-off rate).
+5. Chuỗi ngày liên tục (Streak).
 
-Text:
+**Xếp loại:** Excellent | Good | Average | Need Improvement (kèm giải thích chi tiết).
 
-#222222
+---
 
-Font:
+## 🛠️ Công nghệ Sử dụng
 
-Poppins
+* **UI Framework:** React, HTML5, CSS3, JavaScript
+* **Styling:** TailwindCSS, Lucide Icons
+* **Animation:** Framer Motion
+* **Charts:** Chart.js
 
-Large rounded corners.
+---
 
-Generous spacing.
+## 🚀 Hướng dẫn Cài đặt & Phát triển
 
-Soft animation.
+### Yêu cầu
 
-Very light glassmorphism.
+* Node.js & npm
 
-Soft shadows.
-
-Smooth page transitions.
-
-Responsive for:
-
-Desktop
-
-Tablet
-
-Mobile
-
-========================
-
-LOGO
-
-========================
-
-The logo includes:
-
-A seed
-
-?
-
-Growing into a tree
-
-?
-
-A leaf shape
-
-Combined with a brain icon.
-
-Name:
-
-MindSeed
-
-Slogan:
-
-Grow Your Focus.
-
-========================
-
-LOGIN PAGE
-
-========================
-
-Includes:
-
-Logo
-
-Project name
-
-Short description:
-
-"Grow your focus one day at a time."
-
-Buttons:
-
-Sign in with Google
-
-Sign in with Email
-
-Sign up
-
-========================
-
-HOME PAGE (Dashboard)
-
-========================
-
-This is the most important screen.
-
-Displays:
-
-Hello [User name]
-
-A motivational quote.
-
-Example:
-
-"Every focused minute today becomes tomorrow's success."
-
-Below are 4 cards:
-
-?? Focus Garden
-
-Shows:
-
-- number of trees
-- current tree
-- level
-
-? Focus Time
-
-Shows:
-
-Total focus time today.
-
-?? Today's Tasks
-
-List of tasks to do.
-
-?? Focus Score
-
-Today's focus score.
-
-Below is a large button:
-
-"Start a focus session"
-
-========================
-
-MODULE 1
-
-FOCUS GARDEN
-
-========================
-
-This is the highlight.
-
-Users have:
-
-Seed
-
-?
-
-Young plant
-
-?
-
-Mature tree
-
-?
-
-Forest
-
-After each completed focus session:
-
-- the tree grows
-- a new species is unlocked
-
-Includes:
-
-Tree growth animation.
-
-Can view:
-
-Forest history.
-
-========================
-
-MODULE 2
-
-FOCUS TIMER
-
-========================
-
-Pomodoro.
-
-User can choose:
-
-25 minutes
-
-30 minutes
-
-45 minutes
-
-60 minutes
-
-Displays:
-
-Large clock.
-
-Progress Circle.
-
-Includes:
-
-Pause
-
-Resume
-
-Stop
-
-After completion:
-
-Small confetti.
-
-Tree grows.
-
-========================
-
-MODULE 3
-
-TASK MANAGER
-
-========================
-
-Includes:
-
-Add task.
-
-Edit.
-
-Delete.
-
-Deadline.
-
-Priority.
-
-Checkbox.
-
-If completed:
-
-The tree receives EXP.
-
-========================
-
-MODULE 4
-
-FOCUS INSIGHT
-
-========================
-
-This is the AI module.
-
-No real AI is required.
-
-Only simulation.
-
-After each week.
-
-Shows a report.
-
-Example:
-
-This week you have:
-
-- completed 18 focus sessions
-- focused for 9 hours
-- abandoned 3 sessions
-- completed 87% of your goal
-
-AI analysis:
-
-"You learn most effectively between 8am and 10am."
-
-"You usually lose focus in the evening."
-
-"You should reduce TikTok use after 9pm."
-
-Includes charts.
-
-Pie Chart.
-
-Line Chart.
-
-Bar Chart.
-
-========================
-
-MODULE 5
-
-SMART REMINDER
-
-========================
-
-Smart notifications.
-
-Examples:
-
-"You haven't started a focus session today."
-
-"In 5 minutes, you'll keep a 7-day streak."
-
-"You have 2 tasks left to finish."
-
-========================
-
-MODULE 6
-
-REFLECTION
-
-========================
-
-After each session.
-
-A popup appears.
-
-Asks:
-
-Did you focus today?
-
-?????
-
-Reasons for losing focus:
-
-TikTok
-
-Facebook
-
-Messenger
-
-Game
-
-Sleepy
-
-Noise
-
-Other
-
-Save the data.
-
-========================
-
-MODULE 7
-
-PROFILE
-
-========================
-
-Displays:
-
-Name.
-
-Avatar.
-
-Streak.
-
-Total trees.
-
-Total learning hours.
-
-Average Focus Score.
-
-Monthly goal.
-
-========================
-
-FOCUS SCORE
-
-========================
-
-Design a custom scoring system.
-
-Score from:
-
-0-100.
-
-Calculated based on:
-
-Focus time.
-
-Number of completed sessions.
-
-Number of completed tasks.
-
-Drop-off rate.
-
-Streak.
-
-Displays:
-
-Excellent
-
-Good
-
-Average
-
-Need Improvement
-
-Includes explanations.
-
-========================
-
-STATISTICS
-
-========================
-
-Beautiful dashboard.
-
-Shows:
-
-Weekly chart.
-
-Monthly chart.
-
-Total hours studied.
-
-Tree count.
-
-Total tasks.
-
-Streak.
-
-Focus Score.
-
-========================
-
-ANIMATIONS
-
-========================
-
-Smooth animation.
-
-Nice hover effects.
-
-Fade.
-
-Grow.
-
-Slide.
-
-Loading animation.
-
-No lag.
-
-========================
-
-TECHNICAL REQUIREMENTS
-
-========================
-
-Use:
-
-HTML5
-
-CSS3
-
-JavaScript
-
-React
-
-TailwindCSS
-
-Framer Motion
-
-Chart.js
-
-Lucide Icons
-
-Complete responsiveness.
-
-Clean code.
-
-Clear components.
-
-Easy to extend.
-
-========================
-
-FINAL GOAL
-
-========================
-
-The website should feel like a real product that can be deployed for schools.
-
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://seed-focus-flow.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/87e4b9e8-f2ad-4d5c-8d16-8fa5b5cf99d9).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm ? [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+### Cài đặt cục bộ
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+# 1. Clone repository
+git clone https://github.com/atn1108/mind-seed.git
+
+# 2. Di chuyển vào thư mục dự án
+cd mindseed
+
+# 3. Cài đặt các gói phụ thuộc
+npm install
+
+# 4. Chạy ứng dụng ở môi trường Development
 npm run dev
 ```
