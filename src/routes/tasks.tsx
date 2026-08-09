@@ -19,19 +19,19 @@ import { useMindSeed, type Priority, type Task } from "@/lib/mindseed-store";
 export const Route = createFileRoute("/tasks")({
   head: () => ({
     meta: [
-      { title: "Nhiệm vụ — MindSeed" },
-      { name: "description", content: "Quản lý nhiệm vụ với deadline, độ ưu tiên và EXP cho cây khi hoàn thành." },
-      { property: "og:title", content: "Nhiệm vụ — MindSeed" },
-      { property: "og:description", content: "Hoàn thành nhiệm vụ, khu vườn của bạn lớn nhanh hơn." },
+      { title: "Tasks — MindSeed" },
+      { name: "description", content: "Manage tasks with deadlines, priorities, and EXP for your garden when completed." },
+      { property: "og:title", content: "Tasks — MindSeed" },
+      { property: "og:description", content: "Complete your tasks and grow a stronger focus garden." },
     ],
   }),
   component: TasksPage,
 });
 
 const PRIORITY: Record<Priority, { label: string; className: string }> = {
-  high: { label: "Cao", className: "bg-destructive/12 text-destructive" },
-  medium: { label: "Vừa", className: "bg-accent/30 text-accent-foreground" },
-  low: { label: "Thấp", className: "bg-primary-soft text-primary" },
+  high: { label: "High", className: "bg-destructive/12 text-destructive" },
+  medium: { label: "Medium", className: "bg-accent/30 text-accent-foreground" },
+  low: { label: "Low", className: "bg-primary-soft text-primary" },
 };
 
 function TasksPage() {
@@ -48,7 +48,7 @@ function TasksPage() {
     addTask({ title: title.trim(), priority, ...(deadline ? { deadline } : {}) });
     setTitle("");
     setDeadline("");
-    toast.success("Đã thêm nhiệm vụ mới");
+    toast.success("New task added");
   };
 
   const done = state.tasks.filter((t) => t.done);
@@ -56,14 +56,14 @@ function TasksPage() {
 
   return (
     <AppShell>
-      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Nhiệm vụ</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Tasks</h1>
       <p className="mt-1.5 text-sm text-muted-foreground">
-        Mỗi nhiệm vụ hoàn thành giúp cây của bạn nhận thêm 12 EXP.
+        Every completed task helps your tree earn 12 EXP.
       </p>
 
       <form onSubmit={submit} className="surface mt-6 grid gap-3 p-5 sm:grid-cols-[1fr_auto_auto_auto]">
         <Input
-          placeholder="Bạn cần làm gì hôm nay?"
+          placeholder="What needs your attention today?"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="h-11 rounded-2xl"
@@ -73,9 +73,9 @@ function TasksPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="high">Ưu tiên cao</SelectItem>
-            <SelectItem value="medium">Ưu tiên vừa</SelectItem>
-            <SelectItem value="low">Ưu tiên thấp</SelectItem>
+            <SelectItem value="high">High priority</SelectItem>
+            <SelectItem value="medium">Medium priority</SelectItem>
+            <SelectItem value="low">Low priority</SelectItem>
           </SelectContent>
         </Select>
         <Input
@@ -86,14 +86,14 @@ function TasksPage() {
         />
         <Button type="submit" className="h-11 rounded-2xl px-5">
           <Plus className="size-4" />
-          Thêm
+          Add
         </Button>
       </form>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <section>
           <h2 className="mb-3 px-1 text-sm font-semibold text-muted-foreground">
-            Đang thực hiện ({open.length})
+            In progress ({open.length})
           </h2>
           <ul className="space-y-3">
             <AnimatePresence initial={false}>
@@ -115,7 +115,7 @@ function TasksPage() {
                   onCancel={() => setEditing(null)}
                   onToggle={() => {
                     updateTask(t.id, { done: true });
-                    toast.success("Tuyệt vời! Cây nhận thêm 12 EXP 🌿");
+                    toast.success("Nice work! Your tree earned 12 EXP 🌿");
                   }}
                   onRemove={() => removeTask(t.id)}
                 />
@@ -124,14 +124,14 @@ function TasksPage() {
           </ul>
           {open.length === 0 && (
             <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-              Không còn nhiệm vụ nào. Hãy tận hưởng một chút nghỉ ngơi.
+              All clear. Take a moment to breathe.
             </p>
           )}
         </section>
 
         <section>
           <h2 className="mb-3 px-1 text-sm font-semibold text-muted-foreground">
-            Đã hoàn thành ({done.length})
+            Completed ({done.length})
           </h2>
           <ul className="space-y-3">
             <AnimatePresence initial={false}>
@@ -190,7 +190,7 @@ function TaskRow({
     >
       <button
         onClick={onToggle}
-        aria-label="Đánh dấu hoàn thành"
+        aria-label="Mark complete"
         className={`grid size-6 shrink-0 place-items-center rounded-lg border transition-colors ${
           task.done ? "border-primary bg-primary text-primary-foreground" : "border-border"
         }`}
@@ -217,7 +217,7 @@ function TaskRow({
           </span>
           {task.deadline && (
             <span className="text-[11px] text-muted-foreground">
-              Hạn {new Date(task.deadline).toLocaleDateString("vi-VN")}
+              Due {new Date(task.deadline).toLocaleDateString("en-US")}
             </span>
           )}
         </div>
@@ -226,21 +226,21 @@ function TaskRow({
       <div className="flex shrink-0 items-center gap-1">
         {editing ? (
           <>
-            <IconBtn onClick={onSave} label="Lưu">
+            <IconBtn onClick={onSave} label="Save">
               <Check className="size-4" />
             </IconBtn>
-            <IconBtn onClick={onCancel} label="Hủy">
+            <IconBtn onClick={onCancel} label="Cancel">
               <X className="size-4" />
             </IconBtn>
           </>
         ) : (
           !task.done && (
-            <IconBtn onClick={onEdit} label="Sửa">
+            <IconBtn onClick={onEdit} label="Edit">
               <Pencil className="size-4" />
             </IconBtn>
           )
         )}
-        <IconBtn onClick={onRemove} label="Xóa">
+        <IconBtn onClick={onRemove} label="Delete">
           <Trash2 className="size-4" />
         </IconBtn>
       </div>

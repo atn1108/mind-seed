@@ -32,7 +32,7 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   component: Consent,
   errorComponent: ({ error }) => (
     <main className="mx-auto max-w-md p-8">
-      Không tải được yêu cầu kết nối: {String((error as Error)?.message ?? error)}
+      Unable to load the connection request: {String((error as Error)?.message ?? error)}
     </main>
   ),
 });
@@ -49,7 +49,7 @@ function Consent() {
     let cancelled = false;
     (async () => {
       if (!authorization_id) {
-        setError("Thiếu authorization_id.");
+        setError("Missing authorization_id.");
         setLoading(false);
         return;
       }
@@ -107,25 +107,25 @@ function Consent() {
     }
     const target = data?.redirect_url ?? data?.redirect_to;
     if (!target) {
-      setError("Máy chủ uỷ quyền không trả về địa chỉ chuyển hướng.");
+      setError("The authorization server did not return a redirect address.");
       setBusy(false);
       return;
     }
     window.location.href = target;
   }
 
-  const clientName = details?.client?.name ?? details?.client?.client_name ?? "ứng dụng này";
+  const clientName = details?.client?.name ?? details?.client?.client_name ?? "this application";
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-6">
       <div className="surface w-full max-w-md rounded-3xl p-8 shadow-lg">
         {loading ? (
-          <p className="text-muted-foreground">Đang tải…</p>
+          <p className="text-muted-foreground">Loading…</p>
         ) : !email ? (
           <>
-            <h1 className="text-xl font-semibold">Đăng nhập để kết nối</h1>
+            <h1 className="text-xl font-semibold">Connect with MindSeed</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Hãy đăng nhập vào MindSeed để cấp quyền cho ứng dụng bên ngoài.
+              Sign in to MindSeed to grant an external application permission.
             </p>
             {error && (
               <p role="alert" className="mt-3 text-sm text-destructive">
@@ -137,28 +137,28 @@ function Consent() {
               onClick={signIn}
               className="mt-6 w-full rounded-2xl bg-primary px-4 py-3 font-medium text-primary-foreground disabled:opacity-60"
             >
-              Đăng nhập với Google
+              Sign in with Google
             </button>
           </>
         ) : (
           <>
-            <h1 className="text-xl font-semibold">Kết nối {clientName} với MindSeed</h1>
+            <h1 className="text-xl font-semibold">Connect {clientName} to MindSeed</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              {clientName} sẽ có thể gọi các công cụ MindSeed thay mặt bạn.
+              {clientName} will be able to call MindSeed tools on your behalf.
             </p>
             <p className="mt-4 text-sm">
-              Đang đăng nhập: <span className="font-medium">{email}</span>
+              Signed in as: <span className="font-medium">{email}</span>
             </p>
             {details?.client?.redirect_uri && (
               <p className="mt-1 break-all text-xs text-muted-foreground">
-                Chuyển hướng tới: {details.client.redirect_uri}
+                Redirecting to: {details.client.redirect_uri}
               </p>
             )}
             {details?.scope && (
-              <p className="mt-1 text-xs text-muted-foreground">Quyền yêu cầu: {details.scope}</p>
+              <p className="mt-1 text-xs text-muted-foreground">Requested scopes: {details.scope}</p>
             )}
             <p className="mt-3 text-xs text-muted-foreground">
-              Việc này không vượt qua các quy tắc bảo mật của MindSeed.
+              This does not bypass MindSeed’s security rules.
             </p>
             {error && (
               <p role="alert" className="mt-3 text-sm text-destructive">
@@ -171,14 +171,14 @@ function Consent() {
                 onClick={() => decide(true)}
                 className="flex-1 rounded-2xl bg-primary px-4 py-3 font-medium text-primary-foreground disabled:opacity-60"
               >
-                Đồng ý
+                Approve
               </button>
               <button
                 disabled={busy}
                 onClick={() => decide(false)}
                 className="flex-1 rounded-2xl border px-4 py-3 font-medium disabled:opacity-60"
               >
-                Huỷ kết nối
+                Cancel connection
               </button>
             </div>
           </>

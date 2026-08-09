@@ -24,15 +24,15 @@ export const Route = createFileRoute("/insight")({
   head: () => ({
     meta: [
       { title: "Focus Insight — MindSeed" },
-      { name: "description", content: "Báo cáo tuần: giờ tập trung, phiên hoàn thành, khung giờ hiệu quả và gợi ý cải thiện." },
+      { name: "description", content: "A weekly report on focus hours, completed sessions, effective study windows, and improvement suggestions." },
       { property: "og:title", content: "Focus Insight — MindSeed" },
-      { property: "og:description", content: "Hiểu nhịp tập trung của bạn qua biểu đồ và phân tích tuần." },
+      { property: "og:description", content: "Understand your focus rhythm through charts and weekly analysis." },
     ],
   }),
   component: InsightPage,
 });
 
-const DAY_LABEL = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+const DAY_LABEL = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function InsightPage() {
   const { state } = useMindSeed();
@@ -66,7 +66,7 @@ function InsightPage() {
           return s.completed && t >= start && t <= end;
         })
         .reduce((a, s) => a + s.minutes, 0);
-      out.push({ label: `Tuần ${4 - i}`, hours: Math.round((mins / 60) * 10) / 10 });
+      out.push({ label: `Week ${4 - i}`, hours: Math.round((mins / 60) * 10) / 10 });
     }
     return out;
   }, [state.sessions]);
@@ -77,10 +77,10 @@ function InsightPage() {
     const ss = state.sessions.filter((s) => new Date(s.startedAt) >= since);
     const done = ss.filter((s) => s.completed);
     const minutes = done.reduce((a, s) => a + s.minutes, 0);
-    const byHour: Record<string, number> = { Sáng: 0, Chiều: 0, Tối: 0 };
+    const byHour: Record<string, number> = { Morning: 0, Afternoon: 0, Evening: 0 };
     done.forEach((s) => {
       const h = new Date(s.startedAt).getHours();
-      const slot = h < 12 ? "Sáng" : h < 18 ? "Chiều" : "Tối";
+      const slot = h < 12 ? "Morning" : h < 18 ? "Afternoon" : "Evening";
       byHour[slot] = (byHour[slot] ?? 0) + s.minutes;
     });
     return {
@@ -95,25 +95,25 @@ function InsightPage() {
 
   const score = focusScore(state);
   const label = scoreLabel(score);
-  const best = week.pie.slice().sort((a, b) => b.value - a.value)[0]?.name ?? "Sáng";
-  const worst = week.pie.slice().sort((a, b) => a.value - b.value)[0]?.name ?? "Tối";
+  const best = week.pie.slice().sort((a, b) => b.value - a.value)[0]?.name ?? "Morning";
+  const worst = week.pie.slice().sort((a, b) => a.value - b.value)[0]?.name ?? "Evening";
   const pieColors = ["var(--color-chart-1)", "var(--color-chart-2)", "var(--color-chart-3)"];
 
   return (
     <AppShell>
       <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Focus Insight</h1>
-      <p className="mt-1.5 text-sm text-muted-foreground">Báo cáo 7 ngày gần nhất của bạn.</p>
+      <p className="mt-1.5 text-sm text-muted-foreground">Your last 7-day focus report.</p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat label="Phiên hoàn thành" value={`${week.done}`} sub={`${week.total} phiên đã bắt đầu`} />
-        <Stat label="Giờ tập trung" value={`${week.hours}h`} sub="trong 7 ngày" />
-        <Stat label="Phiên bỏ dở" value={`${week.dropped}`} sub="hãy thử phiên ngắn hơn" />
-        <Stat label="Mục tiêu tuần" value={`${week.goal}%`} sub="so với 14 giờ mục tiêu" />
+        <Stat label="Completed sessions" value={`${week.done}`} sub={`${week.total} sessions started`} />
+        <Stat label="Focus hours" value={`${week.hours}h`} sub="over 7 days" />
+        <Stat label="Dropped sessions" value={`${week.dropped}`} sub="try shorter sessions" />
+        <Stat label="Weekly goal" value={`${week.goal}%`} sub="vs. 14h target" />
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <div className="surface p-6">
-          <h2 className="font-display text-lg font-semibold">Thời gian tập trung theo ngày</h2>
+          <h2 className="font-display text-lg font-semibold">Focus time by day</h2>
           <div className="mt-5 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weekly}>
@@ -127,7 +127,7 @@ function InsightPage() {
                     border: "1px solid var(--color-border)",
                     background: "var(--color-card)",
                   }}
-                  formatter={(v) => [`${v} phút`, "Tập trung"]}
+                  formatter={(v) => [`${v} minutes`, "Focus"]}
                 />
                 <Bar dataKey="minutes" fill="var(--color-chart-1)" radius={[10, 10, 4, 4]} />
               </BarChart>
@@ -136,7 +136,7 @@ function InsightPage() {
         </div>
 
         <div className="surface p-6">
-          <h2 className="font-display text-lg font-semibold">Khung giờ học</h2>
+          <h2 className="font-display text-lg font-semibold">Study windows</h2>
           <div className="mt-2 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -151,7 +151,7 @@ function InsightPage() {
                     border: "1px solid var(--color-border)",
                     background: "var(--color-card)",
                   }}
-                  formatter={(v: number, n) => [`${v} phút`, n]}
+                  formatter={(v: number, n) => [`${v} minutes`, n]}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -169,7 +169,7 @@ function InsightPage() {
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <div className="surface p-6">
-          <h2 className="font-display text-lg font-semibold">Xu hướng 4 tuần</h2>
+          <h2 className="font-display text-lg font-semibold">4-week trend</h2>
           <div className="mt-5 h-56">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={monthly}>
@@ -182,7 +182,7 @@ function InsightPage() {
                     border: "1px solid var(--color-border)",
                     background: "var(--color-card)",
                   }}
-                  formatter={(v) => [`${v} giờ`, "Tập trung"]}
+                  formatter={(v) => [`${v} hours`, "Focus"]}
                 />
                 <Line
                   type="monotone"
@@ -200,20 +200,17 @@ function InsightPage() {
         <div className="surface p-6">
           <div className="flex items-center gap-2">
             <Brain className="size-4 text-primary" />
-            <h2 className="font-display text-lg font-semibold">MindSeed phân tích</h2>
+            <h2 className="font-display text-lg font-semibold">MindSeed analysis</h2>
           </div>
           <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
             <Insight>
-              Bạn học hiệu quả nhất vào buổi <b className="text-foreground">{best.toLowerCase()}</b> — hãy
-              đặt những nhiệm vụ khó vào khung giờ này.
+              You learn best in the <b className="text-foreground">{best.toLowerCase()}</b> — schedule demanding work around this window.
             </Insight>
             <Insight>
-              Bạn thường mất tập trung vào buổi{" "}
-              <b className="text-foreground">{worst.toLowerCase()}</b>, với {week.dropped} phiên bỏ dở
-              trong tuần.
+              You tend to lose focus in the <b className="text-foreground">{worst.toLowerCase()}</b> window, with {week.dropped} dropped sessions this week.
             </Insight>
             <Insight>
-              Hãy thử giảm thời gian dùng TikTok sau 21h và thay bằng một phiên 25 phút nhẹ nhàng.
+              Try reducing screen time after 9pm and replacing it with a gentle 25-minute session.
             </Insight>
           </ul>
         </div>
@@ -222,12 +219,10 @@ function InsightPage() {
       <div className="surface mt-4 flex flex-col items-center gap-5 p-6 sm:flex-row">
         <ScoreRing score={score} size={104} />
         <div className="min-w-0">
-          <h2 className="font-display text-lg font-semibold">Focus Score hôm nay: {label.label}</h2>
+          <h2 className="font-display text-lg font-semibold">Focus Score today: {label.label}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{label.note}</p>
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-            Điểm 0–100 được tính từ: thời gian tập trung (40%), số phiên hoàn thành (20%), nhiệm vụ
-            hoàn thành (15%), tỷ lệ bỏ dở (15%) và chuỗi ngày liên tiếp (10%). Chuỗi hiện tại của bạn
-            là {streakOf(state)} ngày.
+            0–100 points are calculated from focus time (40%), completed sessions (20%), completed tasks (15%), dropout rate (15%), and streaks (10%). Your current streak is {streakOf(state)} days.
           </p>
         </div>
       </div>

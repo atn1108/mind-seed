@@ -11,9 +11,9 @@ export const Route = createFileRoute("/garden")({
   head: () => ({
     meta: [
       { title: "Focus Garden — MindSeed" },
-      { name: "description", content: "Mỗi phiên học hoàn thành giúp cây của bạn lớn lên và mở khóa loài cây mới." },
+      { name: "description", content: "Every completed session helps your tree grow and unlocks new species." },
       { property: "og:title", content: "Focus Garden — MindSeed" },
-      { property: "og:description", content: "Khu rừng tập trung của riêng bạn, lớn lên theo từng phiên học." },
+      { property: "og:description", content: "Your personal focus forest, growing session by session." },
     ],
   }),
   component: GardenPage,
@@ -27,7 +27,7 @@ function GardenPage() {
     <AppShell>
       <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Focus Garden</h1>
       <p className="mt-1.5 text-sm text-muted-foreground">
-        Hạt giống → Cây con → Cây trưởng thành → Khu rừng của bạn.
+        Seed → Sprout → Mature tree → Your forest.
       </p>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[1.1fr_1fr]">
@@ -37,14 +37,14 @@ function GardenPage() {
           <p className="text-sm text-muted-foreground">{state.exp} EXP</p>
           <Progress value={progress} className="mt-5 h-2.5 w-full max-w-sm" />
           <p className="mt-2 text-xs text-muted-foreground">
-            {next ? `Còn ${next.need - state.exp} EXP để thành ${next.name}` : "Cây đã trưởng thành!"}
+            {next ? `${next.need - state.exp} EXP to reach ${next.name}` : "Tree is ready"}
           </p>
         </div>
 
         <div className="surface p-6">
-          <h2 className="font-display text-lg font-semibold">Loài cây</h2>
+          <h2 className="font-display text-lg font-semibold">Species</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Trồng thêm cây để mở khóa những loài mới.
+            Plant more trees to unlock new species.
           </p>
           <div className="mt-5 grid grid-cols-3 gap-3">
             {SPECIES.map((sp) => {
@@ -63,7 +63,7 @@ function GardenPage() {
                   <span className="text-[11px] font-medium">{sp.name}</span>
                   {!unlocked && (
                     <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                      <Lock className="size-3" /> {sp.unlockAt} cây
+                      <Lock className="size-3" /> {sp.unlockAt} trees
                     </span>
                   )}
                 </motion.div>
@@ -76,12 +76,12 @@ function GardenPage() {
       <div className="surface mt-4 p-6">
         <div className="flex items-center gap-2">
           <Sparkles className="size-4 text-primary" />
-          <h2 className="font-display text-lg font-semibold">Lịch sử khu rừng</h2>
-          <span className="ml-auto text-sm text-muted-foreground">{state.forest.length} cây</span>
+          <h2 className="font-display text-lg font-semibold">Forest history</h2>
+          <span className="ml-auto text-sm text-muted-foreground">{state.forest.length} trees</span>
         </div>
         {state.forest.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">
-            Khu rừng còn trống. Hãy hoàn thành phiên học đầu tiên nhé.
+            The forest is empty. Complete your first focus session to begin.
           </p>
         ) : (
           <div className="mt-5 grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-8">
@@ -95,13 +95,13 @@ function GardenPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.04, duration: 0.4 }}
                   className="grid place-items-center gap-1 rounded-2xl bg-primary-soft p-3 text-center"
-                  title={`${t.species} • ${t.minutes} phút`}
+                  title={`${t.species} • ${t.minutes} minutes`}
                 >
                   <span className="text-2xl">
                     {SPECIES.find((s) => s.name === t.species)?.emoji ?? "🌳"}
                   </span>
                   <span className="w-full truncate text-[10px] text-muted-foreground">
-                    {new Date(t.plantedAt).toLocaleDateString("vi-VN", {
+                    {new Date(t.plantedAt).toLocaleDateString("en-US", {
                       day: "2-digit",
                       month: "2-digit",
                     })}

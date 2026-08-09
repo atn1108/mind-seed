@@ -37,12 +37,12 @@ export default defineTool({
 
     const level =
       score >= 80
-        ? "Rừng xanh tốt — bạn đang giữ nhịp tập trung rất ổn định."
+        ? "Healthy growth — your focus rhythm is very steady."
         : score >= 60
-          ? "Đang lớn — duy trì đều đặn và giảm bớt xao nhãng."
+          ? "Growing — keep the habit consistent and limit distractions."
           : score >= 40
-            ? "Cần chăm sóc — hãy thử phiên ngắn 25 phút và tắt thông báo."
-            : "Hạt giống mới — bắt đầu với 1 phiên 25 phút mỗi ngày.";
+            ? "Needs care — try a short 25-minute session and silence notifications."
+            : "New seed — start with one 25-minute session a day.";
 
     const result = {
       score,
