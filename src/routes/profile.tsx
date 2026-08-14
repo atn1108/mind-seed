@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useT } from "@/lib/language";
 import { Flame, Clock, Sprout, Target } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/profile")({
 });
 
 function ProfilePage() {
+  const t = useT();
   const { state, setGoal } = useMindSeed();
   const totalMinutes = state.sessions.filter((s) => s.completed).reduce((a, s) => a + s.minutes, 0);
   const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
@@ -29,7 +31,7 @@ function ProfilePage() {
 
   return (
     <AppShell>
-      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Profile</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">{t("Profile")}</h1>
 
       <div className="surface mt-6 flex flex-col items-center gap-5 p-7 sm:flex-row sm:items-center">
         <div className="grid size-20 shrink-0 place-items-center rounded-3xl bg-primary text-3xl font-semibold text-primary-foreground">
@@ -57,7 +59,7 @@ function ProfilePage() {
       <div className="surface mt-4 p-6">
         <div className="flex items-center gap-2">
           <Target className="size-4 text-primary" />
-          <h2 className="font-display text-lg font-semibold">Monthly goal</h2>
+          <h2 className="font-display text-lg font-semibold">{t("Monthly goal")}</h2>
           <span className="ml-auto text-sm font-medium">{goal} hours</span>
         </div>
         <Progress value={goalPct} className="mt-4 h-2.5" />
@@ -76,7 +78,7 @@ function ProfilePage() {
 
       {state.reflections.length > 0 && (
         <div className="surface mt-4 p-6">
-          <h2 className="font-display text-lg font-semibold">Focus journal</h2>
+          <h2 className="font-display text-lg font-semibold">{t("Focus journal")}</h2>
           <ul className="mt-4 space-y-3">
             {state.reflections.slice(0, 6).map((r) => (
               <li key={r.id} className="flex flex-wrap items-center gap-3 rounded-2xl bg-muted/60 p-3.5 text-sm">

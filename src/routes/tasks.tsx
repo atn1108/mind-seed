@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useT } from "@/lib/language";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
@@ -35,6 +36,7 @@ const PRIORITY: Record<Priority, { label: string; className: string }> = {
 };
 
 function TasksPage() {
+  const t = useT();
   const { state, addTask, updateTask, removeTask } = useMindSeed();
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState<Priority>("medium");
@@ -56,14 +58,14 @@ function TasksPage() {
 
   return (
     <AppShell>
-      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Tasks</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">{t("Tasks")}</h1>
       <p className="mt-1.5 text-sm text-muted-foreground">
         Every completed task helps your tree earn 12 EXP.
       </p>
 
       <form onSubmit={submit} className="surface mt-6 grid gap-3 p-5 sm:grid-cols-[1fr_auto_auto_auto]">
         <Input
-          placeholder="What needs your attention today?"
+          placeholder={t("What needs your attention today?")}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="h-11 rounded-2xl"
@@ -73,9 +75,9 @@ function TasksPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="high">High priority</SelectItem>
-            <SelectItem value="medium">Medium priority</SelectItem>
-            <SelectItem value="low">Low priority</SelectItem>
+            <SelectItem value="high">{t("High priority")}</SelectItem>
+            <SelectItem value="medium">{t("Medium priority")}</SelectItem>
+            <SelectItem value="low">{t("Low priority")}</SelectItem>
           </SelectContent>
         </Select>
         <Input

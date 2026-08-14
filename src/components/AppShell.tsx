@@ -17,7 +17,7 @@ import {
 import { Logo } from "@/components/Logo";
 import { SmartReminders } from "@/components/SmartReminders";
 import { useMindSeed } from "@/lib/mindseed-store";
-import { useLanguage, type Language } from "@/lib/language";
+import { useLanguage, useT, type Language } from "@/lib/language";
 
 const NAV = [
   { to: "/dashboard", label: "Home", icon: Home },
@@ -31,6 +31,7 @@ const NAV = [
 export function AppShell({ children }: { children: ReactNode }) {
   const { state, ready, logout } = useMindSeed();
   const { language, setLanguage } = useLanguage();
+  const t = useT();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [isDark, setIsDark] = useState(() => {
@@ -73,7 +74,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   }`}
                 >
                   <item.icon className="size-[18px] shrink-0" />
-                  <span className="truncate">{item.label}</span>
+                  <span className="truncate">{t(item.label)}</span>
                 </Link>
               );
             })}
@@ -175,10 +176,11 @@ function LanguageSwitcher({
   compact?: boolean;
 }) {
   const isVietnamese = language === "vi";
+  const t = useT();
   return (
     <div
       className={`flex items-center gap-2 rounded-2xl border border-border/70 bg-background px-3 py-2 text-sm ${compact ? "px-2 py-1.5" : "mt-2"}`}
-      aria-label="Language"
+      aria-label={t("Language")}
     >
       {!compact && <Languages className="size-[18px] text-muted-foreground" aria-hidden="true" />}
       <span className={isVietnamese ? "font-medium text-muted-foreground" : "font-semibold text-foreground"}>EN</span>

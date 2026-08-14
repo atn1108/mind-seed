@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useT } from "@/lib/language";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play, Square } from "lucide-react";
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/timer")({
 });
 
 function TimerPage() {
+  const t = useT();
   const { state, addSession } = useMindSeed();
   const [minutes, setMinutes] = useState(25);
   const [left, setLeft] = useState(25 * 60);
@@ -77,7 +79,7 @@ function TimerPage() {
       <Confetti show={confetti} />
       <ReflectionDialog open={reflect} onOpenChange={setReflect} />
 
-      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Focus Timer</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">{t("Focus Timer")}</h1>
       <p className="mt-1.5 text-sm text-muted-foreground">
         Choose a study session length and let everything else fade away.
       </p>
@@ -153,11 +155,11 @@ function TimerPage() {
           <div className="mt-2 grid w-full grid-cols-2 gap-3 text-center">
             <div className="rounded-2xl bg-primary-soft p-4">
               <p className="font-display text-2xl font-semibold">{state.forest.length}</p>
-              <p className="text-xs text-muted-foreground">Trees planted</p>
+              <p className="text-xs text-muted-foreground">{t("Trees planted")}</p>
             </div>
             <div className="rounded-2xl bg-accent/25 p-4">
               <p className="font-display text-2xl font-semibold">{state.exp}</p>
-              <p className="text-xs text-muted-foreground">Current EXP</p>
+              <p className="text-xs text-muted-foreground">{t("Current EXP")}</p>
             </div>
           </div>
         </div>

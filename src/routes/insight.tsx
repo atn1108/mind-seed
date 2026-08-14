@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useT } from "@/lib/language";
 import { useMemo } from "react";
 import {
   Bar,
@@ -35,6 +36,7 @@ export const Route = createFileRoute("/insight")({
 const DAY_LABEL = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function InsightPage() {
+  const t = useT();
   const { state } = useMindSeed();
 
   const weekly = useMemo(() => {
@@ -101,8 +103,8 @@ function InsightPage() {
 
   return (
     <AppShell>
-      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Focus Insight</h1>
-      <p className="mt-1.5 text-sm text-muted-foreground">Your last 7-day focus report.</p>
+      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">{t("Focus Insight")}</h1>
+      <p className="mt-1.5 text-sm text-muted-foreground">{t("Your last 7-day focus report.")}</p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat label="Completed sessions" value={`${week.done}`} sub={`${week.total} sessions started`} />
@@ -113,7 +115,7 @@ function InsightPage() {
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <div className="surface p-6">
-          <h2 className="font-display text-lg font-semibold">Focus time by day</h2>
+          <h2 className="font-display text-lg font-semibold">{t("Focus time by day")}</h2>
           <div className="mt-5 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weekly}>
@@ -136,7 +138,7 @@ function InsightPage() {
         </div>
 
         <div className="surface p-6">
-          <h2 className="font-display text-lg font-semibold">Study windows</h2>
+          <h2 className="font-display text-lg font-semibold">{t("Study windows")}</h2>
           <div className="mt-2 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -169,7 +171,7 @@ function InsightPage() {
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <div className="surface p-6">
-          <h2 className="font-display text-lg font-semibold">4-week trend</h2>
+          <h2 className="font-display text-lg font-semibold">{t("4-week trend")}</h2>
           <div className="mt-5 h-56">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={monthly}>
@@ -200,7 +202,7 @@ function InsightPage() {
         <div className="surface p-6">
           <div className="flex items-center gap-2">
             <Brain className="size-4 text-primary" />
-            <h2 className="font-display text-lg font-semibold">MindSeed analysis</h2>
+            <h2 className="font-display text-lg font-semibold">{t("MindSeed analysis")}</h2>
           </div>
           <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
             <Insight>
