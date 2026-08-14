@@ -49,14 +49,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="bg-leaf min-h-screen bg-background">
-      <div className="mx-auto flex w-full max-w-7xl gap-6 px-4 py-4 sm:px-6 lg:py-8">
+      <div className="mx-auto flex w-full max-w-[1440px] gap-6 px-4 py-4 sm:px-6 lg:gap-8 lg:px-8 lg:py-8">
         {/* desktop sidebar */}
         <aside className="glass sticky top-8 hidden h-[calc(100vh-4rem)] w-60 shrink-0 flex-col rounded-3xl p-4 lg:flex">
           <Link to="/dashboard" className="flex items-center gap-2 px-2 py-2">
             <Logo size={34} />
             <span className="font-display text-lg font-semibold tracking-tight">MindSeed</span>
           </Link>
-          <nav className="mt-6 flex flex-1 flex-col gap-1">
+          <nav aria-label="Primary navigation" className="mt-8 flex flex-1 flex-col gap-1">
             {NAV.map((item) => {
               const active = pathname === item.to;
               return (
@@ -139,7 +139,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       {/* mobile bottom nav */}
-      <nav className="glass fixed inset-x-3 bottom-3 z-40 flex items-center justify-between rounded-3xl px-2 py-2 lg:hidden">
+      <nav aria-label="Mobile navigation" className="glass fixed inset-x-3 bottom-3 z-40 flex items-center justify-between rounded-3xl px-2 py-2 shadow-lift lg:hidden">
         {NAV.map((item) => {
           const active = pathname === item.to;
           return (

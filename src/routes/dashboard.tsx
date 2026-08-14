@@ -55,7 +55,7 @@ function DashboardPage() {
         </div>
       </header>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card title="Focus Garden" icon={Sprout} to="/garden">
           <div className="flex items-center gap-4">
             <TreeVisual exp={state.exp} size={92} />
@@ -156,7 +156,7 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <Link to={to} className="surface surface-hover block p-5">
+    <Link to={to} className="surface surface-hover group block p-5">
       <div className="mb-4 flex items-center gap-2.5 text-sm font-medium text-muted-foreground">
         <span className="grid size-8 place-items-center rounded-xl bg-primary-soft text-primary">
           <Icon className="size-4" />

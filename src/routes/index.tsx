@@ -99,16 +99,18 @@ function LoginPage() {
   };
 
   return (
-    <div className="bg-leaf grid min-h-screen place-items-center bg-background px-4 py-10">
+    <div className="bg-leaf relative grid min-h-screen place-items-center overflow-hidden bg-background px-4 py-8 sm:py-12">
+      <div className="pointer-events-none absolute -left-32 top-1/4 size-72 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-32 bottom-0 size-96 rounded-full bg-accent/10 blur-3xl" />
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-md"
+        className="relative w-full max-w-[430px]"
       >
-        <div className="surface p-7 sm:p-9">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center justify-center flex-1">
+        <div className="surface p-6 sm:p-9">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-center justify-center">
               <LogoWordmark size={52} />
             </div>
             <div className="flex items-center gap-2 rounded-full border border-border/70 bg-background px-2 py-1">
@@ -127,10 +129,10 @@ function LoginPage() {
             <span className="text-gradient-leaf"> {strings.headline[1]} </span>
             {strings.headline[2]}
           </h1>
-          <p className="mt-2 text-center text-sm text-muted-foreground">{strings.subheading}</p>
+          <p className="mx-auto mt-3 max-w-sm text-center text-sm leading-6 text-muted-foreground">{strings.subheading}</p>
 
           {error && mode === "idle" && (
-            <p className="mt-7 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>
+            <p role="alert" className="mt-7 rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>
           )}
 
           {mode === "idle" ? (
