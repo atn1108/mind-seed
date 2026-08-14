@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useT } from "@/lib/language";
 import { motion } from "motion/react";
 import { useMemo } from "react";
 import { Clock, Flame, ListTodo, Play, Sprout, Target } from "lucide-react";
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardPage() {
+  const t = useT();
   const { state } = useMindSeed();
   const today = dayKey(new Date());
   const minutes = minutesOn(state, today);
@@ -77,9 +79,9 @@ function DashboardPage() {
             {minutes % 60}
             <span className="text-lg font-medium text-muted-foreground">m</span>
           </p>
-          <p className="mt-1 text-sm text-muted-foreground">Total focus time today</p>
+          <p className="mt-1 text-sm text-muted-foreground">{t("Total focus time today")}</p>
           <Progress value={Math.min(100, (minutes / 120) * 100)} className="mt-4 h-2" />
-          <p className="mt-1.5 text-xs text-muted-foreground">Daily goal: 120 minutes</p>
+          <p className="mt-1.5 text-xs text-muted-foreground">{t("Daily goal: 120 minutes")}</p>
         </Card>
 
         <Card title="Today's Tasks" icon={ListTodo} to="/tasks">
@@ -130,7 +132,7 @@ function DashboardPage() {
           className="group flex items-center justify-between gap-4 rounded-3xl bg-primary px-6 py-6 text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:-translate-y-0.5 sm:px-8"
         >
           <div className="min-w-0">
-            <p className="font-display text-xl font-semibold sm:text-2xl">Start a study session</p>
+            <p className="font-display text-xl font-semibold sm:text-2xl">{t("Start a study session")}</p>
             <p className="mt-1 truncate text-sm opacity-85">
               25 minutes of focus — your tree will grow a little.
             </p>

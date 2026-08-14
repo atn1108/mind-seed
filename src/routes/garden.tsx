@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useT } from "@/lib/language";
 import { motion } from "motion/react";
 import { Lock, Sparkles } from "lucide-react";
 
@@ -20,12 +21,13 @@ export const Route = createFileRoute("/garden")({
 });
 
 function GardenPage() {
+  const t = useT();
   const { state } = useMindSeed();
   const { stage, next, progress } = stageOf(state.exp);
 
   return (
     <AppShell>
-      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Focus Garden</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">{t("Focus Garden")}</h1>
       <p className="mt-1.5 text-sm text-muted-foreground">
         Seed → Sprout → Mature tree → Your forest.
       </p>
@@ -42,7 +44,7 @@ function GardenPage() {
         </div>
 
         <div className="surface p-6">
-          <h2 className="font-display text-lg font-semibold">Species</h2>
+          <h2 className="font-display text-lg font-semibold">{t("Species")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Plant more trees to unlock new species.
           </p>
@@ -76,7 +78,7 @@ function GardenPage() {
       <div className="surface mt-4 p-6">
         <div className="flex items-center gap-2">
           <Sparkles className="size-4 text-primary" />
-          <h2 className="font-display text-lg font-semibold">Forest history</h2>
+          <h2 className="font-display text-lg font-semibold">{t("Forest history")}</h2>
           <span className="ml-auto text-sm text-muted-foreground">{state.forest.length} trees</span>
         </div>
         {state.forest.length === 0 ? (
