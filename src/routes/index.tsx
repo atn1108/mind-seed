@@ -6,8 +6,8 @@ import { Mail, Sparkles } from "lucide-react";
 import { LogoWordmark } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { useMindSeed } from "@/lib/mindseed-store";
+import { useLanguage } from "@/lib/language";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,7 +32,7 @@ function LoginPage() {
   const { state, ready, login, loginGoogle } = useMindSeed();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"idle" | "email" | "register">("idle");
-  const [language, setLanguage] = useState<"en" | "vi">("en");
+  const { language } = useLanguage();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -109,19 +109,8 @@ function LoginPage() {
         className="relative w-full max-w-[430px]"
       >
         <div className="surface p-6 sm:p-9">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 flex-1 items-center justify-center">
-              <LogoWordmark size={52} />
-            </div>
-            <div className="flex items-center gap-2 rounded-full border border-border/70 bg-background px-2 py-1">
-              <span className={language === "en" ? "text-[11px] font-semibold text-foreground" : "text-[11px] font-medium text-muted-foreground"}>EN</span>
-              <Switch
-                aria-label="Switch language"
-                checked={language === "vi"}
-                onCheckedChange={(checked) => setLanguage(checked ? "vi" : "en")}
-              />
-              <span className={language === "vi" ? "text-[11px] font-semibold text-foreground" : "text-[11px] font-medium text-muted-foreground"}>VI</span>
-            </div>
+          <div className="flex items-center justify-center">
+            <LogoWordmark size={52} />
           </div>
 
           <h1 className="mt-7 text-center font-display text-2xl font-semibold tracking-tight">
