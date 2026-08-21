@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 @import "tw-animate-css";
 
 @source "../src";
@@ -11,6 +11,32 @@
  */
 
 @theme inline {
+  /* Spacing Scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* Typography */
+  --font-size-display: 3.5rem;
+  --font-size-h1: 2rem;
+  --font-size-h2: 1.5rem;
+  --font-size-h3: 1.25rem;
+  --font-size-body-lg: 1.0625rem;
+  --font-size-body: 1rem;
+  --font-size-body-sm: 0.875rem;
+  --font-size-label: 0.75rem;
+  --line-height-display: 1.2;
+  --line-height-heading: 1.35;
+  --line-height-body: 1.5;
+  --letter-spacing-tight: -0.02em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.005em;
+
+  /* Border Radius */
   --radius-sm: calc(var(--radius) - 8px);
   --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
@@ -18,8 +44,10 @@
   --radius-2xl: calc(var(--radius) + 12px);
   --radius-3xl: calc(var(--radius) + 20px);
   --radius-4xl: calc(var(--radius) + 28px);
-  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+
+  /* Fonts */
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -54,6 +82,12 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Enhanced Shadow System */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.15);
   --shadow-soft: 0 1px 2px oklch(0.45 0.09 150 / 0.05), 0 8px 24px oklch(0.45 0.09 150 / 0.07);
   --shadow-lift: 0 2px 6px oklch(0.45 0.09 150 / 0.06), 0 18px 44px oklch(0.45 0.09 150 / 0.12);
   --shadow-glow: 0 12px 40px oklch(0.72 0.17 145 / 0.32);
@@ -136,8 +170,99 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+<<<<<<< HEAD
     line-height: 1.5;
+=======
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+>>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
     -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Typography Hierarchy */
+  h1,
+  .h1 {
+    font-size: var(--font-size-h1);
+    font-weight: 600;
+    line-height: var(--line-height-heading);
+    letter-spacing: var(--letter-spacing-tight);
+  }
+
+  h2,
+  .h2 {
+    font-size: var(--font-size-h2);
+    font-weight: 600;
+    line-height: var(--line-height-heading);
+    letter-spacing: -0.005em;
+  }
+
+  h3,
+  .h3 {
+    font-size: var(--font-size-h3);
+    font-weight: 600;
+    line-height: var(--line-height-heading);
+  }
+
+  h4,
+  .h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  h5,
+  .h5 {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  h6,
+  .h6 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.5;
+    text-transform: uppercase;
+    letter-spacing: 0.005em;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  /* Links */
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 150ms ease;
+
+    &:hover {
+      color: oklch(0.66 0.15 148.5);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+
+  /* Accessibility: Focus Visible */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* Accessibility: Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   :focus-visible {
@@ -154,16 +279,26 @@
   background-color: var(--color-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-sm);
   transition:
-    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @utility surface-hover {
   &:hover {
-    box-shadow: var(--shadow-lift);
-    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 }
 
@@ -175,16 +310,23 @@
 
 @utility bg-leaf {
   background-image:
-    radial-gradient(1100px 520px at 12% -8%, color-mix(in oklab, var(--color-primary) 16%, transparent), transparent 62%),
-    radial-gradient(900px 480px at 92% 6%, color-mix(in oklab, var(--color-accent) 15%, transparent), transparent 60%);
+    radial-gradient(
+      1100px 520px at 12% -8%,
+      color-mix(in oklab, var(--color-primary) 16%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      900px 480px at 92% 6%,
+      color-mix(in oklab, var(--color-accent) 15%, transparent),
+      transparent 60%
+    );
 }
 
+/* Gradient Text Utilities */
 @utility text-gradient-leaf {
-  background-image: linear-gradient(
-    100deg,
-    var(--color-primary),
-    color-mix(in oklab, var(--color-secondary) 80%, var(--color-primary))
-  );
+  background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
   background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: transparent;
 }

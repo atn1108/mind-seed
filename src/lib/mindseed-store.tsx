@@ -76,15 +76,7 @@ export const STAGES = [
   { name: "Mature Tree", emoji: "🌳", need: 150 },
 ] as const;
 
-export const DISTRACTIONS = [
-  "TikTok",
-  "Facebook",
-  "Messenger",
-  "Game",
-  "Sleepy",
-  "Noise",
-  "Other",
-];
+export const DISTRACTIONS = ["TikTok", "Facebook", "Messenger", "Game", "Sleepy", "Noise", "Other"];
 
 export const QUOTES = [
   "Every focused minute today becomes tomorrow’s success.",
@@ -194,7 +186,8 @@ export function focusScore(state: MindSeedState, day = dayKey(new Date())) {
 
 export function scoreLabel(score: number) {
   if (score >= 85) return { label: "Excellent", note: "You are in a truly excellent focus state." };
-  if (score >= 65) return { label: "Good", note: "Your learning rhythm is strong — keep it going." };
+  if (score >= 65)
+    return { label: "Good", note: "Your learning rhythm is strong — keep it going." };
   if (score >= 40)
     return { label: "Average", note: "You are doing okay, but there is still room to improve." };
   return { label: "Need Improvement", note: "Start with a gentle 25-minute session." };
@@ -230,11 +223,18 @@ export function minutesOn(state: MindSeedState, day: string) {
 
 /* --------------------------------- context -------------------------------- */
 
+export type AuthOutcome = { tone: "error" | "info"; message?: string };
+
 type Ctx = {
   state: MindSeedState;
   ready: boolean;
-  login: (name: string, email: string, password: string, register?: boolean) => Promise<string | null>;
-  loginGoogle: () => Promise<string | null>;
+  login: (
+    name: string,
+    email: string,
+    password: string,
+    register?: boolean,
+  ) => Promise<AuthOutcome | null>;
+  loginGoogle: () => Promise<AuthOutcome | null>;
   logout: () => Promise<void>;
   addSession: (minutes: number, completed: boolean) => Promise<void>;
   addTask: (t: Omit<Task, "id" | "createdAt" | "done">) => Promise<void>;
@@ -260,29 +260,34 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   const loadUserData = useCallback(async (userId: string) => {
-    const [profileResult, sessionsResult, tasksResult, reflectionsResult, treesResult] = await Promise.all([
-      supabase.from("profiles").select("name,email,avatar,monthly_goal_hours,exp").eq("id", userId).single(),
-      supabase
-        .from("focus_sessions")
-        .select("id,started_at,minutes,completed")
-        .eq("user_id", userId)
-        .order("started_at", { ascending: true }),
-      supabase
-        .from("tasks")
-        .select("id,title,deadline,priority,done,created_at")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("reflections")
-        .select("id,rating,reasons,created_at")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("garden_trees")
-        .select("id,species,planted_at,minutes")
-        .eq("user_id", userId)
-        .order("planted_at", { ascending: true }),
-    ]);
+    const [profileResult, sessionsResult, tasksResult, reflectionsResult, treesResult] =
+      await Promise.all([
+        supabase
+          .from("profiles")
+          .select("name,email,avatar,monthly_goal_hours,exp")
+          .eq("id", userId)
+          .single(),
+        supabase
+          .from("focus_sessions")
+          .select("id,started_at,minutes,completed")
+          .eq("user_id", userId)
+          .order("started_at", { ascending: true }),
+        supabase
+          .from("tasks")
+          .select("id,title,deadline,priority,done,created_at")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("reflections")
+          .select("id,rating,reasons,created_at")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("garden_trees")
+          .select("id,species,planted_at,minutes")
+          .eq("user_id", userId)
+          .order("planted_at", { ascending: true }),
+      ]);
 
     const firstError = [
       profileResult.error,
@@ -374,7 +379,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
           if (error) throw error;
 
           if (!data.session) {
-            return "Your account has been created. Please check your email to confirm it before signing in.";
+            return { tone: "info" as const };
           }
         } else {
           const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -388,7 +393,10 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
         return null;
       } catch (error) {
         console.error("[MindSeed] Login error:", error);
-        return error instanceof Error ? error.message : "Sign in failed.";
+        return {
+          tone: "error" as const,
+          message: error instanceof Error ? error.message : "Sign in failed.",
+        };
       }
     },
     [loadUserData],
@@ -396,16 +404,20 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
 
   const loginGoogle = useCallback(async () => {
     try {
-      const redirectTo = typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined;
+      const redirectTo =
+        typeof window !== "undefined" ? `${window.location.origin}/dashboard` : null;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo },
+        ...(redirectTo ? { options: { redirectTo } } : {}),
       });
       if (error) throw error;
       return null;
     } catch (error) {
       console.error("[MindSeed] Google login error:", error);
-      return error instanceof Error ? error.message : "Google sign-in failed.";
+      return {
+        tone: "error" as const,
+        message: error instanceof Error ? error.message : "Google sign-in failed.",
+      };
     }
   }, []);
 
@@ -455,10 +467,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
         newTrees.push(tree);
       }
 
-      const profileUpdate = await supabase
-        .from("profiles")
-        .update({ exp })
-        .eq("id", userId);
+      const profileUpdate = await supabase.from("profiles").update({ exp }).eq("id", userId);
 
       if (profileUpdate.error) throw profileUpdate.error;
 
@@ -506,58 +515,61 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, tasks: [mapTask(data), ...s.tasks] }));
   }, []);
 
-  const updateTask = useCallback(async (id: string, patch: Partial<Task>) => {
-    const current = state.tasks.find((task) => task.id === id);
-    if (!current) return;
+  const updateTask = useCallback(
+    async (id: string, patch: Partial<Task>) => {
+      const current = state.tasks.find((task) => task.id === id);
+      if (!current) return;
 
-    const dbPatch: {
-      title?: string;
-      deadline?: string | null;
-      priority?: Priority;
-      done?: boolean;
-    } = {};
+      const dbPatch: {
+        title?: string;
+        deadline?: string | null;
+        priority?: Priority;
+        done?: boolean;
+      } = {};
 
-    if (patch.title !== undefined) dbPatch.title = patch.title;
-    if (patch.deadline !== undefined) dbPatch.deadline = patch.deadline || null;
-    if (patch.priority !== undefined) dbPatch.priority = patch.priority;
-    if (patch.done !== undefined) dbPatch.done = patch.done;
+      if (patch.title !== undefined) dbPatch.title = patch.title;
+      if (patch.deadline !== undefined) dbPatch.deadline = patch.deadline || null;
+      if (patch.priority !== undefined) dbPatch.priority = patch.priority;
+      if (patch.done !== undefined) dbPatch.done = patch.done;
 
-    const { data, error } = await supabase
-      .from("tasks")
-      .update(dbPatch)
-      .eq("id", id)
-      .select("id,title,deadline,priority,done,created_at")
-      .single();
+      const { data, error } = await supabase
+        .from("tasks")
+        .update(dbPatch)
+        .eq("id", id)
+        .select("id,title,deadline,priority,done,created_at")
+        .single();
 
-    if (error) throw error;
+      if (error) throw error;
 
-    // Keep the original prototype's +12 EXP behavior, but only when a task
-    // actually changes from incomplete -> complete.
-    if (patch.done === true && !current.done) {
-      const { data: authData } = await supabase.auth.getUser();
-      const userId = authData.user?.id;
-      if (!userId) throw new Error("You are not signed in.");
+      // Keep the original prototype's +12 EXP behavior, but only when a task
+      // actually changes from incomplete -> complete.
+      if (patch.done === true && !current.done) {
+        const { data: authData } = await supabase.auth.getUser();
+        const userId = authData.user?.id;
+        if (!userId) throw new Error("You are not signed in.");
 
-      const nextExp = state.exp + 12;
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({ exp: nextExp })
-        .eq("id", userId);
-      if (profileError) throw profileError;
+        const nextExp = state.exp + 12;
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .update({ exp: nextExp })
+          .eq("id", userId);
+        if (profileError) throw profileError;
+
+        setState((s) => ({
+          ...s,
+          exp: nextExp,
+          tasks: s.tasks.map((task) => (task.id === id ? mapTask(data) : task)),
+        }));
+        return;
+      }
 
       setState((s) => ({
         ...s,
-        exp: nextExp,
         tasks: s.tasks.map((task) => (task.id === id ? mapTask(data) : task)),
       }));
-      return;
-    }
-
-    setState((s) => ({
-      ...s,
-      tasks: s.tasks.map((task) => (task.id === id ? mapTask(data) : task)),
-    }));
-  }, [state.exp, state.tasks]);
+    },
+    [state.exp, state.tasks],
+  );
 
   const removeTask = useCallback(async (id: string) => {
     const { error } = await supabase.from("tasks").delete().eq("id", id);
@@ -593,7 +605,9 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       .single();
 
     if (error) throw error;
-    setState((s) => (s.user ? { ...s, user: { ...s.user, monthlyGoalHours: data.monthly_goal_hours } } : s));
+    setState((s) =>
+      s.user ? { ...s, user: { ...s.user, monthlyGoalHours: data.monthly_goal_hours } } : s,
+    );
   }, []);
 
   const value = useMemo(
@@ -610,7 +624,19 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       addReflection,
       setGoal,
     }),
-    [state, ready, login, loginGoogle, logout, addSession, addTask, updateTask, removeTask, addReflection, setGoal],
+    [
+      state,
+      ready,
+      login,
+      loginGoogle,
+      logout,
+      addSession,
+      addTask,
+      updateTask,
+      removeTask,
+      addReflection,
+      setGoal,
+    ],
   );
 
   return <MindSeedContext.Provider value={value}>{children}</MindSeedContext.Provider>;

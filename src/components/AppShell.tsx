@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import {
   BarChart3,
   Home,
+  Languages,
   LogOut,
   ListTodo,
   Moon,
@@ -14,26 +15,83 @@ import {
   Languages,
 } from "lucide-react";
 
+import { LangToggle } from "@/components/LangToggle";
 import { Logo } from "@/components/Logo";
 import { SmartReminders } from "@/components/SmartReminders";
 import { useMindSeed } from "@/lib/mindseed-store";
+<<<<<<< HEAD
 import { useLanguage, useT, type Language } from "@/lib/language";
+=======
+import { useUiLanguage } from "@/lib/ui-language";
+>>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
 
 const NAV = [
-  { to: "/dashboard", label: "Home", icon: Home },
-  { to: "/garden", label: "Focus Garden", icon: Sprout },
-  { to: "/timer", label: "Focus Timer", icon: Timer },
-  { to: "/tasks", label: "Tasks", icon: ListTodo },
-  { to: "/insight", label: "Insight", icon: BarChart3 },
-  { to: "/profile", label: "Profile", icon: User },
+  {
+    to: "/dashboard",
+    icon: Home,
+    label: { en: "Home", vi: "Trang chủ" },
+    short: { en: "Home", vi: "Nhà" },
+  },
+  {
+    to: "/garden",
+    icon: Sprout,
+    label: { en: "Focus Garden", vi: "Vườn tập trung" },
+    short: { en: "Garden", vi: "Vườn" },
+  },
+  {
+    to: "/timer",
+    icon: Timer,
+    label: { en: "Focus Timer", vi: "Đồng hồ tập trung" },
+    short: { en: "Timer", vi: "Hẹn giờ" },
+  },
+  {
+    to: "/tasks",
+    icon: ListTodo,
+    label: { en: "Tasks", vi: "Nhiệm vụ" },
+    short: { en: "Tasks", vi: "Việc" },
+  },
+  {
+    to: "/insight",
+    icon: BarChart3,
+    label: { en: "Insight", vi: "Phân tích" },
+    short: { en: "Insight", vi: "Phân tích" },
+  },
+  {
+    to: "/profile",
+    icon: User,
+    label: { en: "Profile", vi: "Hồ sơ" },
+    short: { en: "Profile", vi: "Hồ sơ" },
+  },
 ] as const;
+
+const SHELL_COPY = {
+  en: {
+    lightMode: "Light mode",
+    darkMode: "Dark mode",
+    toLight: "Switch to light mode",
+    toDark: "Switch to dark mode",
+    logout: "Log out",
+  },
+  vi: {
+    lightMode: "Chế độ sáng",
+    darkMode: "Chế độ tối",
+    toLight: "Chuyển sang chế độ sáng",
+    toDark: "Chuyển sang chế độ tối",
+    logout: "Đăng xuất",
+  },
+} as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { state, ready, logout } = useMindSeed();
+<<<<<<< HEAD
   const { language, setLanguage } = useLanguage();
   const t = useT();
+=======
+  const { lang } = useUiLanguage();
+>>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const t = SHELL_COPY[lang];
   const [isDark, setIsDark] = useState(() => {
     if (typeof window === "undefined") return true;
     const stored = window.localStorage.getItem("mindseed-theme");
@@ -74,20 +132,31 @@ export function AppShell({ children }: { children: ReactNode }) {
                   }`}
                 >
                   <item.icon className="size-[18px] shrink-0" />
+<<<<<<< HEAD
                   <span className="truncate">{t(item.label)}</span>
+=======
+                  <span className="truncate">{item.label[lang]}</span>
+>>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
                 </Link>
               );
             })}
           </nav>
+<<<<<<< HEAD
           <LanguageSwitcher language={language} onChange={setLanguage} />
+=======
+          <div className="mt-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground">
+            <Languages className="size-[18px] shrink-0" aria-hidden="true" />
+            <LangToggle />
+          </div>
+>>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
           <button
             onClick={() => setIsDark((v) => !v)}
             className="mt-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label={isDark ? t.toLight : t.toDark}
             aria-pressed={isDark}
           >
             {isDark ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
-            <span>{isDark ? "Light mode" : "Dark mode"}</span>
+            <span>{isDark ? t.lightMode : t.darkMode}</span>
           </button>
           <button
             onClick={() => {
@@ -97,7 +166,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             className="mt-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <LogOut className="size-[18px]" />
-            Log out
+            {t.logout}
           </button>
         </aside>
 
@@ -109,11 +178,15 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="truncate font-display text-base font-semibold">MindSeed</span>
             </Link>
             <div className="flex items-center gap-2">
+<<<<<<< HEAD
               <LanguageSwitcher language={language} onChange={setLanguage} compact />
+=======
+              <LangToggle />
+>>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
               <button
                 onClick={() => setIsDark((v) => !v)}
                 className="shrink-0 rounded-full border border-border bg-card p-2 text-muted-foreground"
-                aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                aria-label={isDark ? t.toLight : t.toDark}
                 aria-pressed={isDark}
               >
                 {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
@@ -124,7 +197,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   navigate({ to: "/" });
                 }}
                 className="shrink-0 rounded-full border border-border bg-card p-2 text-muted-foreground"
-                aria-label="Log out"
+                aria-label={t.logout}
               >
                 <LogOut className="size-4" />
               </button>
@@ -157,7 +230,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               }`}
             >
               <item.icon className="size-[18px]" />
-              <span className="truncate">{item.label.split(" ")[0]}</span>
+              <span className="truncate">{item.short[lang]}</span>
             </Link>
           );
         })}

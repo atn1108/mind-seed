@@ -12,7 +12,11 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { MindSeedProvider } from "@/lib/mindseed-store";
+<<<<<<< HEAD
 import { LanguageProvider } from "@/lib/language";
+=======
+import { UiLanguageProvider } from "@/lib/ui-language";
+>>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -90,15 +94,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "MindSeed — Grow Your Focus" },
       {
         property: "og:description",
-        content: "MindSeed helps learners build focus, reduce scattered attention, and create sustainable study rhythms.",
+        content:
+          "MindSeed helps learners build focus, reduce scattered attention, and create sustainable study rhythms.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "MindSeed — Grow Your Focus" },
-      { name: "twitter:description", content: "MindSeed helps learners build focus, reduce scattered attention, and create sustainable study rhythms." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b3bb8f2b-c1d3-43f5-aed9-f89b4a182363" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b3bb8f2b-c1d3-43f5-aed9-f89b4a182363" },
+      {
+        name: "twitter:description",
+        content:
+          "MindSeed helps learners build focus, reduce scattered attention, and create sustainable study rhythms.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b3bb8f2b-c1d3-43f5-aed9-f89b4a182363",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b3bb8f2b-c1d3-43f5-aed9-f89b4a182363",
+      },
     ],
     links: [
       {
@@ -110,7 +127,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap",
       },
     ],
   }),
@@ -139,13 +156,21 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+<<<<<<< HEAD
       <LanguageProvider>
+=======
+      <UiLanguageProvider>
+>>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
         <MindSeedProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           <Toaster position="top-center" />
         </MindSeedProvider>
+<<<<<<< HEAD
       </LanguageProvider>
+=======
+      </UiLanguageProvider>
+>>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
     </QueryClientProvider>
   );
 }
