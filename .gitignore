@@ -38,6 +38,11 @@ dist-ssr
 __pycache__/
 *.pyc
 
+# AI tooling / generated design docs (local-only)
+.github/prompts/
+.opencode/
+design-system/
+
 #env
 .env
 .env.local
