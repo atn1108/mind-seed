@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useT } from "@/lib/language";
+﻿import { createFileRoute } from "@tanstack/react-router";
+import { useT } from "@/lib/ui-language";
 import { useMemo } from "react";
 import {
   Bar,
@@ -25,9 +25,16 @@ export const Route = createFileRoute("/insight")({
   head: () => ({
     meta: [
       { title: "Focus Insight — MindSeed" },
-      { name: "description", content: "A weekly report on focus hours, completed sessions, effective study windows, and improvement suggestions." },
+      {
+        name: "description",
+        content:
+          "A weekly report on focus hours, completed sessions, effective study windows, and improvement suggestions.",
+      },
       { property: "og:title", content: "Focus Insight — MindSeed" },
-      { property: "og:description", content: "Understand your focus rhythm through charts and weekly analysis." },
+      {
+        property: "og:description",
+        content: "Understand your focus rhythm through charts and weekly analysis.",
+      },
     ],
   }),
   component: InsightPage,
@@ -103,11 +110,17 @@ function InsightPage() {
 
   return (
     <AppShell>
-      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">{t("Focus Insight")}</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+        {t("Focus Insight")}
+      </h1>
       <p className="mt-1.5 text-sm text-muted-foreground">{t("Your last 7-day focus report.")}</p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat label="Completed sessions" value={`${week.done}`} sub={`${week.total} sessions started`} />
+        <Stat
+          label="Completed sessions"
+          value={`${week.done}`}
+          sub={`${week.total} sessions started`}
+        />
         <Stat label="Focus hours" value={`${week.hours}h`} sub="over 7 days" />
         <Stat label="Dropped sessions" value={`${week.dropped}`} sub="try shorter sessions" />
         <Stat label="Weekly goal" value={`${week.goal}%`} sub="vs. 14h target" />
@@ -119,7 +132,11 @@ function InsightPage() {
           <div className="mt-5 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weekly}>
-                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="var(--color-border)" />
+                <CartesianGrid
+                  strokeDasharray="4 4"
+                  vertical={false}
+                  stroke="var(--color-border)"
+                />
                 <XAxis dataKey="day" tickLine={false} axisLine={false} fontSize={12} />
                 <YAxis tickLine={false} axisLine={false} fontSize={12} width={32} />
                 <Tooltip
@@ -142,7 +159,14 @@ function InsightPage() {
           <div className="mt-2 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={week.pie} dataKey="value" nameKey="name" innerRadius={52} outerRadius={84} paddingAngle={3}>
+                <Pie
+                  data={week.pie}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={52}
+                  outerRadius={84}
+                  paddingAngle={3}
+                >
                   {week.pie.map((_, i) => (
                     <Cell key={i} fill={pieColors[i % pieColors.length]} />
                   ))}
@@ -175,7 +199,11 @@ function InsightPage() {
           <div className="mt-5 h-56">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={monthly}>
-                <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="var(--color-border)" />
+                <CartesianGrid
+                  strokeDasharray="4 4"
+                  vertical={false}
+                  stroke="var(--color-border)"
+                />
                 <XAxis dataKey="label" tickLine={false} axisLine={false} fontSize={12} />
                 <YAxis tickLine={false} axisLine={false} fontSize={12} width={32} />
                 <Tooltip
@@ -206,10 +234,12 @@ function InsightPage() {
           </div>
           <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
             <Insight>
-              You learn best in the <b className="text-foreground">{best.toLowerCase()}</b> — schedule demanding work around this window.
+              You learn best in the <b className="text-foreground">{best.toLowerCase()}</b> —
+              schedule demanding work around this window.
             </Insight>
             <Insight>
-              You tend to lose focus in the <b className="text-foreground">{worst.toLowerCase()}</b> window, with {week.dropped} dropped sessions this week.
+              You tend to lose focus in the <b className="text-foreground">{worst.toLowerCase()}</b>{" "}
+              window, with {week.dropped} dropped sessions this week.
             </Insight>
             <Insight>
               Try reducing screen time after 9pm and replacing it with a gentle 25-minute session.
@@ -224,7 +254,9 @@ function InsightPage() {
           <h2 className="font-display text-lg font-semibold">Focus Score today: {label.label}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{label.note}</p>
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-            0–100 points are calculated from focus time (40%), completed sessions (20%), completed tasks (15%), dropout rate (15%), and streaks (10%). Your current streak is {streakOf(state)} days.
+            0–100 points are calculated from focus time (40%), completed sessions (20%), completed
+            tasks (15%), dropout rate (15%), and streaks (10%). Your current streak is{" "}
+            {streakOf(state)} days.
           </p>
         </div>
       </div>

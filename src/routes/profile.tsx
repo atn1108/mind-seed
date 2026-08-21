@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useT } from "@/lib/language";
+﻿import { createFileRoute } from "@tanstack/react-router";
+import { useT } from "@/lib/ui-language";
 import { Flame, Clock, Sprout, Target } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
@@ -12,7 +12,10 @@ export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
       { title: "Profile — MindSeed" },
-      { name: "description", content: "Streak, total trees, total study hours, average Focus Score, and monthly goal." },
+      {
+        name: "description",
+        content: "Streak, total trees, total study hours, average Focus Score, and monthly goal.",
+      },
       { property: "og:title", content: "Profile — MindSeed" },
       { property: "og:description", content: "Your focus journey, summarized in one page." },
     ],
@@ -31,14 +34,18 @@ function ProfilePage() {
 
   return (
     <AppShell>
-      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">{t("Profile")}</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+        {t("Profile")}
+      </h1>
 
       <div className="surface mt-6 flex flex-col items-center gap-5 p-7 sm:flex-row sm:items-center">
         <div className="grid size-20 shrink-0 place-items-center rounded-3xl bg-primary text-3xl font-semibold text-primary-foreground">
           {state.user?.avatar ?? "M"}
         </div>
         <div className="min-w-0 flex-1 text-center sm:text-left">
-          <h2 className="truncate font-display text-xl font-semibold">{state.user?.name ?? "Learner"}</h2>
+          <h2 className="truncate font-display text-xl font-semibold">
+            {state.user?.name ?? "Learner"}
+          </h2>
           <p className="truncate text-sm text-muted-foreground">{state.user?.email}</p>
           <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
             <Badge icon={Flame} text={`${streakOf(state)} day streak`} />
@@ -81,7 +88,10 @@ function ProfilePage() {
           <h2 className="font-display text-lg font-semibold">{t("Focus journal")}</h2>
           <ul className="mt-4 space-y-3">
             {state.reflections.slice(0, 6).map((r) => (
-              <li key={r.id} className="flex flex-wrap items-center gap-3 rounded-2xl bg-muted/60 p-3.5 text-sm">
+              <li
+                key={r.id}
+                className="flex flex-wrap items-center gap-3 rounded-2xl bg-muted/60 p-3.5 text-sm"
+              >
                 <span className="text-accent-foreground">{"★".repeat(r.rating)}</span>
                 <span className="text-muted-foreground">
                   {r.reasons.length ? r.reasons.join(", ") : "No distraction factors recorded"}

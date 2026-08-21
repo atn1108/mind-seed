@@ -12,18 +12,13 @@ import {
   Sun,
   Timer,
   User,
-  Languages,
 } from "lucide-react";
 
 import { LangToggle } from "@/components/LangToggle";
 import { Logo } from "@/components/Logo";
 import { SmartReminders } from "@/components/SmartReminders";
 import { useMindSeed } from "@/lib/mindseed-store";
-<<<<<<< HEAD
-import { useLanguage, useT, type Language } from "@/lib/language";
-=======
 import { useUiLanguage } from "@/lib/ui-language";
->>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
 
 const NAV = [
   {
@@ -83,12 +78,7 @@ const SHELL_COPY = {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { state, ready, logout } = useMindSeed();
-<<<<<<< HEAD
-  const { language, setLanguage } = useLanguage();
-  const t = useT();
-=======
   const { lang } = useUiLanguage();
->>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const t = SHELL_COPY[lang];
@@ -132,23 +122,15 @@ export function AppShell({ children }: { children: ReactNode }) {
                   }`}
                 >
                   <item.icon className="size-[18px] shrink-0" />
-<<<<<<< HEAD
-                  <span className="truncate">{t(item.label)}</span>
-=======
                   <span className="truncate">{item.label[lang]}</span>
->>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
                 </Link>
               );
             })}
           </nav>
-<<<<<<< HEAD
-          <LanguageSwitcher language={language} onChange={setLanguage} />
-=======
           <div className="mt-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground">
             <Languages className="size-[18px] shrink-0" aria-hidden="true" />
             <LangToggle />
           </div>
->>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
           <button
             onClick={() => setIsDark((v) => !v)}
             className="mt-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -178,11 +160,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="truncate font-display text-base font-semibold">MindSeed</span>
             </Link>
             <div className="flex items-center gap-2">
-<<<<<<< HEAD
-              <LanguageSwitcher language={language} onChange={setLanguage} compact />
-=======
               <LangToggle />
->>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
               <button
                 onClick={() => setIsDark((v) => !v)}
                 className="shrink-0 rounded-full border border-border bg-card p-2 text-muted-foreground"
@@ -218,7 +196,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       {/* mobile bottom nav */}
-      <nav aria-label="Mobile navigation" className="glass fixed inset-x-3 bottom-3 z-40 flex items-center justify-between rounded-3xl px-2 py-2 shadow-lift lg:hidden">
+      <nav
+        aria-label="Mobile navigation"
+        className="glass fixed inset-x-3 bottom-3 z-40 flex items-center justify-between rounded-3xl px-2 py-2 shadow-lift lg:hidden"
+      >
         {NAV.map((item) => {
           const active = pathname === item.to;
           return (
@@ -235,41 +216,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           );
         })}
       </nav>
-    </div>
-  );
-}
-
-function LanguageSwitcher({
-  language,
-  onChange,
-  compact = false,
-}: {
-  language: Language;
-  onChange: (language: Language) => void;
-  compact?: boolean;
-}) {
-  const isVietnamese = language === "vi";
-  const t = useT();
-  return (
-    <div
-      className={`flex items-center gap-2 rounded-2xl border border-border/70 bg-background px-3 py-2 text-sm ${compact ? "px-2 py-1.5" : "mt-2"}`}
-      aria-label={t("Language")}
-    >
-      {!compact && <Languages className="size-[18px] text-muted-foreground" aria-hidden="true" />}
-      <span className={isVietnamese ? "font-medium text-muted-foreground" : "font-semibold text-foreground"}>EN</span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={isVietnamese}
-        aria-label={isVietnamese ? "Switch language to English" : "Switch language to Vietnamese"}
-        onClick={() => onChange(isVietnamese ? "en" : "vi")}
-        className="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full bg-input transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-      >
-        <span
-          className={`pointer-events-none block size-4 rounded-full bg-background shadow transition-transform ${isVietnamese ? "translate-x-4" : "translate-x-0"}`}
-        />
-      </button>
-      <span className={isVietnamese ? "font-semibold text-foreground" : "font-medium text-muted-foreground"}>VI</span>
     </div>
   );
 }

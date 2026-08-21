@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useT } from "@/lib/language";
+﻿import { createFileRoute } from "@tanstack/react-router";
+import { useT } from "@/lib/ui-language";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
@@ -21,9 +21,15 @@ export const Route = createFileRoute("/tasks")({
   head: () => ({
     meta: [
       { title: "Tasks — MindSeed" },
-      { name: "description", content: "Manage tasks with deadlines, priorities, and EXP for your garden when completed." },
+      {
+        name: "description",
+        content: "Manage tasks with deadlines, priorities, and EXP for your garden when completed.",
+      },
       { property: "og:title", content: "Tasks — MindSeed" },
-      { property: "og:description", content: "Complete your tasks and grow a stronger focus garden." },
+      {
+        property: "og:description",
+        content: "Complete your tasks and grow a stronger focus garden.",
+      },
     ],
   }),
   component: TasksPage,
@@ -58,12 +64,17 @@ function TasksPage() {
 
   return (
     <AppShell>
-      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">{t("Tasks")}</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+        {t("Tasks")}
+      </h1>
       <p className="mt-1.5 text-sm text-muted-foreground">
         Every completed task helps your tree earn 12 EXP.
       </p>
 
-      <form onSubmit={submit} className="surface mt-6 grid gap-3 p-5 sm:grid-cols-[1fr_auto_auto_auto]">
+      <form
+        onSubmit={submit}
+        className="surface mt-6 grid gap-3 p-5 sm:grid-cols-[1fr_auto_auto_auto]"
+      >
         <Input
           placeholder={t("What needs your attention today?")}
           value={title}
@@ -209,7 +220,9 @@ function TaskRow({
             autoFocus
           />
         ) : (
-          <p className={`truncate text-sm font-medium ${task.done ? "text-muted-foreground line-through" : ""}`}>
+          <p
+            className={`truncate text-sm font-medium ${task.done ? "text-muted-foreground line-through" : ""}`}
+          >
             {task.title}
           </p>
         )}

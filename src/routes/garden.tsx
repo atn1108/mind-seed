@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useT } from "@/lib/language";
+﻿import { createFileRoute } from "@tanstack/react-router";
+import { useT } from "@/lib/ui-language";
 import { motion } from "motion/react";
 import { Lock, Sparkles } from "lucide-react";
 
@@ -12,9 +12,15 @@ export const Route = createFileRoute("/garden")({
   head: () => ({
     meta: [
       { title: "Focus Garden — MindSeed" },
-      { name: "description", content: "Every completed session helps your tree grow and unlocks new species." },
+      {
+        name: "description",
+        content: "Every completed session helps your tree grow and unlocks new species.",
+      },
       { property: "og:title", content: "Focus Garden — MindSeed" },
-      { property: "og:description", content: "Your personal focus forest, growing session by session." },
+      {
+        property: "og:description",
+        content: "Your personal focus forest, growing session by session.",
+      },
     ],
   }),
   component: GardenPage,
@@ -27,7 +33,9 @@ function GardenPage() {
 
   return (
     <AppShell>
-      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">{t("Focus Garden")}</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+        {t("Focus Garden")}
+      </h1>
       <p className="mt-1.5 text-sm text-muted-foreground">
         Seed → Sprout → Mature tree → Your forest.
       </p>

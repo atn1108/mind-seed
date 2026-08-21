@@ -7,11 +7,7 @@ import { LangToggle } from "@/components/LangToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMindSeed } from "@/lib/mindseed-store";
-<<<<<<< HEAD
-import { useLanguage } from "@/lib/language";
-=======
 import { useUiLanguage } from "@/lib/ui-language";
->>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -106,13 +102,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function LoginPage() {
   const { state, ready, login, loginGoogle } = useMindSeed();
   const navigate = useNavigate();
-<<<<<<< HEAD
-  const [mode, setMode] = useState<"idle" | "email" | "register">("idle");
-  const { language } = useLanguage();
-=======
   const { lang } = useUiLanguage();
   const [mode, setMode] = useState<Mode>("idle");
->>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -183,32 +174,6 @@ function LoginPage() {
   };
 
   return (
-<<<<<<< HEAD
-    <div className="bg-leaf relative grid min-h-screen place-items-center overflow-hidden bg-background px-4 py-8 sm:py-12">
-      <div className="pointer-events-none absolute -left-32 top-1/4 size-72 rounded-full bg-primary/10 blur-3xl" />
-      <div className="pointer-events-none absolute -right-32 bottom-0 size-96 rounded-full bg-accent/10 blur-3xl" />
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative w-full max-w-[430px]"
-      >
-        <div className="surface p-6 sm:p-9">
-          <div className="flex items-center justify-center">
-            <LogoWordmark size={52} />
-          </div>
-
-          <h1 className="mt-7 text-center font-display text-2xl font-semibold tracking-tight">
-            {strings.headline[0]}
-            <span className="text-gradient-leaf"> {strings.headline[1]} </span>
-            {strings.headline[2]}
-          </h1>
-          <p className="mx-auto mt-3 max-w-sm text-center text-sm leading-6 text-muted-foreground">{strings.subheading}</p>
-
-          {error && mode === "idle" && (
-            <p role="alert" className="mt-7 rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>
-          )}
-=======
     <main className="bg-leaf min-h-screen">
       <div className="mx-auto grid min-h-screen w-full max-w-6xl grid-cols-1 lg:grid-cols-[1.05fr_1fr]">
         {/* Brand panel — desktop only */}
@@ -230,7 +195,6 @@ function LoginPage() {
             <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
               {t.subheading}
             </p>
->>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
 
             <ul className="mt-8 space-y-4">
               {t.features.map((f) => (

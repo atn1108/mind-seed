@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useT } from "@/lib/language";
+﻿import { createFileRoute } from "@tanstack/react-router";
+import { useT } from "@/lib/ui-language";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play, Square } from "lucide-react";
@@ -17,9 +17,16 @@ export const Route = createFileRoute("/timer")({
   head: () => ({
     meta: [
       { title: "Focus Timer — MindSeed" },
-      { name: "description", content: "A 25/30/45/60 minute timer with progress tracking and tree growth after each session." },
+      {
+        name: "description",
+        content:
+          "A 25/30/45/60 minute timer with progress tracking and tree growth after each session.",
+      },
       { property: "og:title", content: "Focus Timer — MindSeed" },
-      { property: "og:description", content: "One focused session, one small step for your garden." },
+      {
+        property: "og:description",
+        content: "One focused session, one small step for your garden.",
+      },
     ],
   }),
   component: TimerPage,
@@ -79,7 +86,9 @@ function TimerPage() {
       <Confetti show={confetti} />
       <ReflectionDialog open={reflect} onOpenChange={setReflect} />
 
-      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">{t("Focus Timer")}</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+        {t("Focus Timer")}
+      </h1>
       <p className="mt-1.5 text-sm text-muted-foreground">
         Choose a study session length and let everything else fade away.
       </p>
@@ -102,9 +111,19 @@ function TimerPage() {
             ))}
           </div>
 
-          <div className="relative mt-8 grid place-items-center" style={{ width: size, height: size }}>
+          <div
+            className="relative mt-8 grid place-items-center"
+            style={{ width: size, height: size }}
+          >
             <svg width={size} height={size} className="-rotate-90">
-              <circle cx={size / 2} cy={size / 2} r={r} strokeWidth="14" className="stroke-muted" fill="none" />
+              <circle
+                cx={size / 2}
+                cy={size / 2}
+                r={r}
+                strokeWidth="14"
+                className="stroke-muted"
+                fill="none"
+              />
               <motion.circle
                 cx={size / 2}
                 cy={size / 2}
@@ -150,7 +169,8 @@ function TimerPage() {
         <div className="surface flex flex-col items-center justify-center gap-4 p-7">
           <TreeVisual exp={state.exp} size={180} />
           <p className="text-center text-sm text-muted-foreground">
-            Your tree grows after each completed session. If you leave mid-session, it only earns a little EXP.
+            Your tree grows after each completed session. If you leave mid-session, it only earns a
+            little EXP.
           </p>
           <div className="mt-2 grid w-full grid-cols-2 gap-3 text-center">
             <div className="rounded-2xl bg-primary-soft p-4">

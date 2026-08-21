@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useT } from "@/lib/language";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { useT } from "@/lib/ui-language";
 import { motion } from "motion/react";
 import { useMemo } from "react";
 import { Clock, Flame, ListTodo, Play, Sprout, Target } from "lucide-react";
@@ -22,7 +22,10 @@ export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "Home — MindSeed" },
-      { name: "description", content: "Overview of your garden, focus time, tasks, and today's Focus Score." },
+      {
+        name: "description",
+        content: "Overview of your garden, focus time, tasks, and today's Focus Score.",
+      },
       { property: "og:title", content: "Home — MindSeed" },
       { property: "og:description", content: "Track your daily focus with MindSeed." },
     ],
@@ -132,7 +135,9 @@ function DashboardPage() {
           className="group flex items-center justify-between gap-4 rounded-3xl bg-primary px-6 py-6 text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:-translate-y-0.5 sm:px-8"
         >
           <div className="min-w-0">
-            <p className="font-display text-xl font-semibold sm:text-2xl">{t("Start a study session")}</p>
+            <p className="font-display text-xl font-semibold sm:text-2xl">
+              {t("Start a study session")}
+            </p>
             <p className="mt-1 truncate text-sm opacity-85">
               25 minutes of focus — your tree will grow a little.
             </p>
@@ -176,7 +181,14 @@ export function ScoreRing({ score, size = 88 }: { score: number; size?: number }
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} strokeWidth="7" className="stroke-muted" fill="none" />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          strokeWidth="7"
+          className="stroke-muted"
+          fill="none"
+        />
         <motion.circle
           cx={size / 2}
           cy={size / 2}

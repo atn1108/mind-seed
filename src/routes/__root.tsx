@@ -12,11 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { MindSeedProvider } from "@/lib/mindseed-store";
-<<<<<<< HEAD
-import { LanguageProvider } from "@/lib/language";
-=======
 import { UiLanguageProvider } from "@/lib/ui-language";
->>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -156,21 +152,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-<<<<<<< HEAD
-      <LanguageProvider>
-=======
       <UiLanguageProvider>
->>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
         <MindSeedProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           <Toaster position="top-center" />
         </MindSeedProvider>
-<<<<<<< HEAD
-      </LanguageProvider>
-=======
       </UiLanguageProvider>
->>>>>>> 0285da5 (redesign login page, add en/vi switcher, switch font to plus jakarta sans)
     </QueryClientProvider>
   );
 }
