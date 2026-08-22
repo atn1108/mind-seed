@@ -1,7 +1,7 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
 import { useT } from "@/lib/ui-language";
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Minus, Pause, Play, Plus, Square } from "lucide-react";
 import { toast } from "sonner";
 
@@ -53,13 +53,17 @@ function TimerPage() {
   const r = size / 2 - 16;
   const c = 2 * Math.PI * r;
 
-  // React to natural completion (works even if the tab was backgrounded).
+  // Celebrate only when a NEW completion happens while this page is open —
+  // never re-fire for an old finishedTick on mount.
+  const celebratedRef = useRef(finishedTick);
   useEffect(() => {
-    if (finishedTick === 0) return;
+    if (finishedTick === celebratedRef.current) return;
+    celebratedRef.current = finishedTick;
     toast.success(t("Session complete! Your tree just grew 🌿"));
-    setTimeout(() => setConfetti(false), 3000);
     setConfetti(true);
+    setTimeout(() => setConfetti(false), 3000);
     setTimeout(() => setReflect(true), 900);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- celebrate once per tick; t is stable enough here
   }, [finishedTick]);
 
   const select = (m: number) => {

@@ -1,14 +1,23 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 import { useMindSeed } from "@/lib/mindseed-store";
 
 type TimerCtx = {
   durationMin: number;
   running: boolean;
-  /** Seconds left, derived from wall-clock so background throttling cannot drift it. */
+  /** Seconds left — derived from wall clock so background-tab throttling cannot drift it. */
   left: number;
   total: number;
-  /** Increments each time a session completes naturally — UI can react to it. */
+  /** Increments each time a session completes naturally; UI reacts to changes. */
   finishedTick: number;
   setDuration: (min: number) => void;
   start: () => void;
@@ -29,7 +38,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const [finishedTick, setFinishedTick] = useState(0);
   const completedRef = useRef(false);
 
-  // Tick only updates `now`; the countdown itself is wall-clock math.
+  // The interval only refreshes `now`; the countdown itself is wall-clock math.
   useEffect(() => {
     if (!running) return;
     setNow(Date.now());
@@ -48,7 +57,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   const left = endsAt !== null ? Math.max(0, Math.ceil((endsAt - now) / 1000)) : remaining;
 
-  // Natural completion: credit the session exactly once, even off-page.
+  // Natural completion: credit the session exactly once, even while off-page.
   useEffect(() => {
     if (running && endsAt !== null && left === 0 && !completedRef.current) {
       completedRef.current = true;
@@ -68,10 +77,13 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const start = useCallback(() => {
+    // A finished (or empty) session restarts from the full duration instead of
+    // instantly completing again at 00:00.
+    const secs = remaining > 0 ? remaining : durationMin * 60;
     completedRef.current = false;
     setRunning(true);
-    setEndsAt(Date.now() + remaining * 1000);
-  }, [remaining]);
+    setEndsAt(Date.now() + secs * 1000);
+  }, [remaining, durationMin]);
 
   const pause = useCallback(() => {
     setRunning(false);
