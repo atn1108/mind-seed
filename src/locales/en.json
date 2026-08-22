@@ -69,14 +69,9 @@
   "footer": "Your data is stored safely with MindSeed.",
   "Settings": "Settings",
   "Appearance": "Appearance",
-  "Cloud backup": "Cloud backup",
   "Notifications": "Notifications",
   "Session reminders": "Session reminders",
   "Weekly summary": "Weekly summary",
-  "Connect Dropbox": "Connect Dropbox",
-  "Connected": "Connected",
-  "Not connected": "Not connected",
-  "Coming soon": "Coming soon",
   "shortHome": "Home",
   "shortGarden": "Garden",
   "shortTimer": "Timer",
@@ -190,5 +185,6 @@
   "Custom": "Custom",
   "Custom minutes": "Custom minutes",
   "Paused": "Paused",
-  "In focus…": "In focus..."
+  "In focus…": "In focus...",
+  "More languages coming soon.": "More languages coming soon."
 }

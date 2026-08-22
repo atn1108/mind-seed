@@ -69,14 +69,9 @@
   "footer": "Dữ liệu của bạn được lưu trữ an toàn với MindSeed.",
   "Settings": "Cài đặt",
   "Appearance": "Giao diện",
-  "Cloud backup": "Sao lưu đám mây",
   "Notifications": "Thông báo",
   "Session reminders": "Nhắc phiên học",
   "Weekly summary": "Tổng kết tuần",
-  "Connect Dropbox": "Kết nối Dropbox",
-  "Connected": "Đã kết nối",
-  "Not connected": "Chưa kết nối",
-  "Coming soon": "Sắp ra mắt",
   "shortHome": "Nhà",
   "shortGarden": "Vườn",
   "shortTimer": "Hẹn giờ",
@@ -190,5 +185,6 @@
   "Custom": "Tuỳ chọn",
   "Custom minutes": "Số phút tuỳ chọn",
   "Paused": "Tạm dừng",
-  "In focus…": "Đang tập trung..."
+  "In focus…": "Đang tập trung...",
+  "More languages coming soon.": "Sẽ hỗ trợ thêm ngôn ngữ khác."
 }

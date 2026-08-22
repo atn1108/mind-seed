@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Cloud, Moon, Sun, type LucideIcon } from "lucide-react";
+import { Moon, Sun, type LucideIcon } from "lucide-react";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
@@ -135,7 +135,7 @@ export function LanguageModule({ open, onOpenChange }: { open: boolean; onOpenCh
         <LangToggle />
       </div>
       <p className="mt-3 text-xs text-muted-foreground">
-        More languages coming soon.
+        {t("More languages coming soon.")}
       </p>
     </ModuleDialog>
   );
@@ -204,37 +204,3 @@ export function NotificationsModule({
   );
 }
 
-/* ------------------------------- Dropbox module ------------------------------ */
-
-export function DropboxModule({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
-  const t = useT();
-  const [connected] = useState(false);
-
-  return (
-    <ModuleDialog open={open} onOpenChange={onOpenChange} title={t("Cloud backup")}>
-      <div className="flex items-center gap-3 rounded-2xl border border-border p-4">
-        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent/25 text-accent-foreground">
-          <Cloud className="size-5" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold">Dropbox</span>
-          <span
-            className={cn(
-              "block text-xs",
-              connected ? "text-primary" : "text-muted-foreground",
-            )}
-          >
-            {connected ? t("Connected") : t("Not connected")}
-          </span>
-        </span>
-      </div>
-      <button
-        type="button"
-        disabled
-        className="mt-4 h-11 w-full cursor-not-allowed rounded-2xl bg-primary px-5 text-sm font-semibold text-primary-foreground opacity-60"
-      >
-        {connected ? t("Connected") : `${t("Connect Dropbox")} · ${t("Coming soon")}`}
-      </button>
-    </ModuleDialog>
-  );
-}

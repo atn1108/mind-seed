@@ -1,14 +1,13 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
 import { useT, useTf } from "@/lib/ui-language";
 import { useState } from "react";
-import { Flame, Clock, Sprout, Target, Cloud, Languages, Bell, SunMoon, Settings2 } from "lucide-react";
+import { Flame, Clock, Sprout, Target, Languages, Bell, SunMoon, Settings2 } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
 import { ScoreRing } from "@/routes/dashboard";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
 import {
-  DropboxModule,
   LanguageModule,
   NotificationsModule,
   SettingsLauncher,
@@ -35,7 +34,7 @@ function ProfilePage() {
   const t = useT();
   const tf = useTf();
   const { state, setGoal } = useMindSeed();
-  const [module, setModule] = useState<null | "theme" | "language" | "notifications" | "dropbox">(null);
+  const [module, setModule] = useState<null | "theme" | "language" | "notifications">(null);
   const totalMinutes = state.sessions.filter((s) => s.completed).reduce((a, s) => a + s.minutes, 0);
   const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
   const score = focusScore(state);
@@ -120,19 +119,12 @@ function ProfilePage() {
             hint={t("Session reminders")}
             onClick={() => setModule("notifications")}
           />
-          <SettingsLauncher
-            icon={Cloud}
-            label={t("Cloud backup")}
-            hint={"Dropbox · " + t("Coming soon")}
-            onClick={() => setModule("dropbox")}
-          />
         </div>
       </section>
 
       <ThemeModule open={module === "theme"} onOpenChange={(v) => !v && setModule(null)} />
       <LanguageModule open={module === "language"} onOpenChange={(v) => !v && setModule(null)} />
       <NotificationsModule open={module === "notifications"} onOpenChange={(v) => !v && setModule(null)} />
-      <DropboxModule open={module === "dropbox"} onOpenChange={(v) => !v && setModule(null)} />
 
       {state.reflections.length > 0 && (
         <div className="surface mt-4 p-6">
