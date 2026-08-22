@@ -2,8 +2,10 @@ import { AlertCircle, Flame, ListTodo } from "lucide-react";
 import { motion } from "motion/react";
 
 import { dayKey, streakOf, useMindSeed } from "@/lib/mindseed-store";
+import { useTf } from "@/lib/ui-language";
 
 export function SmartReminders() {
+  const tf = useTf();
   const { state } = useMindSeed();
   const today = dayKey(new Date());
   const todaySessions = state.sessions.filter((s) => dayKey(s.startedAt) === today && s.completed);
@@ -12,11 +14,14 @@ export function SmartReminders() {
 
   const items: { icon: typeof Flame; text: string }[] = [];
   if (todaySessions.length === 0)
-    items.push({ icon: AlertCircle, text: "You have not started any focus session today." });
+    items.push({ icon: AlertCircle, text: tf("You have not started any focus session today.") });
   if (streak > 0 && todaySessions.length === 0)
-    items.push({ icon: Flame, text: `One more session and you’ll keep a ${streak + 1}-day streak.` });
+    items.push({
+      icon: Flame,
+      text: tf("One more session and you’ll keep a {n}-day streak.", { n: streak + 1 }),
+    });
   if (openTasks > 0)
-    items.push({ icon: ListTodo, text: `${openTasks} open task${openTasks === 1 ? "" : "s"} left.` });
+    items.push({ icon: ListTodo, text: tf("{n} open task(s) left.", { n: openTasks }) });
 
   if (items.length === 0) return null;
 

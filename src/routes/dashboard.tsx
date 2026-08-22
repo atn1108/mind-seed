@@ -1,12 +1,12 @@
 ﻿import { createFileRoute, Link } from "@tanstack/react-router";
-import { useT } from "@/lib/ui-language";
+import { useT, useTf } from "@/lib/ui-language";
 import { motion } from "motion/react";
-import { useMemo } from "react";
 import { Clock, Flame, ListTodo, Play, Sprout, Target } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
 import { TreeVisual } from "@/components/TreeVisual";
 import { Progress } from "@/components/ui/progress";
+import { EASE_OUT, fadeInUp, staggerParent } from "@/lib/motion";
 import {
   QUOTES,
   dayKey,
@@ -35,6 +35,7 @@ export const Route = createFileRoute("/dashboard")({
 
 function DashboardPage() {
   const t = useT();
+  const tf = useTf();
   const { state } = useMindSeed();
   const today = dayKey(new Date());
   const minutes = minutesOn(state, today);
@@ -42,7 +43,7 @@ function DashboardPage() {
   const label = scoreLabel(score);
   const streak = streakOf(state);
   const { stage, progress, next } = stageOf(state.exp);
-  const quote = useMemo(() => QUOTES[new Date().getDate() % QUOTES.length]!, []);
+  const quote = t(QUOTES[new Date().getDate() % QUOTES.length]!);
   const openTasks = state.tasks.filter((t) => !t.done);
 
   return (
@@ -50,32 +51,37 @@ function DashboardPage() {
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:justify-between">
         <div className="min-w-0">
           <h1 className="truncate font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-            Hi, {state.user?.name ?? "there"} 👋
+            {t("Hi")}, {state.user?.name ?? t("namePlaceholder")} 👋
           </h1>
           <p className="mt-1.5 max-w-xl text-sm text-muted-foreground sm:text-[15px]">“{quote}”</p>
         </div>
         <div className="flex shrink-0 items-center gap-2 rounded-2xl bg-accent/25 px-3.5 py-2 text-sm font-semibold text-accent-foreground">
           <Flame className="size-4" />
-          {streak} days
+          {streak} {t("days")}
         </div>
       </header>
 
-      <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card title="Focus Garden" icon={Sprout} to="/garden">
+      <motion.div
+        variants={staggerParent(0.06)}
+        initial="initial"
+        animate="animate"
+        className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      >
+        <Card title={t("Focus Garden")} icon={Sprout} to="/garden">
           <div className="flex items-center gap-4">
             <TreeVisual exp={state.exp} size={92} />
             <div className="min-w-0">
-              <p className="text-2xl font-semibold">{state.forest.length} trees</p>
-              <p className="truncate text-sm text-muted-foreground">{stage.name}</p>
+              <p className="text-2xl font-semibold">{state.forest.length} {t("trees")}</p>
+              <p className="truncate text-sm text-muted-foreground">{t(stage.name)}</p>
               <Progress value={progress} className="mt-3 h-2" />
               <p className="mt-1.5 text-xs text-muted-foreground">
-                {next ? `${progress}% to ${next.name}` : "Ready to grow"}
+                {next ? tf("{p}% to reach {name}", { p: progress, name: t(next.name) }) : t("Ready to grow")}
               </p>
             </div>
           </div>
         </Card>
 
-        <Card title="Focus Time" icon={Clock} to="/timer">
+        <Card title={t("Focus Time")} icon={Clock} to="/timer">
           <p className="font-display text-4xl font-semibold">
             {Math.floor(minutes / 60)}
             <span className="text-lg font-medium text-muted-foreground">h </span>
@@ -87,9 +93,9 @@ function DashboardPage() {
           <p className="mt-1.5 text-xs text-muted-foreground">{t("Daily goal: 120 minutes")}</p>
         </Card>
 
-        <Card title="Today's Tasks" icon={ListTodo} to="/tasks">
+        <Card title={t("Today's Tasks")} icon={ListTodo} to="/tasks">
           {openTasks.length === 0 ? (
-            <p className="text-sm text-muted-foreground">You completed everything today 🎉</p>
+            <p className="text-sm text-muted-foreground">{t("You completed everything today 🎉")}</p>
           ) : (
             <ul className="space-y-2.5">
               {openTasks.slice(0, 3).map((t) => (
@@ -109,25 +115,28 @@ function DashboardPage() {
             </ul>
           )}
           <p className="mt-4 text-xs text-muted-foreground">
-            {state.tasks.filter((t) => t.done).length}/{state.tasks.length} tasks completed
+            {tf("{d}/{t} tasks completed", {
+              d: state.tasks.filter((t) => t.done).length,
+              t: state.tasks.length,
+            })}
           </p>
         </Card>
 
-        <Card title="Focus Score" icon={Target} to="/insight">
+        <Card title={t("Focus Score")} icon={Target} to="/insight">
           <div className="flex items-center gap-4">
             <ScoreRing score={score} />
             <div className="min-w-0">
-              <p className="font-display text-lg font-semibold">{label.label}</p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{label.note}</p>
+              <p className="font-display text-lg font-semibold">{t(label.label)}</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t(label.note)}</p>
             </div>
           </div>
         </Card>
-      </div>
+      </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15, duration: 0.5 }}
+        transition={{ delay: 0.2, duration: 0.5, ease: EASE_OUT }}
         className="mt-6"
       >
         <Link
@@ -139,7 +148,7 @@ function DashboardPage() {
               {t("Start a study session")}
             </p>
             <p className="mt-1 truncate text-sm opacity-85">
-              25 minutes of focus — your tree will grow a little.
+              {t("25 minutes of focus — your tree will grow a little.")}
             </p>
           </div>
           <span className="grid size-14 shrink-0 place-items-center rounded-full bg-primary-foreground/15 transition-transform group-hover:scale-110">
@@ -150,6 +159,8 @@ function DashboardPage() {
     </AppShell>
   );
 }
+
+const MotionLink = motion.create(Link);
 
 function Card({
   title,
@@ -163,7 +174,13 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <Link to={to} className="surface surface-hover group block p-5">
+    <MotionLink
+      to={to}
+      variants={fadeInUp}
+      whileHover={{ y: -3 }}
+      transition={{ type: "spring", stiffness: 300, damping: 24 }}
+      className="surface surface-hover group block cursor-pointer p-5"
+    >
       <div className="mb-4 flex items-center gap-2.5 text-sm font-medium text-muted-foreground">
         <span className="grid size-8 place-items-center rounded-xl bg-primary-soft text-primary">
           <Icon className="size-4" />
@@ -171,7 +188,7 @@ function Card({
         {title}
       </div>
       {children}
-    </Link>
+    </MotionLink>
   );
 }
 
@@ -200,7 +217,7 @@ export function ScoreRing({ score, size = 88 }: { score: number; size?: number }
           strokeDasharray={c}
           initial={{ strokeDashoffset: c }}
           animate={{ strokeDashoffset: c - (c * score) / 100 }}
-          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 1.2, ease: EASE_OUT }}
         />
       </svg>
       <span className="absolute inset-0 grid place-items-center font-display text-xl font-semibold">

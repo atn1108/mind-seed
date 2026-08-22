@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { MindSeedProvider } from "@/lib/mindseed-store";
+import { TimerProvider } from "@/lib/timer-store";
 import { UiLanguageProvider } from "@/lib/ui-language";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -154,9 +155,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <UiLanguageProvider>
         <MindSeedProvider>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-          <Toaster position="top-center" />
+          <TimerProvider>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+            <Toaster position="top-center" />
+          </TimerProvider>
         </MindSeedProvider>
       </UiLanguageProvider>
     </QueryClientProvider>

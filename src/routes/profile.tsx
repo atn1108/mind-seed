@@ -1,11 +1,19 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
-import { useT } from "@/lib/ui-language";
-import { Flame, Clock, Sprout, Target } from "lucide-react";
+import { useT, useTf } from "@/lib/ui-language";
+import { useState } from "react";
+import { Flame, Clock, Sprout, Target, Cloud, Languages, Bell, SunMoon, Settings2 } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
 import { ScoreRing } from "@/routes/dashboard";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
+import {
+  DropboxModule,
+  LanguageModule,
+  NotificationsModule,
+  SettingsLauncher,
+  ThemeModule,
+} from "@/components/SettingsModules";
 import { focusScore, scoreLabel, streakOf, useMindSeed } from "@/lib/mindseed-store";
 
 export const Route = createFileRoute("/profile")({
@@ -25,7 +33,9 @@ export const Route = createFileRoute("/profile")({
 
 function ProfilePage() {
   const t = useT();
+  const tf = useTf();
   const { state, setGoal } = useMindSeed();
+  const [module, setModule] = useState<null | "theme" | "language" | "notifications" | "dropbox">(null);
   const totalMinutes = state.sessions.filter((s) => s.completed).reduce((a, s) => a + s.minutes, 0);
   const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
   const score = focusScore(state);
@@ -44,12 +54,12 @@ function ProfilePage() {
         </div>
         <div className="min-w-0 flex-1 text-center sm:text-left">
           <h2 className="truncate font-display text-xl font-semibold">
-            {state.user?.name ?? "Learner"}
+            {state.user?.name ?? t("namePlaceholder")}
           </h2>
           <p className="truncate text-sm text-muted-foreground">{state.user?.email}</p>
           <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
-            <Badge icon={Flame} text={`${streakOf(state)} day streak`} />
-            <Badge icon={Sprout} text={`${state.forest.length} trees`} />
+            <Badge icon={Flame} text={tf("{n} day streak", { n: streakOf(state) })} />
+            <Badge icon={Sprout} text={tf("{n} trees", { n: state.forest.length })} />
             <Badge icon={Clock} text={`${totalHours}h`} />
           </div>
         </div>
@@ -57,21 +67,24 @@ function ProfilePage() {
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat label="Current streak" value={`${streakOf(state)} days`} />
-        <Stat label="Total trees" value={`${state.forest.length}`} />
-        <Stat label="Study hours" value={`${totalHours}h`} />
-        <Stat label="Average Focus Score" value={`${score} · ${scoreLabel(score).label}`} />
+        <Stat label={t("Current streak")} value={`${streakOf(state)} ${t("days")}`} />
+        <Stat label={t("Total trees")} value={`${state.forest.length}`} />
+        <Stat label={t("Study hours")} value={`${totalHours}h`} />
+        <Stat
+          label={t("Average Focus Score")}
+          value={`${score} · ${t(scoreLabel(score).label)}`}
+        />
       </div>
 
       <div className="surface mt-4 p-6">
         <div className="flex items-center gap-2">
           <Target className="size-4 text-primary" />
           <h2 className="font-display text-lg font-semibold">{t("Monthly goal")}</h2>
-          <span className="ml-auto text-sm font-medium">{goal} hours</span>
+          <span className="ml-auto text-sm font-medium">{tf("{goal} hours", { goal })}</span>
         </div>
         <Progress value={goalPct} className="mt-4 h-2.5" />
         <p className="mt-2 text-xs text-muted-foreground">
-          Completed {totalHours}/{goal} hours ({goalPct}%)
+          {tf("Completed {x}/{y} hours ({p}%)", { x: totalHours, y: goal, p: goalPct })}
         </p>
         <Slider
           value={[goal]}
@@ -82,6 +95,44 @@ function ProfilePage() {
           className="mt-6"
         />
       </div>
+
+      <section className="mt-4">
+        <div className="mb-3 flex items-center gap-2 px-1">
+          <Settings2 className="size-4 text-primary" />
+          <h2 className="font-display text-lg font-semibold">{t("Settings")}</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <SettingsLauncher
+            icon={SunMoon}
+            label={t("Appearance")}
+            hint={t("Light mode") + " · " + t("Dark mode")}
+            onClick={() => setModule("theme")}
+          />
+          <SettingsLauncher
+            icon={Languages}
+            label={t("Language")}
+            hint="EN / VI"
+            onClick={() => setModule("language")}
+          />
+          <SettingsLauncher
+            icon={Bell}
+            label={t("Notifications")}
+            hint={t("Session reminders")}
+            onClick={() => setModule("notifications")}
+          />
+          <SettingsLauncher
+            icon={Cloud}
+            label={t("Cloud backup")}
+            hint={"Dropbox · " + t("Coming soon")}
+            onClick={() => setModule("dropbox")}
+          />
+        </div>
+      </section>
+
+      <ThemeModule open={module === "theme"} onOpenChange={(v) => !v && setModule(null)} />
+      <LanguageModule open={module === "language"} onOpenChange={(v) => !v && setModule(null)} />
+      <NotificationsModule open={module === "notifications"} onOpenChange={(v) => !v && setModule(null)} />
+      <DropboxModule open={module === "dropbox"} onOpenChange={(v) => !v && setModule(null)} />
 
       {state.reflections.length > 0 && (
         <div className="surface mt-4 p-6">
@@ -94,7 +145,9 @@ function ProfilePage() {
               >
                 <span className="text-accent-foreground">{"★".repeat(r.rating)}</span>
                 <span className="text-muted-foreground">
-                  {r.reasons.length ? r.reasons.join(", ") : "No distraction factors recorded"}
+                  {r.reasons.length
+                    ? r.reasons.map((reason) => t(reason)).join(", ")
+                    : t("No distraction factors recorded")}
                 </span>
                 <span className="ml-auto text-xs text-muted-foreground">
                   {new Date(r.at).toLocaleDateString("en-US")}

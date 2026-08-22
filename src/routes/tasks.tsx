@@ -1,5 +1,5 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
-import { useT } from "@/lib/ui-language";
+import { useT, useTf } from "@/lib/ui-language";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
@@ -43,6 +43,7 @@ const PRIORITY: Record<Priority, { label: string; className: string }> = {
 
 function TasksPage() {
   const t = useT();
+  const tf = useTf();
   const { state, addTask, updateTask, removeTask } = useMindSeed();
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState<Priority>("medium");
@@ -56,7 +57,7 @@ function TasksPage() {
     addTask({ title: title.trim(), priority, ...(deadline ? { deadline } : {}) });
     setTitle("");
     setDeadline("");
-    toast.success("New task added");
+    toast.success(t("New task added"));
   };
 
   const done = state.tasks.filter((t) => t.done);
@@ -68,7 +69,7 @@ function TasksPage() {
         {t("Tasks")}
       </h1>
       <p className="mt-1.5 text-sm text-muted-foreground">
-        Every completed task helps your tree earn 12 EXP.
+        {t("Every completed task helps your tree earn 12 EXP.")}
       </p>
 
       <form
@@ -97,69 +98,69 @@ function TasksPage() {
           onChange={(e) => setDeadline(e.target.value)}
           className="h-11 rounded-2xl sm:w-44"
         />
-        <Button type="submit" className="h-11 rounded-2xl px-5">
+        <Button type="submit" className="h-11 rounded-2xl px-5 transition-transform active:scale-[0.97]">
           <Plus className="size-4" />
-          Add
+          {t("Add")}
         </Button>
       </form>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <section>
           <h2 className="mb-3 px-1 text-sm font-semibold text-muted-foreground">
-            In progress ({open.length})
+            {tf("In progress ({n})", { n: open.length })}
           </h2>
           <ul className="space-y-3">
             <AnimatePresence initial={false}>
-              {open.map((t) => (
+              {open.map((task) => (
                 <TaskRow
-                  key={t.id}
-                  task={t}
-                  editing={editing === t.id}
+                  key={task.id}
+                  task={task}
+                  editing={editing === task.id}
                   draft={draft}
                   setDraft={setDraft}
                   onEdit={() => {
-                    setEditing(t.id);
-                    setDraft(t.title);
+                    setEditing(task.id);
+                    setDraft(task.title);
                   }}
                   onSave={() => {
-                    updateTask(t.id, { title: draft.trim() || t.title });
+                    updateTask(task.id, { title: draft.trim() || task.title });
                     setEditing(null);
                   }}
                   onCancel={() => setEditing(null)}
                   onToggle={() => {
-                    updateTask(t.id, { done: true });
-                    toast.success("Nice work! Your tree earned 12 EXP 🌿");
+                    updateTask(task.id, { done: true });
+                    toast.success(t("Nice work! Your tree earned 12 EXP 🌿"));
                   }}
-                  onRemove={() => removeTask(t.id)}
+                  onRemove={() => removeTask(task.id)}
                 />
               ))}
             </AnimatePresence>
           </ul>
           {open.length === 0 && (
             <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-              All clear. Take a moment to breathe.
+              {t("All clear. Take a moment to breathe.")}
             </p>
           )}
         </section>
 
         <section>
           <h2 className="mb-3 px-1 text-sm font-semibold text-muted-foreground">
-            Completed ({done.length})
+            {tf("Completed ({n})", { n: done.length })}
           </h2>
           <ul className="space-y-3">
             <AnimatePresence initial={false}>
-              {done.map((t) => (
+              {done.map((task) => (
                 <TaskRow
-                  key={t.id}
-                  task={t}
+                  key={task.id}
+                  task={task}
                   editing={false}
                   draft={draft}
                   setDraft={setDraft}
                   onEdit={() => {}}
                   onSave={() => {}}
                   onCancel={() => {}}
-                  onToggle={() => updateTask(t.id, { done: false })}
-                  onRemove={() => removeTask(t.id)}
+                  onToggle={() => updateTask(task.id, { done: false })}
+                  onRemove={() => removeTask(task.id)}
                 />
               ))}
             </AnimatePresence>
@@ -191,6 +192,8 @@ function TaskRow({
   onToggle: () => void;
   onRemove: () => void;
 }) {
+  const t = useT();
+  const tf = useTf();
   const p = PRIORITY[task.priority];
   return (
     <motion.li
@@ -198,13 +201,17 @@ function TaskRow({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96 }}
-      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+      transition={{
+        layout: { type: "spring", stiffness: 350, damping: 32 },
+        duration: 0.32,
+        ease: [0.22, 1, 0.36, 1],
+      }}
       className="surface flex items-center gap-3 p-4"
     >
       <button
         onClick={onToggle}
-        aria-label="Mark complete"
-        className={`grid size-6 shrink-0 place-items-center rounded-lg border transition-colors ${
+        aria-label={t("Mark complete")}
+        className={`grid size-6 shrink-0 cursor-pointer place-items-center rounded-lg border transition-all duration-200 active:scale-90 ${
           task.done ? "border-primary bg-primary text-primary-foreground" : "border-border"
         }`}
       >
@@ -228,11 +235,11 @@ function TaskRow({
         )}
         <div className="mt-1.5 flex items-center gap-2">
           <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${p.className}`}>
-            {p.label}
+            {t(p.label)}
           </span>
           {task.deadline && (
             <span className="text-[11px] text-muted-foreground">
-              Due {new Date(task.deadline).toLocaleDateString("en-US")}
+              {tf("Due {date}", { date: new Date(task.deadline).toLocaleDateString() })}
             </span>
           )}
         </div>
@@ -241,21 +248,21 @@ function TaskRow({
       <div className="flex shrink-0 items-center gap-1">
         {editing ? (
           <>
-            <IconBtn onClick={onSave} label="Save">
+            <IconBtn onClick={onSave} label={t("Save")}>
               <Check className="size-4" />
             </IconBtn>
-            <IconBtn onClick={onCancel} label="Cancel">
+            <IconBtn onClick={onCancel} label={t("Cancel")}>
               <X className="size-4" />
             </IconBtn>
           </>
         ) : (
           !task.done && (
-            <IconBtn onClick={onEdit} label="Edit">
+            <IconBtn onClick={onEdit} label={t("Edit")}>
               <Pencil className="size-4" />
             </IconBtn>
           )
         )}
-        <IconBtn onClick={onRemove} label="Delete">
+        <IconBtn onClick={onRemove} label={t("Delete")}>
           <Trash2 className="size-4" />
         </IconBtn>
       </div>

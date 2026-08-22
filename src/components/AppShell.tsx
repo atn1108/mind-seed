@@ -1,103 +1,48 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import {
   BarChart3,
   Home,
-  Languages,
   LogOut,
   ListTodo,
-  Moon,
   Sprout,
-  Sun,
   Timer,
   User,
 } from "lucide-react";
 
-import { LangToggle } from "@/components/LangToggle";
 import { Logo } from "@/components/Logo";
 import { SmartReminders } from "@/components/SmartReminders";
 import { useMindSeed } from "@/lib/mindseed-store";
-import { useUiLanguage } from "@/lib/ui-language";
+import { EASE_OUT } from "@/lib/motion";
+import { useTimer } from "@/lib/timer-store";
+import { useT } from "@/lib/ui-language";
 
 const NAV = [
-  {
-    to: "/dashboard",
-    icon: Home,
-    label: { en: "Home", vi: "Trang chủ" },
-    short: { en: "Home", vi: "Nhà" },
-  },
-  {
-    to: "/garden",
-    icon: Sprout,
-    label: { en: "Focus Garden", vi: "Vườn tập trung" },
-    short: { en: "Garden", vi: "Vườn" },
-  },
-  {
-    to: "/timer",
-    icon: Timer,
-    label: { en: "Focus Timer", vi: "Đồng hồ tập trung" },
-    short: { en: "Timer", vi: "Hẹn giờ" },
-  },
-  {
-    to: "/tasks",
-    icon: ListTodo,
-    label: { en: "Tasks", vi: "Nhiệm vụ" },
-    short: { en: "Tasks", vi: "Việc" },
-  },
-  {
-    to: "/insight",
-    icon: BarChart3,
-    label: { en: "Insight", vi: "Phân tích" },
-    short: { en: "Insight", vi: "Phân tích" },
-  },
-  {
-    to: "/profile",
-    icon: User,
-    label: { en: "Profile", vi: "Hồ sơ" },
-    short: { en: "Profile", vi: "Hồ sơ" },
-  },
+  { to: "/dashboard", icon: Home, label: "Home", short: "shortHome" },
+  { to: "/garden", icon: Sprout, label: "Focus Garden", short: "shortGarden" },
+  { to: "/timer", icon: Timer, label: "Focus Timer", short: "shortTimer" },
+  { to: "/tasks", icon: ListTodo, label: "Tasks", short: "shortTasks" },
+  { to: "/insight", icon: BarChart3, label: "Insight", short: "shortInsight" },
+  { to: "/profile", icon: User, label: "Profile", short: "shortProfile" },
 ] as const;
-
-const SHELL_COPY = {
-  en: {
-    lightMode: "Light mode",
-    darkMode: "Dark mode",
-    toLight: "Switch to light mode",
-    toDark: "Switch to dark mode",
-    logout: "Log out",
-  },
-  vi: {
-    lightMode: "Chế độ sáng",
-    darkMode: "Chế độ tối",
-    toLight: "Chuyển sang chế độ sáng",
-    toDark: "Chuyển sang chế độ tối",
-    logout: "Đăng xuất",
-  },
-} as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { state, ready, logout } = useMindSeed();
-  const { lang } = useUiLanguage();
+  const t = useT();
+  const timer = useTimer();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const t = SHELL_COPY[lang];
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window === "undefined") return true;
-    const stored = window.localStorage.getItem("mindseed-theme");
-    if (stored) return stored === "dark";
-    return true;
-  });
+  const timerActive = timer.running || (timer.left > 0 && timer.left < timer.total);
 
   useEffect(() => {
     if (ready && !state.user) navigate({ to: "/" });
   }, [ready, state.user, navigate]);
 
   useEffect(() => {
-    const root = document.documentElement;
-    root.classList.toggle("dark", isDark);
-    window.localStorage.setItem("mindseed-theme", isDark ? "dark" : "light");
-  }, [isDark]);
+    const stored = window.localStorage.getItem("mindseed-theme");
+    document.documentElement.classList.toggle("dark", stored !== "light");
+  }, []);
 
   return (
     <div className="bg-leaf min-h-screen bg-background">
@@ -110,6 +55,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
           <nav aria-label="Primary navigation" className="mt-8 flex flex-1 flex-col gap-1">
             {NAV.map((item) => {
+              if (item.to === "/profile") return null;
               const active = pathname === item.to;
               return (
                 <Link
@@ -122,24 +68,49 @@ export function AppShell({ children }: { children: ReactNode }) {
                   }`}
                 >
                   <item.icon className="size-[18px] shrink-0" />
-                  <span className="truncate">{item.label[lang]}</span>
+                  <span className="truncate">{t(item.label)}</span>
                 </Link>
               );
             })}
           </nav>
-          <div className="mt-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground">
-            <Languages className="size-[18px] shrink-0" aria-hidden="true" />
-            <LangToggle />
-          </div>
-          <button
-            onClick={() => setIsDark((v) => !v)}
-            className="mt-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            aria-label={isDark ? t.toLight : t.toDark}
-            aria-pressed={isDark}
+          {timerActive && (
+            <Link
+              to="/timer"
+              className="mb-2 flex items-center gap-3 rounded-2xl border border-primary/25 bg-primary-soft px-3 py-2.5 transition-colors hover:bg-primary/15"
+              aria-label={t("Focus Timer")}
+            >
+              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary text-[10px] font-semibold tabular-nums text-primary-foreground">
+                {Math.floor(timer.left / 60)}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-display text-sm font-semibold tabular-nums">
+                  {String(Math.floor(timer.left / 60)).padStart(2, "0")}:
+                  {String(timer.left % 60).padStart(2, "0")}
+                </span>
+                <span className="block truncate text-[11px] text-muted-foreground">
+                  {timer.running ? t("In focus…") : t("Paused")}
+                </span>
+              </span>
+              <span
+                className={`size-1.5 shrink-0 rounded-full ${
+                  timer.running ? "animate-pulse bg-primary" : "bg-muted-foreground/40"
+                }`}
+              />
+            </Link>
+          )}
+          <Link
+            to="/profile"
+            className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors ${
+              pathname === "/profile"
+                ? "bg-primary-soft text-primary"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
           >
-            {isDark ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
-            <span>{isDark ? t.lightMode : t.darkMode}</span>
-          </button>
+            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+              {state.user?.avatar ?? "M"}
+            </span>
+            <span className="min-w-0 truncate">{state.user?.name ?? t("namePlaceholder")}</span>
+          </Link>
           <button
             onClick={() => {
               logout();
@@ -148,7 +119,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             className="mt-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <LogOut className="size-[18px]" />
-            {t.logout}
+            {t("logout")}
           </button>
         </aside>
 
@@ -160,22 +131,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="truncate font-display text-base font-semibold">MindSeed</span>
             </Link>
             <div className="flex items-center gap-2">
-              <LangToggle />
-              <button
-                onClick={() => setIsDark((v) => !v)}
-                className="shrink-0 rounded-full border border-border bg-card p-2 text-muted-foreground"
-                aria-label={isDark ? t.toLight : t.toDark}
-                aria-pressed={isDark}
-              >
-                {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-              </button>
               <button
                 onClick={() => {
                   logout();
                   navigate({ to: "/" });
                 }}
                 className="shrink-0 rounded-full border border-border bg-card p-2 text-muted-foreground"
-                aria-label={t.logout}
+                aria-label={t("logout")}
               >
                 <LogOut className="size-4" />
               </button>
@@ -186,9 +148,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           <motion.div
             key={pathname}
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.45, ease: EASE_OUT }}
           >
             {children}
           </motion.div>
@@ -211,7 +173,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               }`}
             >
               <item.icon className="size-[18px]" />
-              <span className="truncate">{item.short[lang]}</span>
+              <span className="truncate">{t(item.short)}</span>
             </Link>
           );
         })}

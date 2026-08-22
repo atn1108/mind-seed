@@ -1,5 +1,5 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
-import { useT } from "@/lib/ui-language";
+import { useT, useTf, useUiLanguage } from "@/lib/ui-language";
 import { useMemo } from "react";
 import {
   Bar,
@@ -44,6 +44,8 @@ const DAY_LABEL = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function InsightPage() {
   const t = useT();
+  const tf = useTf();
+  const { lang } = useUiLanguage();
   const { state } = useMindSeed();
 
   const weekly = useMemo(() => {
@@ -54,13 +56,13 @@ function InsightPage() {
       const key = dayKey(d);
       const ss = state.sessions.filter((s) => dayKey(s.startedAt) === key && s.completed);
       out.push({
-        day: DAY_LABEL[d.getDay()]!,
+        day: t(DAY_LABEL[d.getDay()]!),
         minutes: ss.reduce((a, s) => a + s.minutes, 0),
         sessions: ss.length,
       });
     }
     return out;
-  }, [state.sessions]);
+  }, [state.sessions, lang]);
 
   const monthly = useMemo(() => {
     const out: { label: string; hours: number }[] = [];
@@ -75,10 +77,10 @@ function InsightPage() {
           return s.completed && t >= start && t <= end;
         })
         .reduce((a, s) => a + s.minutes, 0);
-      out.push({ label: `Week ${4 - i}`, hours: Math.round((mins / 60) * 10) / 10 });
+      out.push({ label: `${t("Week")} ${4 - i}`, hours: Math.round((mins / 60) * 10) / 10 });
     }
     return out;
-  }, [state.sessions]);
+  }, [state.sessions, lang]);
 
   const week = useMemo(() => {
     const since = new Date();
@@ -117,13 +119,13 @@ function InsightPage() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat
-          label="Completed sessions"
+          label={t("Completed sessions")}
           value={`${week.done}`}
-          sub={`${week.total} sessions started`}
+          sub={tf("{total} sessions started", { total: week.total })}
         />
-        <Stat label="Focus hours" value={`${week.hours}h`} sub="over 7 days" />
-        <Stat label="Dropped sessions" value={`${week.dropped}`} sub="try shorter sessions" />
-        <Stat label="Weekly goal" value={`${week.goal}%`} sub="vs. 14h target" />
+        <Stat label={t("Focus hours")} value={`${week.hours}h`} sub={t("over 7 days")} />
+        <Stat label={t("Dropped sessions")} value={`${week.dropped}`} sub={t("try shorter sessions")} />
+        <Stat label={t("Weekly goal")} value={`${week.goal}%`} sub={t("vs. 14h target")} />
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
@@ -146,7 +148,7 @@ function InsightPage() {
                     border: "1px solid var(--color-border)",
                     background: "var(--color-card)",
                   }}
-                  formatter={(v) => [`${v} minutes`, "Focus"]}
+                  formatter={(v) => [`${v} ${t("minutes")}`, t("Focus")]}
                 />
                 <Bar dataKey="minutes" fill="var(--color-chart-1)" radius={[10, 10, 4, 4]} />
               </BarChart>
@@ -177,7 +179,7 @@ function InsightPage() {
                     border: "1px solid var(--color-border)",
                     background: "var(--color-card)",
                   }}
-                  formatter={(v: number, n) => [`${v} minutes`, n]}
+                  formatter={(v: number, n) => [`${v} ${t("minutes")}`, t(String(n ?? ""))]}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -186,7 +188,7 @@ function InsightPage() {
             {week.pie.map((p, i) => (
               <span key={p.name} className="flex items-center gap-1.5">
                 <span className="size-2.5 rounded-full" style={{ background: pieColors[i] }} />
-                {p.name}
+                {t(p.name)}
               </span>
             ))}
           </div>
@@ -212,7 +214,7 @@ function InsightPage() {
                     border: "1px solid var(--color-border)",
                     background: "var(--color-card)",
                   }}
-                  formatter={(v) => [`${v} hours`, "Focus"]}
+                  formatter={(v) => [`${v} ${t("hours")}`, t("Focus")]}
                 />
                 <Line
                   type="monotone"
@@ -234,15 +236,20 @@ function InsightPage() {
           </div>
           <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
             <Insight>
-              You learn best in the <b className="text-foreground">{best.toLowerCase()}</b> —
-              schedule demanding work around this window.
+              {tf("You learn best in the {slot} — schedule demanding work around this window.", {
+                slot: t(best).toLowerCase(),
+              })}
             </Insight>
             <Insight>
-              You tend to lose focus in the <b className="text-foreground">{worst.toLowerCase()}</b>{" "}
-              window, with {week.dropped} dropped sessions this week.
+              {tf(
+                "You tend to lose focus in the {slot}, with {n} dropped sessions this week.",
+                { slot: t(worst).toLowerCase(), n: week.dropped },
+              )}
             </Insight>
             <Insight>
-              Try reducing screen time after 9pm and replacing it with a gentle 25-minute session.
+              {t(
+                "Try reducing screen time after 9pm and replacing it with a gentle 25-minute session.",
+              )}
             </Insight>
           </ul>
         </div>
@@ -251,12 +258,15 @@ function InsightPage() {
       <div className="surface mt-4 flex flex-col items-center gap-5 p-6 sm:flex-row">
         <ScoreRing score={score} size={104} />
         <div className="min-w-0">
-          <h2 className="font-display text-lg font-semibold">Focus Score today: {label.label}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{label.note}</p>
+          <h2 className="font-display text-lg font-semibold">
+            {tf("Focus Score today: {label}", { label: t(label.label) })}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t(label.note)}</p>
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-            0–100 points are calculated from focus time (40%), completed sessions (20%), completed
-            tasks (15%), dropout rate (15%), and streaks (10%). Your current streak is{" "}
-            {streakOf(state)} days.
+            {tf(
+              "0–100 points are calculated from focus time (40%), completed sessions (20%), completed tasks (15%), dropout rate (15%), and streaks (10%). Your current streak is {n} days.",
+              { n: streakOf(state) },
+            )}
           </p>
         </div>
       </div>

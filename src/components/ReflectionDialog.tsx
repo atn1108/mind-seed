@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DISTRACTIONS, useMindSeed } from "@/lib/mindseed-store";
+import { useT, useTf } from "@/lib/ui-language";
 import { Star } from "lucide-react";
 
 export function ReflectionDialog({
@@ -19,6 +20,8 @@ export function ReflectionDialog({
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
+  const t = useT();
+  const tf = useTf();
   const { addReflection } = useMindSeed();
   const [rating, setRating] = useState(4);
   const [reasons, setReasons] = useState<string[]>([]);
@@ -37,16 +40,21 @@ export function ReflectionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-3xl sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl">How focused are you today?</DialogTitle>
+          <DialogTitle className="font-display text-xl">{t("How focused are you today?")}</DialogTitle>
           <DialogDescription>
-            Capture how the session felt so MindSeed can learn from your rhythm.
+            {t("Capture how the session felt so MindSeed can learn from your rhythm.")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex justify-center gap-2 py-2">
           {[1, 2, 3, 4, 5].map((n) => (
-            <button key={n} onClick={() => setRating(n)} aria-label={`${n} stars`}>
-              <motion.span whileHover={{ scale: 1.15 }} whileTap={{ scale: 0.92 }} className="block">
+            <button key={n} onClick={() => setRating(n)} aria-label={tf("{n} stars", { n })}>
+              <motion.span
+                whileHover={{ scale: 1.2, rotate: -6 }}
+                whileTap={{ scale: 0.85 }}
+                transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                className="block"
+              >
                 <Star
                   className={`size-8 transition-colors ${
                     n <= rating ? "fill-accent text-accent" : "text-muted-foreground/40"
@@ -58,7 +66,7 @@ export function ReflectionDialog({
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-medium">What pulled your attention away?</p>
+          <p className="mb-2 text-sm font-medium">{t("What pulled your attention away?")}</p>
           <div className="flex flex-wrap gap-2">
             {DISTRACTIONS.map((d) => (
               <button
@@ -70,7 +78,7 @@ export function ReflectionDialog({
                     : "border-border text-muted-foreground hover:bg-muted"
                 }`}
               >
-                {d}
+                {t(d)}
               </button>
             ))}
           </div>
@@ -83,7 +91,7 @@ export function ReflectionDialog({
             onOpenChange(false);
           }}
         >
-          Save reflection
+          {t("Save reflection")}
         </Button>
       </DialogContent>
     </Dialog>
@@ -109,8 +117,13 @@ export function Confetti({ show }: { show: boolean }) {
         <motion.span
           key={p.id}
           initial={{ y: -40, opacity: 0, rotate: 0 }}
-          animate={{ y: "105vh", opacity: [0, 1, 1, 0], rotate: p.rotate }}
-          transition={{ duration: 2.6, delay: p.delay, ease: "easeIn" }}
+          animate={{
+            y: "105vh",
+            opacity: [0, 1, 1, 0],
+            rotate: p.rotate + (p.tone === 0 ? 180 : -120),
+            x: [0, p.x % 2 === 0 ? 24 : -24, 0],
+          }}
+          transition={{ duration: 2.4 + (p.delay % 0.6), delay: p.delay, ease: [0.3, 0, 0.7, 0.4] }}
           className={`absolute top-0 size-2.5 rounded-[3px] ${
             p.tone === 0 ? "bg-primary" : p.tone === 1 ? "bg-secondary" : "bg-accent"
           }`}

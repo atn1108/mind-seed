@@ -7,7 +7,7 @@ import { LangToggle } from "@/components/LangToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMindSeed } from "@/lib/mindseed-store";
-import { useUiLanguage } from "@/lib/ui-language";
+import { useT, useUiLanguage } from "@/lib/ui-language";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -103,6 +103,7 @@ function LoginPage() {
   const { state, ready, login, loginGoogle } = useMindSeed();
   const navigate = useNavigate();
   const { lang } = useUiLanguage();
+  const t = useT();
   const [mode, setMode] = useState<Mode>("idle");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -113,15 +114,13 @@ function LoginPage() {
   const [alert, setAlert] = useState<{ tone: "error" | "info"; message?: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const t = copy[lang];
-
   useEffect(() => {
     if (ready && state.user) navigate({ to: "/dashboard" });
   }, [ready, state.user, navigate]);
 
   const validateEmail = (value: string) => {
-    if (!EMAIL_RE.test(value.trim())) {
-      setEmailError(t.errEmail);
+if (!EMAIL_RE.test(value.trim())) {
+      setEmailError(t("errEmail"));
       return false;
     }
     setEmailError(null);
@@ -129,8 +128,8 @@ function LoginPage() {
   };
 
   const validatePassword = (value: string) => {
-    if (value.length < 6) {
-      setPasswordError(t.errPassword);
+if (value.length < 6) {
+      setPasswordError(t("errPassword"));
       return false;
     }
     setPasswordError(null);
@@ -146,7 +145,7 @@ function LoginPage() {
 
     setSubmitting(true);
     const outcome = await login(
-      name.trim() || t.namePlaceholder,
+      name.trim() || t("namePlaceholder"),
       email.trim(),
       password,
       mode === "register",
@@ -187,17 +186,16 @@ function LoginPage() {
           <LogoWordmark size={52} />
 
           <div className="relative max-w-md">
-            <p className="text-xs font-semibold tracking-[0.16em] text-primary">{t.eyebrow}</p>
-            <h1 className="mt-4 font-display text-4xl leading-tight font-semibold tracking-tight text-foreground xl:text-5xl">
-              {t.headlineLead} <span className="text-gradient-leaf">{t.headlineAccent}</span>{" "}
-              {t.headlineTail}
+            <p className="text-xs font-semibold tracking-[0.16em] text-primary">{t("eyebrow")}</p>
+<h1 className="mt-4 font-display text-4xl leading-tight font-semibold tracking-tight text-foreground xl:text-5xl">
+              {t("headlineLead")} <span className="text-gradient-leaf">{t("headlineAccent")}</span>{" "}{t("headlineTail")}
             </h1>
             <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-              {t.subheading}
+              {t("subheading")}
             </p>
 
             <ul className="mt-8 space-y-4">
-              {t.features.map((f) => (
+              {copy[lang].features.map((f) => (
                 <li key={f.text} className="flex items-start gap-3">
                   <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
                     <f.icon className="size-4.5" aria-hidden="true" />
@@ -210,7 +208,7 @@ function LoginPage() {
 
           <p className="relative flex items-center gap-2 text-xs text-muted-foreground">
             <Sprout className="size-3.5 text-primary" aria-hidden="true" />
-            {t.tagline}
+            {t("tagline")}
           </p>
         </section>
 
@@ -227,7 +225,7 @@ function LoginPage() {
             </header>
 
             <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-              {mode === "register" ? t.createAccount : mode === "email" ? t.login : t.tagline}
+              {mode === "register" ? t("createAccount") : mode === "email" ? t("login") : t("tagline")}
             </h2>
 
             {alert && (
@@ -241,8 +239,8 @@ function LoginPage() {
               >
                 {alert.tone === "info" ? (
                   <>
-                    <p className="font-semibold">{t.infoTitle}</p>
-                    <p className="mt-1">{t.infoBody}</p>
+<p className="font-semibold">{t("infoTitle")}</p>
+<p className="mt-1">{t("infoBody")}</p>
                   </>
                 ) : (
                   alert.message
@@ -261,7 +259,7 @@ function LoginPage() {
                     aria-busy={submitting}
                   >
                     <GoogleMark />
-                    <span>{t.google}</span>
+                    <span>{t("google")}</span>
                   </Button>
 
                   <Button
@@ -269,7 +267,7 @@ function LoginPage() {
                     onClick={() => setMode("email")}
                   >
                     <Mail className="size-4" />
-                    <span>{t.email}</span>
+                    <span>{t("email")}</span>
                   </Button>
 
                   <button
@@ -277,17 +275,17 @@ function LoginPage() {
                     onClick={() => setMode("register")}
                     className="w-full cursor-pointer pt-1 text-center text-sm font-medium text-primary transition-colors hover:text-primary/80"
                   >
-                    {t.signup}
+                    {t("signup")}
                   </button>
                 </div>
               ) : (
                 <form onSubmit={submit} noValidate className="mt-5 space-y-4">
                   {mode === "register" && (
-                    <Field label={t.accountName} htmlFor="name">
+                    <Field label={t("accountName")} htmlFor="name">
                       <Input
                         id="name"
                         autoComplete="name"
-                        placeholder={t.namePlaceholder}
+                        placeholder={t("namePlaceholder")}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         className="h-12 rounded-2xl"
@@ -296,7 +294,7 @@ function LoginPage() {
                     </Field>
                   )}
 
-                  <Field label={t.emailLabel} htmlFor="email" error={emailError}>
+                  <Field label={t("emailLabel")} htmlFor="email" error={emailError}>
                     <Input
                       id="email"
                       type="email"
@@ -316,7 +314,7 @@ function LoginPage() {
                     />
                   </Field>
 
-                  <Field label={t.passwordLabel} htmlFor="password" error={passwordError}>
+                  <Field label={t("passwordLabel")} htmlFor="password" error={passwordError}>
                     <div className="relative">
                       <Input
                         id="password"
@@ -338,7 +336,7 @@ function LoginPage() {
                       <button
                         type="button"
                         onClick={() => setShowPassword((v) => !v)}
-                        aria-label={showPassword ? t.hidePassword : t.showPassword}
+                        aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                         aria-pressed={showPassword}
                         className="absolute inset-y-0 right-0 flex w-11 cursor-pointer items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
                       >
@@ -363,7 +361,7 @@ function LoginPage() {
                       <Sprout className="size-4" aria-hidden="true" />
                     )}
                     <span>
-                      {submitting ? t.processing : mode === "register" ? t.createAccount : t.login}
+                      {submitting ? t("processing") : mode === "register" ? t("createAccount") : t("login")}
                     </span>
                   </Button>
 
@@ -377,14 +375,14 @@ function LoginPage() {
                     }}
                     className="w-full cursor-pointer pt-1 text-center text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
-                    ← {t.back}
+                    ← {t("back")}
                   </button>
                 </form>
               )}
             </div>
 
             <footer className="mt-8 border-t border-border/60 pt-4 text-center text-xs text-muted-foreground">
-              {t.footer}
+              {t("footer")}
             </footer>
           </div>
         </section>
