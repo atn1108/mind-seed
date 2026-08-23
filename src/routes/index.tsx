@@ -119,7 +119,7 @@ function LoginPage() {
   }, [ready, state.user, navigate]);
 
   const validateEmail = (value: string) => {
-if (!EMAIL_RE.test(value.trim())) {
+    if (!EMAIL_RE.test(value.trim())) {
       setEmailError(t("errEmail"));
       return false;
     }
@@ -128,7 +128,7 @@ if (!EMAIL_RE.test(value.trim())) {
   };
 
   const validatePassword = (value: string) => {
-if (value.length < 6) {
+    if (value.length < 6) {
       setPasswordError(t("errPassword"));
       return false;
     }
@@ -187,8 +187,9 @@ if (value.length < 6) {
 
           <div className="relative max-w-md">
             <p className="text-xs font-semibold tracking-[0.16em] text-primary">{t("eyebrow")}</p>
-<h1 className="mt-4 font-display text-4xl leading-tight font-semibold tracking-tight text-foreground xl:text-5xl">
-              {t("headlineLead")} <span className="text-gradient-leaf">{t("headlineAccent")}</span>{" "}{t("headlineTail")}
+            <h1 className="mt-4 font-display text-4xl leading-tight font-semibold tracking-tight text-foreground xl:text-5xl">
+              {t("headlineLead")} <span className="text-gradient-leaf">{t("headlineAccent")}</span>{" "}
+              {t("headlineTail")}
             </h1>
             <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
               {t("subheading")}
@@ -214,19 +215,26 @@ if (value.length < 6) {
 
         {/* Form panel */}
         <section className="flex items-center justify-center px-4 py-8 sm:px-6">
-          <div className="surface w-full max-w-md p-7 sm:p-9">
-            {/* Compact header — mobile only */}
-            <header className="mb-8 flex items-center justify-between gap-4 lg:hidden">
-              <LogoWordmark size={42} />
+          <div className="surface w-full max-w-md p-6 sm:p-8">
+            {/* Top bar */}
+            <div className="mb-7 flex items-center justify-between gap-4">
+              <LogoWordmark size={36} />
               <LangToggle />
-            </header>
-            <header className="mb-8 hidden items-center justify-end lg:flex">
-              <LangToggle />
-            </header>
+            </div>
 
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-              {mode === "register" ? t("createAccount") : mode === "email" ? t("login") : t("tagline")}
+            {/* Heading */}
+            <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+              {mode === "register"
+                ? t("createAccount")
+                : mode === "email"
+                  ? t("login")
+                  : t("Welcome back")}
             </h2>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              {mode === "register"
+                ? t("Grow your first tree today")
+                : t("Log in to keep caring for your forest")}
+            </p>
 
             {alert && (
               <div
@@ -239,8 +247,8 @@ if (value.length < 6) {
               >
                 {alert.tone === "info" ? (
                   <>
-<p className="font-semibold">{t("infoTitle")}</p>
-<p className="mt-1">{t("infoBody")}</p>
+                    <p className="font-semibold">{t("infoTitle")}</p>
+                    <p className="mt-1">{t("infoBody")}</p>
                   </>
                 ) : (
                   alert.message
@@ -248,12 +256,12 @@ if (value.length < 6) {
               </div>
             )}
 
-            <div className="mt-7">
+            <div className="mt-6">
               {mode === "idle" ? (
                 <div className="space-y-3">
                   <Button
                     variant="outline"
-                    className="h-12 w-full cursor-pointer justify-center rounded-2xl text-[15px]"
+                    className="h-12 w-full cursor-pointer justify-center rounded-2xl bg-muted/40 text-[15px]"
                     onClick={handleGoogle}
                     disabled={submitting}
                     aria-busy={submitting}
@@ -263,23 +271,15 @@ if (value.length < 6) {
                   </Button>
 
                   <Button
-                    className="h-12 w-full cursor-pointer justify-center rounded-2xl text-[15px]"
+                    className="h-12 w-full cursor-pointer justify-center rounded-2xl text-[15px] shadow-[var(--shadow-glow)]"
                     onClick={() => setMode("email")}
                   >
                     <Mail className="size-4" />
                     <span>{t("email")}</span>
                   </Button>
-
-                  <button
-                    type="button"
-                    onClick={() => setMode("register")}
-                    className="w-full cursor-pointer pt-1 text-center text-sm font-medium text-primary transition-colors hover:text-primary/80"
-                  >
-                    {t("signup")}
-                  </button>
                 </div>
               ) : (
-                <form onSubmit={submit} noValidate className="mt-5 space-y-4">
+                <form onSubmit={submit} noValidate className="space-y-4">
                   {mode === "register" && (
                     <Field label={t("accountName")} htmlFor="name">
                       <Input
@@ -361,29 +361,58 @@ if (value.length < 6) {
                       <Sprout className="size-4" aria-hidden="true" />
                     )}
                     <span>
-                      {submitting ? t("processing") : mode === "register" ? t("createAccount") : t("login")}
+                      {submitting
+                        ? t("processing")
+                        : mode === "register"
+                          ? t("createAccount")
+                          : t("login")}
                     </span>
                   </Button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMode("idle");
-                      setAlert(null);
-                      setEmailError(null);
-                      setPasswordError(null);
-                    }}
-                    className="w-full cursor-pointer pt-1 text-center text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    ← {t("back")}
-                  </button>
                 </form>
               )}
             </div>
 
-            <footer className="mt-8 border-t border-border/60 pt-4 text-center text-xs text-muted-foreground">
-              {t("footer")}
-            </footer>
+            {/* Card footer */}
+            <div className="mt-7 border-t border-border/60 pt-4 text-center">
+              {mode === "idle" && (
+                <button
+                  type="button"
+                  onClick={() => setMode("register")}
+                  className="cursor-pointer text-sm font-medium text-primary transition-colors hover:text-primary/80"
+                >
+                  {t("signup")}
+                </button>
+              )}
+              {mode === "email" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("idle");
+                    setAlert(null);
+                    setEmailError(null);
+                    setPasswordError(null);
+                  }}
+                  className="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  ← {t("back")}
+                </button>
+              )}
+              {mode === "register" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("email");
+                    setAlert(null);
+                    setEmailError(null);
+                    setPasswordError(null);
+                  }}
+                  className="cursor-pointer text-sm font-medium text-primary transition-colors hover:text-primary/80"
+                >
+                  {t("Already have an account? Log in")}
+                </button>
+              )}
+              <p className="mt-3 text-xs text-muted-foreground">{t("footer")}</p>
+            </div>
           </div>
         </section>
       </div>
