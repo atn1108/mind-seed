@@ -41,6 +41,7 @@ __pycache__/
 # AI tooling / generated design docs (local-only)
 .github/prompts/
 .opencode/
+opencode.json
 design-system/
 
 #env
