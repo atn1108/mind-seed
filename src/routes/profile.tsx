@@ -1,6 +1,7 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
 import { useT, useTf } from "@/lib/ui-language";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Flame, Clock, Sprout, Target, Languages, Bell, SunMoon, Settings2 } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
@@ -35,6 +36,7 @@ function ProfilePage() {
   const tf = useTf();
   const { state, setGoal } = useMindSeed();
   const [module, setModule] = useState<null | "theme" | "language" | "notifications">(null);
+  const [goalDraft, setGoalDraft] = useState<number | null>(null);
   const totalMinutes = state.sessions.filter((s) => s.completed).reduce((a, s) => a + s.minutes, 0);
   const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
   const score = focusScore(state);
@@ -69,28 +71,35 @@ function ProfilePage() {
         <Stat label={t("Current streak")} value={`${streakOf(state)} ${t("days")}`} />
         <Stat label={t("Total trees")} value={`${state.forest.length}`} />
         <Stat label={t("Study hours")} value={`${totalHours}h`} />
-        <Stat
-          label={t("Average Focus Score")}
-          value={`${score} · ${t(scoreLabel(score).label)}`}
-        />
+        <Stat label={t("Average Focus Score")} value={`${score} · ${t(scoreLabel(score).label)}`} />
       </div>
 
       <div className="surface mt-4 p-6">
         <div className="flex items-center gap-2">
           <Target className="size-4 text-primary" />
           <h2 className="font-display text-lg font-semibold">{t("Monthly goal")}</h2>
-          <span className="ml-auto text-sm font-medium">{tf("{goal} hours", { goal })}</span>
+          <span className="ml-auto text-sm font-medium">
+            {tf("{goal} hours", { goal: goalDraft ?? goal })}
+          </span>
         </div>
         <Progress value={goalPct} className="mt-4 h-2.5" />
         <p className="mt-2 text-xs text-muted-foreground">
           {tf("Completed {x}/{y} hours ({p}%)", { x: totalHours, y: goal, p: goalPct })}
         </p>
         <Slider
-          value={[goal]}
+          value={[goalDraft ?? goal]}
           min={10}
           max={120}
           step={5}
-          onValueChange={(v) => setGoal(v[0] ?? goal)}
+          onValueChange={(v) => setGoalDraft(v[0] ?? goal)}
+          onValueCommit={(v) => {
+            const next = v[0];
+            if (next != null && next !== goal) {
+              setGoal(next);
+              toast.success(t("Monthly goal updated"));
+            }
+            setGoalDraft(null);
+          }}
           className="mt-6"
         />
       </div>
@@ -124,7 +133,10 @@ function ProfilePage() {
 
       <ThemeModule open={module === "theme"} onOpenChange={(v) => !v && setModule(null)} />
       <LanguageModule open={module === "language"} onOpenChange={(v) => !v && setModule(null)} />
-      <NotificationsModule open={module === "notifications"} onOpenChange={(v) => !v && setModule(null)} />
+      <NotificationsModule
+        open={module === "notifications"}
+        onOpenChange={(v) => !v && setModule(null)}
+      />
 
       {state.reflections.length > 0 && (
         <div className="surface mt-4 p-6">
