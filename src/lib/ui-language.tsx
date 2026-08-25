@@ -23,7 +23,14 @@ function readInitialLang(): Lang {
 }
 
 export function UiLanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>(readInitialLang);
+  // Start with the SSR default ("en") so hydration matches, then adopt the
+  // saved choice after mount.
+  const [lang, setLang] = useState<Lang>("en");
+
+  useEffect(() => {
+    const saved = readInitialLang();
+    if (saved !== "en") setLang(saved);
+  }, []);
 
   useEffect(() => {
     try {
@@ -61,9 +68,6 @@ export function useTf() {
   return (template: string, vars?: Record<string, string | number>) => {
     const s = t(template);
     if (!vars) return s;
-    return Object.entries(vars).reduce(
-      (acc, [k, v]) => acc.replaceAll(`{${k}}`, String(v)),
-      s,
-    );
+    return Object.entries(vars).reduce((acc, [k, v]) => acc.replaceAll(`{${k}}`, String(v)), s);
   };
 }

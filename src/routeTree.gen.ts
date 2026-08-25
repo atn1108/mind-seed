@@ -15,10 +15,13 @@ import { Route as GardenRouteImport } from './routes/garden'
 import { Route as InsightRouteImport } from './routes/insight'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RoomsRouteImport } from './routes/rooms'
 import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as TimerRouteImport } from './routes/timer'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as RoomsIndexRouteImport } from './routes/rooms.index'
+import { Route as RoomsRoomIdRouteImport } from './routes/rooms.$roomId'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 
@@ -52,6 +55,11 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RoomsRoute = RoomsRouteImport.update({
+  id: '/rooms',
+  path: '/rooms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TasksRoute = TasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
@@ -74,6 +82,16 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
     path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
+const RoomsIndexRoute = RoomsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RoomsRoute,
+} as any)
+const RoomsRoomIdRoute = RoomsRoomIdRouteImport.update({
+  id: '/$roomId',
+  path: '/$roomId',
+  getParentRoute: () => RoomsRoute,
+} as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   id: '/.lovable/oauth/consent',
   path: '/.lovable/oauth/consent',
@@ -93,10 +111,13 @@ export interface FileRoutesByFullPath {
   '/insight': typeof InsightRoute
   '/mcp': typeof McpRoute
   '/profile': typeof ProfileRoute
+  '/rooms': typeof RoomsRouteWithChildren
   '/tasks': typeof TasksRoute
   '/timer': typeof TimerRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/rooms/$roomId': typeof RoomsRoomIdRoute
+  '/rooms/': typeof RoomsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -111,6 +132,8 @@ export interface FileRoutesByTo {
   '/timer': typeof TimerRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/rooms/$roomId': typeof RoomsRoomIdRoute
+  '/rooms': typeof RoomsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -122,10 +145,13 @@ export interface FileRoutesById {
   '/insight': typeof InsightRoute
   '/mcp': typeof McpRoute
   '/profile': typeof ProfileRoute
+  '/rooms': typeof RoomsRouteWithChildren
   '/tasks': typeof TasksRoute
   '/timer': typeof TimerRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  '/rooms/$roomId': typeof RoomsRoomIdRoute
+  '/rooms/': typeof RoomsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -138,10 +164,13 @@ export interface FileRouteTypes {
     | '/insight'
     | '/mcp'
     | '/profile'
+    | '/rooms'
     | '/tasks'
     | '/timer'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/rooms/$roomId'
+    | '/rooms/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
   fileRoutesByTo: FileRoutesByTo
@@ -156,6 +185,8 @@ export interface FileRouteTypes {
     | '/timer'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/rooms/$roomId'
+    | '/rooms'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
   id:
@@ -166,10 +197,13 @@ export interface FileRouteTypes {
     | '/insight'
     | '/mcp'
     | '/profile'
+    | '/rooms'
     | '/tasks'
     | '/timer'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
+    | '/rooms/$roomId'
+    | '/rooms/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
   fileRoutesById: FileRoutesById
@@ -181,6 +215,7 @@ export interface RootRouteChildren {
   InsightRoute: typeof InsightRoute
   McpRoute: typeof McpRoute
   ProfileRoute: typeof ProfileRoute
+  RoomsRoute: typeof RoomsRouteWithChildren
   TasksRoute: typeof TasksRoute
   TimerRoute: typeof TimerRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
@@ -233,6 +268,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rooms': {
+      id: '/rooms'
+      path: '/rooms'
+      fullPath: '/rooms'
+      preLoaderRoute: typeof RoomsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tasks': {
       id: '/tasks'
       path: '/tasks'
@@ -261,6 +303,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rooms/': {
+      id: '/rooms/'
+      path: '/'
+      fullPath: '/rooms/'
+      preLoaderRoute: typeof RoomsIndexRouteImport
+      parentRoute: typeof RoomsRoute
+    }
+    '/rooms/$roomId': {
+      id: '/rooms/$roomId'
+      path: '/$roomId'
+      fullPath: '/rooms/$roomId'
+      preLoaderRoute: typeof RoomsRoomIdRouteImport
+      parentRoute: typeof RoomsRoute
+    }
     '/.lovable/oauth/consent': {
       id: '/.lovable/oauth/consent'
       path: '/.lovable/oauth/consent'
@@ -278,6 +334,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface RoomsRouteChildren {
+  RoomsRoomIdRoute: typeof RoomsRoomIdRoute
+  RoomsIndexRoute: typeof RoomsIndexRoute
+}
+
+const RoomsRouteChildren: RoomsRouteChildren = {
+  RoomsRoomIdRoute: RoomsRoomIdRoute,
+  RoomsIndexRoute: RoomsIndexRoute,
+}
+
+const RoomsRouteWithChildren = RoomsRoute._addFileChildren(RoomsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
@@ -285,6 +353,7 @@ const rootRouteChildren: RootRouteChildren = {
   InsightRoute: InsightRoute,
   McpRoute: McpRoute,
   ProfileRoute: ProfileRoute,
+  RoomsRoute: RoomsRouteWithChildren,
   TasksRoute: TasksRoute,
   TimerRoute: TimerRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,

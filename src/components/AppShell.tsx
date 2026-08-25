@@ -1,15 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, type ReactNode } from "react";
-import {
-  BarChart3,
-  Home,
-  LogOut,
-  ListTodo,
-  Sprout,
-  Timer,
-  User,
-} from "lucide-react";
+import { BarChart3, Home, LogOut, ListTodo, Sprout, Timer, User, Users } from "lucide-react";
 
 import { Logo } from "@/components/Logo";
 import { SmartReminders } from "@/components/SmartReminders";
@@ -22,6 +14,7 @@ const NAV = [
   { to: "/dashboard", icon: Home, label: "Home", short: "shortHome" },
   { to: "/garden", icon: Sprout, label: "Focus Garden", short: "shortGarden" },
   { to: "/timer", icon: Timer, label: "Focus Timer", short: "shortTimer" },
+  { to: "/rooms", icon: Users, label: "Study Rooms", short: "shortRooms" },
   { to: "/tasks", icon: ListTodo, label: "Tasks", short: "shortTasks" },
   { to: "/insight", icon: BarChart3, label: "Insight", short: "shortInsight" },
   { to: "/profile", icon: User, label: "Profile", short: "shortProfile" },

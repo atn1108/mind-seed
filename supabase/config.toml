@@ -1,1 +1,4 @@
 project_id = "ebeciwotkgmieapckwku"
+
+[auth]
+enable_leaked_password_protection = true

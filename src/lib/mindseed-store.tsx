@@ -50,6 +50,7 @@ export type MindSeedState = {
     email: string;
     avatar: string;
     monthlyGoalHours: number;
+    role: "user" | "admin";
   } | null;
   sessions: Session[];
   tasks: Task[];
@@ -97,6 +98,7 @@ function mapProfile(row: {
   avatar: string | null;
   monthly_goal_hours: number;
   exp: number;
+  role?: string | null;
 }) {
   return {
     name: row.name,
@@ -104,6 +106,7 @@ function mapProfile(row: {
     avatar: row.avatar || row.name.trim().charAt(0).toUpperCase() || "M",
     monthlyGoalHours: row.monthly_goal_hours,
     exp: row.exp,
+    role: (row.role === "admin" ? "admin" : "user") as "user" | "admin",
   };
 }
 
@@ -264,7 +267,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       await Promise.all([
         supabase
           .from("profiles")
-          .select("name,email,avatar,monthly_goal_hours,exp")
+          .select("name,email,avatar,monthly_goal_hours,exp,role")
           .eq("id", userId)
           .single(),
         supabase
@@ -308,6 +311,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
         email: profile.email,
         avatar: profile.avatar,
         monthlyGoalHours: profile.monthlyGoalHours,
+        role: profile.role,
       },
       sessions: (sessionsResult.data ?? []).map(mapSession),
       tasks: (tasksResult.data ?? []).map(mapTask),
