@@ -36,7 +36,14 @@ export function makeInviteLink(roomId: string) {
     : `/rooms/${roomId}`;
 }
 
-export async function createRoom(name: string, durationMin: number): Promise<RoomRow> {
+const ROOM_COLUMNS =
+  "id,name,code,host_id,status,duration_min,remaining_sec,ends_at,has_password,created_at";
+
+export async function createRoom(
+  name: string,
+  durationMin: number,
+  password?: string,
+): Promise<RoomRow> {
   const userId = await requireUserId();
 
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -48,21 +55,31 @@ export async function createRoom(name: string, durationMin: number): Promise<Roo
         host_id: userId,
         duration_min: durationMin,
         remaining_sec: durationMin * 60,
+        has_password: !!password?.trim(),
       })
-      .select("id,name,code,host_id,status,duration_min,remaining_sec,ends_at,created_at")
+      .select(ROOM_COLUMNS)
       .single();
 
-    if (!error) return data;
+    if (!error) {
+      if (password?.trim()) await setRoomPassword(data.id, password.trim());
+      return data;
+    }
     if (error.code !== "23505") throw error; // retry only on code collision
   }
   throw new Error("Could not allocate a room code, please try again.");
 }
 
-export async function joinRoomByCode(rawCode: string): Promise<string | null> {
+export async function joinRoomByCode(
+  rawCode: string,
+): Promise<{ id: string; host_id: string; has_password: boolean } | null> {
   const code = rawCode.trim().toUpperCase();
   if (!/^[A-Z0-9]{6}$/.test(code)) return null;
-  const { data } = await supabase.from("study_rooms").select("id").eq("code", code).maybeSingle();
-  return data?.id ?? null;
+  const { data } = await supabase
+    .from("study_rooms")
+    .select("id,host_id,has_password")
+    .eq("code", code)
+    .maybeSingle();
+  return data ?? null;
 }
 
 /** Insert my membership row (no-op if already a member).
@@ -77,12 +94,34 @@ export async function ensureJoined(roomId: string) {
       { onConflict: "room_id,user_id", ignoreDuplicates: true },
     );
   if (error) {
-    console.error("[Room] ensureJoined failed:", {
-      code: error.code,
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-    });
+    logDbError("ensureJoined", error);
+    throw error;
+  }
+}
+
+/** Host (or admin) sets / clears the room password via RPC.
+ *  Pass null to remove the password entirely. */
+export async function setRoomPassword(roomId: string, password: string | null) {
+  const { error } = await supabase.rpc("set_room_password", {
+    p_room_id: roomId,
+    p_password: password,
+  });
+  if (error) {
+    logDbError("setRoomPassword", error);
+    throw error;
+  }
+}
+
+/** Password-gated join through the SECURITY DEFINER RPC.
+ *  Throws an Error whose message is "WRONG_PASSWORD" on mismatch. */
+export async function joinRoomWithPassword(roomId: string, password: string) {
+  const { error } = await supabase.rpc("join_room_with_password", {
+    p_room_id: roomId,
+    p_password: password,
+  });
+  if (error) {
+    logDbError("joinRoomWithPassword", error);
+    if (error.message === "WRONG_PASSWORD") throw new Error("WRONG_PASSWORD");
     throw error;
   }
 }
@@ -157,21 +196,13 @@ export function useRoom(roomId: string) {
     setError(null);
 
     let cancelled = false;
+    let isMember = false;
 
     const bootstrap = async (): Promise<(() => void) | undefined> => {
       try {
-        // Best-effort: viewing the room must not depend on this write.
-        await ensureJoined(roomId)
-          .then(() => {
-            if (!cancelled) setJoinedOk(true);
-          })
-          .catch(() => {
-            if (!cancelled) setJoinedOk(false);
-          });
-
         const { data, error: fetchError } = await supabase
           .from("study_rooms")
-          .select("id,name,code,host_id,status,duration_min,remaining_sec,ends_at,created_at")
+          .select(ROOM_COLUMNS)
           .eq("id", roomId)
           .maybeSingle();
         if (cancelled) return;
@@ -189,6 +220,38 @@ export function useRoom(roomId: string) {
           .single();
 
         setIsAdmin(profileData?.role === "admin");
+
+        const selfPayload = {
+          user_id: myId,
+          name: profileData?.name ?? "",
+          avatar: profileData?.avatar ?? "",
+          joined_at: Date.now(),
+        };
+
+        // Existing members re-enter without the password; open rooms join
+        // silently; protected rooms wait at the gate until verified.
+        const { data: membership } = await supabase
+          .from("room_members")
+          .select("user_id")
+          .eq("room_id", roomId)
+          .eq("user_id", myId)
+          .maybeSingle();
+
+        if (membership) {
+          if (!cancelled) setJoinedOk(true);
+          isMember = true;
+        } else if (!data.has_password || profileData?.role === "admin") {
+          await ensureJoined(roomId)
+            .then(() => {
+              if (!cancelled) setJoinedOk(true);
+              isMember = true;
+            })
+            .catch(() => {
+              if (!cancelled) setJoinedOk(false);
+            });
+        } else if (!cancelled) {
+          setJoinedOk(false);
+        }
 
         const channel = supabase
           .channel(`room:${roomId}`)
@@ -209,12 +272,10 @@ export function useRoom(roomId: string) {
           })
           .subscribe((status) => {
             if (status !== "SUBSCRIBED") return;
-            void channel.track({
-              user_id: myId,
-              name: profileData?.name ?? "",
-              avatar: profileData?.avatar ?? "",
-              joined_at: Date.now(),
-            });
+            // Only confirmed members appear in the live list — spectators
+            // waiting at the password gate stay invisible.
+            if (!isMember && !cancelled) return;
+            void channel.track(selfPayload);
           });
 
         return () => {
@@ -239,6 +300,17 @@ export function useRoom(roomId: string) {
       cancelled = true;
     };
   }, [roomId, myId]);
+
+  /** Called by the room page's password gate once the user submits a pass.
+   *  Reload afterwards so bootstrap re-runs as a confirmed member. */
+  const submitRoomPassword = useCallback(
+    async (password: string) => {
+      await joinRoomWithPassword(roomId, password);
+      setJoinedOk(true);
+      window.location.reload();
+    },
+    [roomId],
+  );
 
   // Refresh `now` while counting down; wall clock does the real math.
   const running = room?.status === "running";
@@ -278,7 +350,7 @@ export function useRoom(roomId: string) {
         .from("study_rooms")
         .update(p)
         .eq("id", roomId)
-        .select("id,name,code,host_id,status,duration_min,remaining_sec,ends_at,created_at")
+        .select(ROOM_COLUMNS)
         .single();
       if (updateError) {
         logDbError(`update ${JSON.stringify(p)}`, updateError);
@@ -354,6 +426,7 @@ export function useRoom(roomId: string) {
       canControl,
       finishedTick,
       joinedOk,
+      submitRoomPassword,
       start,
       pause,
       resume,
@@ -375,6 +448,7 @@ export function useRoom(roomId: string) {
       canControl,
       finishedTick,
       joinedOk,
+      submitRoomPassword,
       start,
       pause,
       resume,

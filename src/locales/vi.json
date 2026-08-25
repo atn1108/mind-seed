@@ -243,5 +243,18 @@
   "Waiting for the host to start…": "Đang chờ chủ phòng bắt đầu…",
   "Room garden": "Vườn của phòng",
   "Loading members…": "Đang tải thành viên…",
-  "Everyone’s seed sprouts into a tree as the session progresses — finish it to log EXP.": "Hạt giống của mọi người lớn dần lên cây theo tiến độ phiên — hoàn thành để nhận EXP."
+  "Everyone’s seed sprouts into a tree as the session progresses — finish it to log EXP.": "Hạt giống của mọi người lớn dần lên cây theo tiến độ phiên — hoàn thành để nhận EXP.",
+  "Password (optional)": "Mật khẩu (không bắt buộc)",
+  "Room password": "Mật khẩu phòng",
+  "This room is password protected": "Phòng này có mật khẩu",
+  "This room is password protected. Enter the password to join.": "Phòng này có mật khẩu. Nhập mật khẩu để vào phòng.",
+  "Enter the password for “{name}” to join.": "Nhập mật khẩu phòng “{name}” để vào.",
+  "Wrong password. Try again.": "Sai mật khẩu. Thử lại nhé.",
+  "Checking…": "Đang kiểm tra…",
+  "Unlock & join": "Mở khóa & vào phòng",
+  "Password accepted — welcome in!": "Mật khẩu đúng — chào mừng!",
+  "Password protected": "Có mật khẩu",
+  "Invite link": "Link mời",
+  "Copy": "Sao chép",
+  "Copied!": "Đã sao chép!"
 }

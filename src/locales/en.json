@@ -242,5 +242,18 @@
   "Waiting for the host to start…": "Waiting for the host to start…",
   "Room garden": "Room garden",
   "Loading members…": "Loading members…",
-  "Everyone’s seed sprouts into a tree as the session progresses — finish it to log EXP.": "Everyone’s seed sprouts into a tree as the session progresses — finish it to log EXP."
+  "Everyone’s seed sprouts into a tree as the session progresses — finish it to log EXP.": "Everyone’s seed sprouts into a tree as the session progresses — finish it to log EXP.",
+  "Password (optional)": "Password (optional)",
+  "Room password": "Room password",
+  "This room is password protected": "This room is password protected",
+  "This room is password protected. Enter the password to join.": "This room is password protected. Enter the password to join.",
+  "Enter the password for “{name}” to join.": "Enter the password for “{name}” to join.",
+  "Wrong password. Try again.": "Wrong password. Try again.",
+  "Checking…": "Checking…",
+  "Unlock & join": "Unlock & join",
+  "Password accepted — welcome in!": "Password accepted — welcome in!",
+  "Password protected": "Password protected",
+  "Invite link": "Invite link",
+  "Copy": "Copy",
+  "Copied!": "Copied!"
 }

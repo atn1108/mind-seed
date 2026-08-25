@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useT, useTf } from "@/lib/ui-language";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Copy, DoorOpen, LogOut, Plus, RefreshCw, Trash2, Users } from "lucide-react";
+import { Copy, DoorOpen, Lock, LogOut, Plus, RefreshCw, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/AppShell";
@@ -28,7 +28,13 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useMindSeed } from "@/lib/mindseed-store";
 import type { RoomRow } from "@/lib/room-store";
-import { createRoom, deleteRoom, ensureJoined, joinRoomByCode } from "@/lib/room-store";
+import {
+  createRoom,
+  deleteRoom,
+  ensureJoined,
+  joinRoomByCode,
+  joinRoomWithPassword,
+} from "@/lib/room-store";
 
 export const Route = createFileRoute("/rooms/")({
   head: () => ({
@@ -52,7 +58,7 @@ const DURATIONS = [25, 30, 45, 60];
 
 type LobbyRoom = Pick<
   RoomRow,
-  "id" | "name" | "code" | "host_id" | "status" | "duration_min" | "created_at"
+  "id" | "name" | "code" | "host_id" | "status" | "duration_min" | "has_password" | "created_at"
 > & { room_members: { count: number }[] };
 
 function statusTone(status: RoomRow["status"]) {
@@ -76,15 +82,21 @@ function RoomsPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newDuration, setNewDuration] = useState(25);
+  const [newPassword, setNewPassword] = useState("");
   const [creating, setCreating] = useState(false);
   const [joinCode, setJoinCode] = useState("");
   const [joining, setJoining] = useState(false);
+  const [pendingJoin, setPendingJoin] = useState<LobbyRoom | null>(null);
+  const [joinGatePassword, setJoinGatePassword] = useState("");
+  const [joiningLocked, setJoiningLocked] = useState(false);
   const refreshRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchRooms = useCallback(async () => {
     const { data, error } = await supabase
       .from("study_rooms")
-      .select("id,name,code,host_id,status,duration_min,created_at,room_members(count)")
+      .select(
+        "id,name,code,host_id,status,duration_min,has_password,created_at,room_members(count)",
+      )
       .order("created_at", { ascending: false })
       .limit(30);
     if (error) {
@@ -125,24 +137,30 @@ function RoomsPage() {
   }, [fetchRooms]);
 
   const openRoom = useCallback(
-    async (roomId: string) => {
+    async (room: LobbyRoom) => {
+      // Protected rooms ask for the password first (admins walk right in).
+      if (room.has_password && !isAdmin && myId !== room.host_id) {
+        setPendingJoin(room);
+        return;
+      }
       // Membership bookkeeping must never block entering the room — the room
       // page retries it on every mount anyway.
-      void ensureJoined(roomId).catch(() => {
+      void ensureJoined(room.id).catch(() => {
         toast.error(t("Joined in view-only mode — membership sync failed."));
       });
-      await navigate({ to: "/rooms/$roomId", params: { roomId } });
+      await navigate({ to: "/rooms/$roomId", params: { roomId: room.id } });
     },
-    [navigate, t],
+    [navigate, t, isAdmin, myId],
   );
 
   const handleCreate = async () => {
     const name = newName.trim() || t("Untitled room");
     setCreating(true);
     try {
-      const room = await createRoom(name.slice(0, 60), newDuration);
+      const room = await createRoom(name.slice(0, 60), newDuration, newPassword);
       setCreateOpen(false);
       setNewName("");
+      setNewPassword("");
       // The room page registers the creator as its first member on mount.
       await navigate({ to: "/rooms/$roomId", params: { roomId: room.id } });
     } catch (err) {
@@ -156,14 +174,36 @@ function RoomsPage() {
   const handleJoinByCode = async () => {
     setJoining(true);
     try {
-      const roomId = await joinRoomByCode(joinCode);
-      if (!roomId) {
+      const found = await joinRoomByCode(joinCode);
+      if (!found) {
         toast.error(t("No room found with that code."));
         return;
       }
-      await openRoom(roomId);
+      await openRoom({ ...found, name: "", code: joinCode.trim().toUpperCase() } as LobbyRoom);
     } finally {
       setJoining(false);
+    }
+  };
+
+  const handlePasswordJoin = async () => {
+    if (!pendingJoin) return;
+    setJoiningLocked(true);
+    try {
+      await joinRoomWithPassword(pendingJoin.id, joinGatePassword);
+      toast.success(t("Password accepted — welcome in!"));
+      const roomId = pendingJoin.id;
+      setPendingJoin(null);
+      setJoinGatePassword("");
+      await navigate({ to: "/rooms/$roomId", params: { roomId } });
+    } catch (err) {
+      if (err instanceof Error && err.message === "WRONG_PASSWORD") {
+        toast.error(t("Wrong password. Try again."));
+      } else {
+        console.error("[Rooms] Password join failed:", err);
+        toast.error(t("Could not join the room. Please try again."));
+      }
+    } finally {
+      setJoiningLocked(false);
     }
   };
 
@@ -236,7 +276,15 @@ function RoomsPage() {
                   >
                     <span className={`size-2 shrink-0 rounded-full ${statusTone(room.status)}`} />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold">{room.name}</p>
+                      <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
+                        {room.name}
+                        {room.has_password && (
+                          <Lock
+                            className="size-3.5 shrink-0 text-amber-500"
+                            aria-label={t("Password protected")}
+                          />
+                        )}
+                      </p>
                       <p className="text-xs text-muted-foreground tabular-nums">
                         <Users className="mr-1 inline size-3" />
                         {tf("{n} studying", { n: count })} · {room.duration_min} {t("min")} ·{" "}
@@ -260,7 +308,7 @@ function RoomsPage() {
                     <Button
                       size="sm"
                       className="cursor-pointer rounded-full"
-                      onClick={() => void openRoom(room.id)}
+                      onClick={() => void openRoom(room)}
                     >
                       {t("Join")}
                     </Button>
@@ -360,6 +408,19 @@ function RoomsPage() {
             ))}
           </div>
 
+          <div className="relative">
+            <Lock className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder={t("Password (optional)")}
+              maxLength={40}
+              className="rounded-2xl pl-10"
+              aria-label={t("Room password")}
+            />
+          </div>
+
           <DialogFooter>
             <Button
               className="w-full cursor-pointer rounded-2xl"
@@ -367,6 +428,50 @@ function RoomsPage() {
               onClick={() => void handleCreate()}
             >
               {creating ? t("Creating…") : t("Create room")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={pendingJoin !== null}
+        onOpenChange={(v) => {
+          if (!v) {
+            setPendingJoin(null);
+            setJoinGatePassword("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="size-4 text-primary" />
+              {t("This room is password protected")}
+            </DialogTitle>
+            <DialogDescription>
+              {tf("Enter the password for “{name}” to join.", { name: pendingJoin?.name ?? "" })}
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            type="password"
+            autoFocus
+            value={joinGatePassword}
+            onChange={(e) => setJoinGatePassword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && joinGatePassword.trim()) void handlePasswordJoin();
+            }}
+            placeholder={t("Room password")}
+            maxLength={40}
+            className="rounded-2xl text-center"
+            aria-label={t("Room password")}
+          />
+          <DialogFooter>
+            <Button
+              className="w-full cursor-pointer rounded-2xl"
+              disabled={!joinGatePassword.trim() || joiningLocked}
+              onClick={() => void handlePasswordJoin()}
+            >
+              {joiningLocked ? t("Checking…") : t("Unlock & join")}
             </Button>
           </DialogFooter>
         </DialogContent>

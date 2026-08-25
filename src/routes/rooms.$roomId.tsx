@@ -8,6 +8,8 @@ import {
   Clock,
   Copy,
   Crown,
+  Link2,
+  LockKeyhole,
   Pause,
   Play,
   Shield,
@@ -30,6 +32,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { STAGES, useMindSeed } from "@/lib/mindseed-store";
 import { deleteRoom, leaveRoom, makeInviteLink, useRoom } from "@/lib/room-store";
 
@@ -161,6 +164,22 @@ function RoomPage() {
   const [deleting, setDeleting] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [banner, setBanner] = useState(false);
+  const [gatePassword, setGatePassword] = useState("");
+  const [gateError, setGateError] = useState(false);
+  const [gateBusy, setGateBusy] = useState(false);
+
+  const handleGateSubmit = async () => {
+    if (!room) return;
+    setGateBusy(true);
+    try {
+      await view.submitRoomPassword(gatePassword.trim());
+      // submitRoomPassword reloads the page on success.
+    } catch (err) {
+      console.error("[Room] Password gate rejected:", err);
+      setGateError(true);
+      setGateBusy(false);
+    }
+  };
 
   // Celebrate + credit the session exactly once per armed timer.
   const celebratedRef = useRef(view.finishedTick);
@@ -191,6 +210,60 @@ function RoomPage() {
             {t("Back to rooms")}
           </Link>
         </Button>
+      </AppShell>
+    );
+  }
+
+  // Password gate: spectators see this instead of the room until verified.
+  if (view.joinedOk === false) {
+    return (
+      <AppShell>
+        <div className="mx-auto mt-10 max-w-sm surface flex flex-col items-center p-8 text-center">
+          <span className="grid size-14 place-items-center rounded-2xl bg-primary-soft text-primary">
+            <LockKeyhole className="size-6" />
+          </span>
+          <h1 className="mt-4 font-display text-xl font-semibold">{room.name}</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            {t("This room is password protected. Enter the password to join.")}
+          </p>
+          <Input
+            type="password"
+            autoFocus
+            value={gatePassword}
+            onChange={(e) => {
+              setGatePassword(e.target.value);
+              setGateError(false);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && gatePassword.trim()) void handleGateSubmit();
+            }}
+            placeholder={t("Room password")}
+            maxLength={40}
+            className="mt-5 rounded-2xl text-center"
+            aria-label={t("Room password")}
+          />
+          {gateError && (
+            <p className="mt-2 text-xs text-destructive">{t("Wrong password. Try again.")}</p>
+          )}
+          <Button
+            className="mt-4 w-full cursor-pointer rounded-2xl"
+            disabled={!gatePassword.trim() || gateBusy}
+            onClick={() => void handleGateSubmit()}
+          >
+            {gateBusy ? t("Checking…") : t("Unlock & join")}
+          </Button>
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="mt-3 cursor-pointer rounded-full text-xs"
+          >
+            <Link to="/rooms">
+              <ArrowLeft className="size-4" />
+              {t("Back to rooms")}
+            </Link>
+          </Button>
+        </div>
       </AppShell>
     );
   }
@@ -264,11 +337,31 @@ function RoomPage() {
             <ArrowLeft className="size-4" />
             {t("Back to rooms")}
           </Link>
-          <div className="mt-1 flex flex-wrap items-center gap-3">
+          <div className="mt-1 flex flex-wrap items-center gap-2.5">
             <h1 className="truncate font-display text-2xl font-semibold tracking-tight sm:text-3xl">
               {room.name}
             </h1>
             <StatusPill status={room.status} />
+            {room.has_password && (
+              <span
+                className="flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400"
+                title={t("Password protected")}
+              >
+                <LockKeyhole className="size-3" />
+                {t("Password protected")}
+              </span>
+            )}
+            {/* compact invite link — hover previews the full URL, click copies */}
+            <button
+              onClick={() => void copyInvite()}
+              className="inline-flex max-w-[220px] items-center gap-1.5 rounded-full bg-muted px-3 py-1 font-mono text-[11px] text-muted-foreground transition-colors hover:bg-primary-soft hover:text-primary"
+              title={makeInviteLink(roomId)}
+              aria-label={t("Copy invite link")}
+            >
+              <Link2 className="size-3 shrink-0 text-primary" />
+              <span className="truncate">/rooms/{room.code}</span>
+              {copied && <Check className="size-3 shrink-0 text-primary" />}
+            </button>
           </div>
         </div>
         <div className="flex items-center gap-2">

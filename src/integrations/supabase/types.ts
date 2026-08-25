@@ -160,6 +160,7 @@ export type Database = {
           duration_min: number;
           remaining_sec: number;
           ends_at: string | null;
+          has_password: boolean;
           created_at: string;
         };
         Insert: {
@@ -171,6 +172,7 @@ export type Database = {
           duration_min?: number;
           remaining_sec?: number;
           ends_at?: string | null;
+          has_password?: boolean;
           created_at?: string;
         };
         Update: {
@@ -182,9 +184,36 @@ export type Database = {
           duration_min?: number;
           remaining_sec?: number;
           ends_at?: string | null;
+          has_password?: boolean;
           created_at?: string;
         };
         Relationships: [];
+      };
+      room_passwords: {
+        Row: {
+          room_id: string;
+          password_hash: string;
+          updated_at: string;
+        };
+        Insert: {
+          room_id: string;
+          password_hash: string;
+          updated_at?: string;
+        };
+        Update: {
+          room_id?: string;
+          password_hash?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "room_passwords_room_id_fkey";
+            columns: ["room_id"];
+            isOneToOne: true;
+            referencedRelation: "study_rooms";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       room_members: {
         Row: {
@@ -217,7 +246,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      set_room_password: {
+        Args: { p_room_id: string; p_password: string | null };
+        Returns: undefined;
+      };
+      join_room_with_password: {
+        Args: { p_room_id: string; p_password: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       task_priority: "low" | "medium" | "high";
