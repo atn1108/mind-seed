@@ -227,7 +227,7 @@ function RoomPage() {
             {t("This room is password protected. Enter the password to join.")}
           </p>
           <Input
-            type="password"
+            type="text"
             autoFocus
             value={gatePassword}
             onChange={(e) => {
@@ -239,6 +239,7 @@ function RoomPage() {
             }}
             placeholder={t("Room password")}
             maxLength={40}
+            autoComplete="off"
             className="mt-5 rounded-2xl text-center"
             aria-label={t("Room password")}
           />

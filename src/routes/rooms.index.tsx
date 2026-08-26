@@ -361,6 +361,7 @@ function RoomsPage() {
               }}
               placeholder="ABC123"
               maxLength={6}
+              autoComplete="off"
               className="mt-4 rounded-2xl text-center font-mono text-lg uppercase tracking-widest"
               aria-label={t("Invite code")}
             />
@@ -388,6 +389,7 @@ function RoomsPage() {
             onChange={(e) => setNewName(e.target.value)}
             placeholder={t("Room name (e.g. Late-night grind)")}
             maxLength={60}
+            autoComplete="off"
             className="rounded-2xl"
             aria-label={t("Room name")}
           />
@@ -411,11 +413,12 @@ function RoomsPage() {
           <div className="relative">
             <Lock className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              type="password"
+              type="text"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder={t("Password (optional)")}
               maxLength={40}
+              autoComplete="off"
               className="rounded-2xl pl-10"
               aria-label={t("Room password")}
             />
@@ -453,7 +456,7 @@ function RoomsPage() {
             </DialogDescription>
           </DialogHeader>
           <Input
-            type="password"
+            type="text"
             autoFocus
             value={joinGatePassword}
             onChange={(e) => setJoinGatePassword(e.target.value)}
@@ -462,6 +465,7 @@ function RoomsPage() {
             }}
             placeholder={t("Room password")}
             maxLength={40}
+            autoComplete="off"
             className="rounded-2xl text-center"
             aria-label={t("Room password")}
           />
