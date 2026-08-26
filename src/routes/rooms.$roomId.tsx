@@ -104,9 +104,13 @@ function MemberCard({
       }`}
     >
       <div className="flex items-center gap-3">
-        <span className="relative shrink-0">
+        <span className="relative shrink-0 overflow-hidden">
           <span className="grid size-10 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-            {avatar || name.trim().charAt(0).toUpperCase() || "?"}
+            {avatar?.startsWith("data:") || avatar?.startsWith("http") ? (
+              <img src={avatar} alt="Avatar" className="size-full object-cover" />
+            ) : (
+              avatar || name.trim().charAt(0).toUpperCase() || "?"
+            )}
           </span>
           <span className="absolute -right-0.5 -bottom-0.5 size-3 rounded-full border-2 border-card bg-emerald-500" />
         </span>

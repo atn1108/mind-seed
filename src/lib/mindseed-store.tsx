@@ -245,6 +245,7 @@ type Ctx = {
   removeTask: (id: string) => Promise<void>;
   addReflection: (rating: number, reasons: string[]) => Promise<void>;
   setGoal: (hours: number) => Promise<void>;
+  updateAvatar: (file: File) => Promise<void>;
 };
 
 const EMPTY_STATE: MindSeedState = {
@@ -614,6 +615,40 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const updateAvatar = useCallback(async (file: File) => {
+    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+    const MAX_SIZE = 3 * 1024 * 1024; // 3MB
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      throw new Error("INVALID_TYPE");
+    }
+    if (file.size > MAX_SIZE) {
+      throw new Error("FILE_TOO_LARGE");
+    }
+
+    const { data: authData } = await supabase.auth.getUser();
+    const userId = authData.user?.id;
+    if (!userId) throw new Error("You are not signed in.");
+
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ avatar: dataUrl })
+      .eq("id", userId);
+
+    if (error) throw error;
+
+    setState((s) =>
+      s.user ? { ...s, user: { ...s.user, avatar: dataUrl } } : s,
+    );
+  }, []);
+
   const value = useMemo(
     () => ({
       state,
@@ -627,6 +662,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       removeTask,
       addReflection,
       setGoal,
+      updateAvatar,
     }),
     [
       state,
@@ -640,6 +676,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       removeTask,
       addReflection,
       setGoal,
+      updateAvatar,
     ],
   );
 

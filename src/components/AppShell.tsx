@@ -99,8 +99,12 @@ export function AppShell({ children }: { children: ReactNode }) {
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-              {state.user?.avatar ?? "M"}
+            <span className="grid size-7 shrink-0 overflow-hidden place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+              {state.user?.avatar?.startsWith("data:") || state.user?.avatar?.startsWith("http") ? (
+                <img src={state.user.avatar} alt="Avatar" className="size-full object-cover" />
+              ) : (
+                state.user?.avatar ?? "M"
+              )}
             </span>
             <span className="min-w-0 truncate">{state.user?.name ?? t("namePlaceholder")}</span>
           </Link>

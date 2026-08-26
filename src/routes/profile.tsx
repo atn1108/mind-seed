@@ -34,14 +34,40 @@ export const Route = createFileRoute("/profile")({
 function ProfilePage() {
   const t = useT();
   const tf = useTf();
-  const { state, setGoal } = useMindSeed();
+  const { state, setGoal, updateAvatar } = useMindSeed();
   const [module, setModule] = useState<null | "theme" | "language" | "notifications">(null);
   const [goalDraft, setGoalDraft] = useState<number | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const totalMinutes = state.sessions.filter((s) => s.completed).reduce((a, s) => a + s.minutes, 0);
   const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
   const score = focusScore(state);
   const goal = state.user?.monthlyGoalHours ?? 40;
   const goalPct = Math.min(100, Math.round((totalHours / goal) * 100));
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAvatar(true);
+    try {
+      await updateAvatar(file);
+      toast.success(t("Avatar updated successfully"));
+    } catch (err) {
+      if (err instanceof Error) {
+        if (err.message === "INVALID_TYPE") {
+          toast.error(t("Please upload a valid JPG, PNG, or WebP image."));
+        } else if (err.message === "FILE_TOO_LARGE") {
+          toast.error(t("Image size must be less than 3MB."));
+        } else {
+          toast.error(t("Could not update avatar. Please try again."));
+        }
+      } else {
+        toast.error(t("Could not update avatar. Please try again."));
+      }
+    } finally {
+      setUploadingAvatar(false);
+      e.target.value = "";
+    }
+  };
 
   return (
     <AppShell>
@@ -50,9 +76,23 @@ function ProfilePage() {
       </h1>
 
       <div className="surface mt-6 flex flex-col items-center gap-5 p-7 sm:flex-row sm:items-center">
-        <div className="grid size-20 shrink-0 place-items-center rounded-3xl bg-primary text-3xl font-semibold text-primary-foreground">
-          {state.user?.avatar ?? "M"}
-        </div>
+        <label className="relative group cursor-pointer grid size-20 shrink-0 overflow-hidden place-items-center rounded-3xl bg-primary text-3xl font-semibold text-primary-foreground shadow-sm transition-transform hover:scale-105">
+          {state.user?.avatar?.startsWith("data:") || state.user?.avatar?.startsWith("http") ? (
+            <img src={state.user.avatar} alt="Avatar" className="size-full object-cover" />
+          ) : (
+            state.user?.avatar ?? "M"
+          )}
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center text-white text-xs font-medium">
+            {uploadingAvatar ? "..." : t("Change")}
+          </div>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            disabled={uploadingAvatar}
+            onChange={handleAvatarChange}
+          />
+        </label>
         <div className="min-w-0 flex-1 text-center sm:text-left">
           <h2 className="truncate font-display text-xl font-semibold">
             {state.user?.name ?? t("namePlaceholder")}

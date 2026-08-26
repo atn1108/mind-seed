@@ -255,5 +255,9 @@
   "Password protected": "Password protected",
   "Invite link": "Invite link",
   "Copy": "Copy",
-  "Copied!": "Copied!"
+  "Copied!": "Copied!",
+  "Change": "Change",
+  "Avatar updated successfully": "Avatar updated successfully",
+  "Please upload a valid JPG, PNG, or WebP image.": "Please upload a valid JPG, PNG, or WebP image.",
+  "Image size must be less than 3MB.": "Image size must be less than 3MB."
 }

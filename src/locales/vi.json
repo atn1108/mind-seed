@@ -256,5 +256,9 @@
   "Password protected": "Có mật khẩu",
   "Invite link": "Link mời",
   "Copy": "Sao chép",
-  "Copied!": "Đã sao chép!"
+  "Copied!": "Đã sao chép!",
+  "Change": "Đổi ảnh",
+  "Avatar updated successfully": "Cập nhật ảnh đại diện thành công",
+  "Please upload a valid JPG, PNG, or WebP image.": "Vui lòng tải lên ảnh định dạng JPG, PNG hoặc WebP hợp lệ.",
+  "Image size must be less than 3MB.": "Kích thước ảnh phải nhỏ hơn 3MB."
 }
