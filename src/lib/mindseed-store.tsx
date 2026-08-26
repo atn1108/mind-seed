@@ -177,7 +177,7 @@ export function focusScore(state: MindSeedState, day = dayKey(new Date())) {
   const done = todays.filter((s) => s.completed);
   const minutes = done.reduce((a, s) => a + s.minutes, 0);
   const tasksDone = state.tasks.filter((t) => t.done).length;
-  const dropRate = todays.length ? (todays.length - done.length) / todays.length : 0;
+  const dropRate = todays.length ? (todays.length - done.length) / todays.length : 1;
 
   const timeScore = Math.min(minutes / 120, 1) * 40;
   const sessionScore = Math.min(done.length / 4, 1) * 20;
