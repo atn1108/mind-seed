@@ -260,5 +260,9 @@
   "Change": "Đổi ảnh",
   "Avatar updated successfully": "Cập nhật ảnh đại diện thành công",
   "Please upload a valid JPG, PNG, or WebP image.": "Vui lòng tải lên ảnh định dạng JPG, PNG hoặc WebP hợp lệ.",
-  "Image size must be less than 3MB.": "Kích thước ảnh phải nhỏ hơn 3MB."
+  "Image size must be less than 3MB.": "Kích thước ảnh phải nhỏ hơn 3MB.",
+  "Name updated successfully": "Cập nhật tên thành công",
+  "Please enter a valid name (1-50 characters)": "Vui lòng nhập tên hợp lệ (1-50 ký tự)",
+  "Edit": "Sửa",
+  "Save": "Lưu"
 }

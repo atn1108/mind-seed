@@ -246,6 +246,7 @@ type Ctx = {
   addReflection: (rating: number, reasons: string[]) => Promise<void>;
   setGoal: (hours: number) => Promise<void>;
   updateAvatar: (file: File) => Promise<void>;
+  updateName: (name: string) => Promise<void>;
 };
 
 const EMPTY_STATE: MindSeedState = {
@@ -649,6 +650,26 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const updateName = useCallback(async (name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed || trimmed.length > 50) throw new Error("INVALID_NAME");
+
+    const { data: authData } = await supabase.auth.getUser();
+    const userId = authData.user?.id;
+    if (!userId) throw new Error("You are not signed in.");
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ name: trimmed })
+      .eq("id", userId);
+
+    if (error) throw error;
+
+    setState((s) =>
+      s.user ? { ...s, user: { ...s.user, name: trimmed } } : s,
+    );
+  }, []);
+
   const value = useMemo(
     () => ({
       state,
@@ -663,6 +684,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       addReflection,
       setGoal,
       updateAvatar,
+      updateName,
     }),
     [
       state,
@@ -677,6 +699,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       addReflection,
       setGoal,
       updateAvatar,
+      updateName,
     ],
   );
 

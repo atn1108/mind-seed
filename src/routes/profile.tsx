@@ -2,12 +2,14 @@
 import { useT, useTf } from "@/lib/ui-language";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Flame, Clock, Sprout, Target, Languages, Bell, SunMoon, Settings2 } from "lucide-react";
+import { Flame, Clock, Sprout, Target, Languages, Bell, SunMoon, Settings2, Pencil, Check, X } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
 import { ScoreRing } from "@/routes/dashboard";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   LanguageModule,
   NotificationsModule,
@@ -34,10 +36,13 @@ export const Route = createFileRoute("/profile")({
 function ProfilePage() {
   const t = useT();
   const tf = useTf();
-  const { state, setGoal, updateAvatar } = useMindSeed();
+  const { state, setGoal, updateAvatar, updateName } = useMindSeed();
   const [module, setModule] = useState<null | "theme" | "language" | "notifications">(null);
   const [goalDraft, setGoalDraft] = useState<number | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState(state.user?.name ?? "");
+  const [savingName, setSavingName] = useState(false);
   const totalMinutes = state.sessions.filter((s) => s.completed).reduce((a, s) => a + s.minutes, 0);
   const totalHours = Math.round((totalMinutes / 60) * 10) / 10;
   const score = focusScore(state);
@@ -69,6 +74,24 @@ function ProfilePage() {
     }
   };
 
+  const handleSaveName = async () => {
+    const trimmed = nameInput.trim();
+    if (!trimmed || trimmed.length > 50) {
+      toast.error(t("Please enter a valid name (1-50 characters)"));
+      return;
+    }
+    setSavingName(true);
+    try {
+      await updateName(trimmed);
+      toast.success(t("Name updated successfully"));
+      setIsEditingName(false);
+    } catch {
+      toast.error(t("Could not update name. Please try again."));
+    } finally {
+      setSavingName(false);
+    }
+  };
+
   return (
     <AppShell>
       <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
@@ -94,10 +117,55 @@ function ProfilePage() {
           />
         </label>
         <div className="min-w-0 flex-1 text-center sm:text-left">
-          <h2 className="truncate font-display text-xl font-semibold">
-            {state.user?.name ?? t("namePlaceholder")}
-          </h2>
-          <p className="truncate text-sm text-muted-foreground">{state.user?.email}</p>
+          {isEditingName ? (
+            <div className="flex items-center gap-2 justify-center sm:justify-start">
+              <Input
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                maxLength={50}
+                className="h-9 max-w-xs rounded-xl"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") void handleSaveName();
+                  if (e.key === "Escape") setIsEditingName(false);
+                }}
+              />
+              <Button
+                size="sm"
+                className="h-9 rounded-xl cursor-pointer"
+                disabled={savingName}
+                onClick={() => void handleSaveName()}
+              >
+                <Check className="size-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-9 rounded-xl cursor-pointer"
+                disabled={savingName}
+                onClick={() => setIsEditingName(false)}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 justify-center sm:justify-start group">
+              <h2 className="truncate font-display text-xl font-semibold">
+                {state.user?.name ?? t("namePlaceholder")}
+              </h2>
+              <button
+                onClick={() => {
+                  setNameInput(state.user?.name ?? "");
+                  setIsEditingName(true);
+                }}
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-muted-foreground hover:text-primary cursor-pointer rounded-lg"
+                title={t("Edit")}
+              >
+                <Pencil className="size-4" />
+              </button>
+            </div>
+          )}
+          <p className="truncate text-sm text-muted-foreground mt-1">{state.user?.email}</p>
           <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
             <Badge icon={Flame} text={tf("{n} day streak", { n: streakOf(state) })} />
             <Badge icon={Sprout} text={tf("{n} trees", { n: state.forest.length })} />
