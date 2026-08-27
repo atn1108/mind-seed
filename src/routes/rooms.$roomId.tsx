@@ -10,8 +10,10 @@ import {
   Crown,
   Link2,
   LockKeyhole,
+  MessageSquare,
   Pause,
   Play,
+  Send,
   Shield,
   Square,
   Trash2,
@@ -31,10 +33,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { STAGES, useMindSeed } from "@/lib/mindseed-store";
-import { deleteRoom, leaveRoom, makeInviteLink, useRoom } from "@/lib/room-store";
+import { deleteRoom, fetchMemberPublicProfile, leaveRoom, makeInviteLink, MemberPublicProfile, useRoom } from "@/lib/room-store";
 
 export const Route = createFileRoute("/rooms/$roomId")({
   head: () => ({
@@ -84,6 +92,7 @@ function MemberCard({
   isMe,
   progress,
   delay,
+  onClick,
 }: {
   name: string;
   avatar: string;
@@ -91,6 +100,7 @@ function MemberCard({
   isMe: boolean;
   progress: number;
   delay: number;
+  onClick: () => void;
 }) {
   const t = useT();
   const stage = stageFor(progress);
@@ -99,7 +109,8 @@ function MemberCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={`rounded-2xl border p-3 ${
+      onClick={onClick}
+      className={`cursor-pointer rounded-2xl border p-3 transition-colors hover:border-primary/60 ${
         isMe ? "border-primary/40 bg-primary-soft/50" : "border-border bg-card"
       }`}
     >
@@ -171,6 +182,47 @@ function RoomPage() {
   const [gatePassword, setGatePassword] = useState("");
   const [gateError, setGateError] = useState(false);
   const [gateBusy, setGateBusy] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [sendingChat, setSendingChat] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
+  const [memberProfile, setMemberProfile] = useState<MemberPublicProfile | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [view.messages]);
+
+  const handleSendChat = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim() || sendingChat) return;
+    setSendingChat(true);
+    try {
+      await view.sendMessage(chatInput);
+      setChatInput("");
+    } catch (err) {
+      console.error("[Room] Send message failed:", err);
+      toast.error(t("Could not send message."));
+    } finally {
+      setSendingChat(false);
+    }
+  };
+
+  const handleOpenMemberProfile = async (userId: string) => {
+    setSelectedMemberId(userId);
+    setLoadingProfile(true);
+    try {
+      const prof = await fetchMemberPublicProfile(userId);
+      setMemberProfile(prof);
+    } catch (err) {
+      console.error("[Room] Fetch profile failed:", err);
+      toast.error(t("Could not load member profile."));
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
 
   const handleGateSubmit = async () => {
     if (!room) return;
@@ -572,6 +624,7 @@ function RoomPage() {
                   isMe={m.user_id === view.myId}
                   progress={progressPct}
                   delay={i * 0.06}
+                  onClick={() => void handleOpenMemberProfile(m.user_id)}
                 />
               ))}
             </ul>
@@ -583,7 +636,99 @@ function RoomPage() {
             )}
           </p>
         </div>
+
+        {/* room chat */}
+        <div className="surface mt-4 p-6 sm:p-7 flex flex-col h-[320px] lg:col-span-2">
+          <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
+            <MessageSquare className="size-4 text-primary" />
+            {t("Room chat")}
+          </h2>
+          <div ref={chatScrollRef} className="mt-3 flex-1 overflow-y-auto space-y-2.5 pr-1 text-sm">
+            {view.messages.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-12">
+                {t("No messages yet — say hello!")}
+              </p>
+            ) : (
+              view.messages.map((m) => {
+                const isMe = m.user_id === view.myId;
+                return (
+                  <div key={m.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
+                    <span className="text-[10px] text-muted-foreground px-1 mb-0.5">
+                      {m.user_name} · {new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                    <div
+                      className={`rounded-2xl px-3.5 py-2 max-w-[85%] text-xs leading-relaxed ${
+                        isMe
+                          ? "bg-primary text-primary-foreground rounded-br-sm"
+                          : "bg-muted text-foreground rounded-bl-sm"
+                      }`}
+                    >
+                      {m.content}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+          <form onSubmit={handleSendChat} className="mt-3 flex gap-2 pt-2 border-t border-border">
+            <Input
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              placeholder={t("Type a message...")}
+              maxLength={500}
+              className="h-10 rounded-xl text-xs"
+            />
+            <Button type="submit" size="sm" disabled={!chatInput.trim() || sendingChat} className="h-10 px-4 rounded-xl cursor-pointer">
+              <Send className="size-3.5" />
+            </Button>
+          </form>
+        </div>
       </div>
+
+      <Dialog open={selectedMemberId !== null} onOpenChange={(v) => !v && setSelectedMemberId(null)}>
+        <DialogContent className="w-[92vw] sm:max-w-sm rounded-3xl text-center">
+          <DialogHeader>
+            <DialogTitle className="text-center">{t("Member Profile")}</DialogTitle>
+          </DialogHeader>
+          {loadingProfile ? (
+            <p className="py-8 text-sm text-muted-foreground">{t("Loading profile…")}</p>
+          ) : memberProfile ? (
+            <div className="flex flex-col items-center py-2">
+              <div className="grid size-20 place-items-center rounded-3xl bg-primary text-3xl font-semibold text-primary-foreground overflow-hidden shadow-sm">
+                {memberProfile.avatar?.startsWith("data:") || memberProfile.avatar?.startsWith("http") ? (
+                  <img src={memberProfile.avatar} alt="Avatar" className="size-full object-cover" />
+                ) : (
+                  memberProfile.avatar || memberProfile.name.trim().charAt(0).toUpperCase() || "?"
+                )}
+              </div>
+              <h3 className="mt-4 font-display text-lg font-semibold">{memberProfile.name}</h3>
+              <p className="text-xs text-muted-foreground">{memberProfile.email}</p>
+              <div className="mt-5 grid grid-cols-2 gap-3 w-full">
+                <div className="surface p-3 text-center rounded-xl bg-muted/40">
+                  <p className="text-xs text-muted-foreground">EXP</p>
+                  <p className="mt-1 font-display text-base font-semibold">{memberProfile.exp}</p>
+                </div>
+                <div className="surface p-3 text-center rounded-xl bg-muted/40">
+                  <p className="text-xs text-muted-foreground">{t("Total trees")}</p>
+                  <p className="mt-1 font-display text-base font-semibold">{memberProfile.total_trees} 🌳</p>
+                </div>
+                <div className="surface p-3 text-center rounded-xl bg-muted/40">
+                  <p className="text-xs text-muted-foreground">{t("Study hours")}</p>
+                  <p className="mt-1 font-display text-base font-semibold">
+                    {Math.round((memberProfile.total_minutes / 60) * 10) / 10}h
+                  </p>
+                </div>
+                <div className="surface p-3 text-center rounded-xl bg-muted/40">
+                  <p className="text-xs text-muted-foreground">{t("Monthly goal")}</p>
+                  <p className="mt-1 font-display text-base font-semibold">{memberProfile.monthly_goal_hours}h</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="py-8 text-sm text-destructive">{t("Could not load member profile.")}</p>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>

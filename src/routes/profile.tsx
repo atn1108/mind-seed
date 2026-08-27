@@ -149,7 +149,7 @@ function ProfilePage() {
               </Button>
             </div>
           ) : (
-            <div className="flex items-center gap-2 justify-center sm:justify-start group">
+            <div className="flex items-center gap-2 justify-center sm:justify-start">
               <h2 className="truncate font-display text-xl font-semibold">
                 {state.user?.name ?? t("namePlaceholder")}
               </h2>
@@ -158,7 +158,7 @@ function ProfilePage() {
                   setNameInput(state.user?.name ?? "");
                   setIsEditingName(true);
                 }}
-                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-muted-foreground hover:text-primary cursor-pointer rounded-lg"
+                className="p-1 text-muted-foreground/70 hover:text-primary cursor-pointer rounded-lg transition-colors"
                 title={t("Edit")}
               >
                 <Pencil className="size-4" />

@@ -13,6 +13,68 @@ export type RoomMember = {
   joined_at: number;
 };
 
+export type RoomMessage = {
+  id: string;
+  room_id: string;
+  user_id: string;
+  user_name: string;
+  user_avatar: string | null;
+  content: string;
+  created_at: string;
+};
+
+export type MemberPublicProfile = {
+  id: string;
+  name: string;
+  email: string | null;
+  avatar: string | null;
+  monthly_goal_hours: number;
+  exp: number;
+  total_trees: number;
+  total_minutes: number;
+};
+
+export async function sendRoomMessage(roomId: string, content: string) {
+  const userId = await requireUserId();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("name, avatar")
+    .eq("id", userId)
+    .single();
+
+  const { error } = await supabase.from("room_messages").insert({
+    room_id: roomId,
+    user_id: userId,
+    user_name: profile?.name ?? "User",
+    user_avatar: profile?.avatar ?? null,
+    content: content.trim().slice(0, 500),
+  });
+  if (error) throw error;
+}
+
+export async function fetchMemberPublicProfile(userId: string): Promise<MemberPublicProfile> {
+  const [profileRes, treesRes, sessionsRes] = await Promise.all([
+    supabase.from("profiles").select("id, name, email, avatar, monthly_goal_hours, exp").eq("id", userId).single(),
+    supabase.from("garden_trees").select("id", { count: "exact" }).eq("user_id", userId),
+    supabase.from("focus_sessions").select("minutes").eq("user_id", userId).eq("completed", true),
+  ]);
+
+  if (profileRes.error) throw profileRes.error;
+  const p = profileRes.data;
+  const totalMinutes = (sessionsRes.data ?? []).reduce((acc, s) => acc + s.minutes, 0);
+
+  return {
+    id: p.id,
+    name: p.name,
+    email: p.email,
+    avatar: p.avatar,
+    monthly_goal_hours: p.monthly_goal_hours,
+    exp: p.exp,
+    total_trees: treesRes.count ?? 0,
+    total_minutes: totalMinutes,
+  };
+}
+
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 function generateCode() {
@@ -176,6 +238,7 @@ export function useRoom(roomId: string) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [room, setRoom] = useState<RoomRow | null>(null);
   const [members, setMembers] = useState<RoomMember[]>([]);
+  const [messages, setMessages] = useState<RoomMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [joinedOk, setJoinedOk] = useState<boolean | null>(null);
@@ -253,6 +316,14 @@ export function useRoom(roomId: string) {
           setJoinedOk(false);
         }
 
+        const { data: initialMessages } = await supabase
+          .from("room_messages")
+          .select("id, room_id, user_id, user_name, user_avatar, content, created_at")
+          .eq("room_id", roomId)
+          .order("created_at", { ascending: true })
+          .limit(100);
+        if (initialMessages && !cancelled) setMessages(initialMessages);
+
         const channel = supabase
           .channel(`room:${roomId}`)
           .on(
@@ -278,8 +349,21 @@ export function useRoom(roomId: string) {
             void channel.track(selfPayload);
           });
 
+        const chatChannel = supabase
+          .channel(`room-chat:${roomId}`)
+          .on(
+            "postgres_changes",
+            { event: "INSERT", schema: "public", table: "room_messages", filter: `room_id=eq.${roomId}` },
+            (payload) => {
+              const msg = payload.new as RoomMessage;
+              setMessages((prev) => [...prev, msg]);
+            },
+          )
+          .subscribe();
+
         return () => {
           void supabase.removeChannel(channel);
+          void supabase.removeChannel(chatChannel);
         };
       } catch (err) {
         console.error("[Room] Failed to open room:", err);
@@ -411,11 +495,19 @@ export function useRoom(roomId: string) {
     await patch({ host_id: myId });
   }, [myId, patch]);
 
+  const sendMessage = useCallback(
+    async (content: string) => {
+      await sendRoomMessage(roomId, content);
+    },
+    [roomId],
+  );
+
   return useMemo(
     () => ({
       myId,
       room,
       members,
+      messages,
       loading,
       error,
       running,
@@ -433,11 +525,13 @@ export function useRoom(roomId: string) {
       end,
       setDuration,
       claimHost,
+      sendMessage,
     }),
     [
       myId,
       room,
       members,
+      messages,
       loading,
       error,
       running,
@@ -455,6 +549,7 @@ export function useRoom(roomId: string) {
       end,
       setDuration,
       claimHost,
+      sendMessage,
     ],
   );
 }

@@ -263,5 +263,14 @@
   "Name updated successfully": "Name updated successfully",
   "Please enter a valid name (1-50 characters)": "Please enter a valid name (1-50 characters)",
   "Edit": "Edit",
-  "Save": "Save"
+  "Save": "Save",
+  "Room chat": "Room chat",
+  "Type a message...": "Type a message...",
+  "Send": "Send",
+  "Member Profile": "Member Profile",
+  "Total study hours": "Total study hours",
+  "Monthly goal": "Monthly goal",
+  "No messages yet — say hello!": "No messages yet — say hello!",
+  "Could not load member profile.": "Could not load member profile.",
+  "Loading profile…": "Loading profile…"
 }

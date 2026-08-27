@@ -272,58 +272,62 @@ function RoomsPage() {
                 return (
                   <li
                     key={room.id}
-                    className="flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3.5"
                   >
-                    <span className={`size-2 shrink-0 rounded-full ${statusTone(room.status)}`} />
-                    <div className="min-w-0 flex-1">
-                      <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
-                        {room.name}
-                        {room.has_password && (
-                          <Lock
-                            className="size-3.5 shrink-0 text-amber-500"
-                            aria-label={t("Password protected")}
-                          />
-                        )}
-                      </p>
-                      <p className="text-xs text-muted-foreground tabular-nums">
-                        <Users className="mr-1 inline size-3" />
-                        {tf("{n} studying", { n: count })} · {room.duration_min} {t("min")} ·{" "}
-                        {t(
-                          room.status === "running"
-                            ? "In focus…"
-                            : room.status === "paused"
-                              ? "Paused"
-                              : "Ready",
-                        )}
-                      </p>
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <span className={`size-2.5 shrink-0 rounded-full ${statusTone(room.status)}`} />
+                      <div className="min-w-0 flex-1">
+                        <p className="flex items-center gap-1.5 truncate text-sm font-semibold">
+                          <span className="truncate">{room.name}</span>
+                          {room.has_password && (
+                            <Lock
+                              className="size-3.5 shrink-0 text-amber-500"
+                              aria-label={t("Password protected")}
+                            />
+                          )}
+                        </p>
+                        <p className="text-xs text-muted-foreground tabular-nums mt-0.5">
+                          <Users className="mr-1 inline size-3" />
+                          {tf("{n} studying", { n: count })} · {room.duration_min} {t("min")} ·{" "}
+                          {t(
+                            room.status === "running"
+                              ? "In focus…"
+                              : room.status === "paused"
+                                ? "Paused"
+                                : "Ready",
+                          )}
+                        </p>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => void copyLink(room.id)}
-                      className="rounded-full bg-muted px-3 py-1.5 font-mono text-xs tracking-widest text-muted-foreground transition-colors hover:bg-primary-soft hover:text-primary"
-                      aria-label={t("Copy invite link")}
-                      title={t("Copy invite link")}
-                    >
-                      {room.code} <Copy className="inline size-3" />
-                    </button>
-                    <Button
-                      size="sm"
-                      className="cursor-pointer rounded-full"
-                      onClick={() => void openRoom(room)}
-                    >
-                      {t("Join")}
-                    </Button>
-                    {canDelete && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 cursor-pointer rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                        aria-label={t("Delete room")}
-                        title={t("Delete room")}
-                        onClick={() => setPendingDelete(room)}
+                    <div className="flex items-center gap-2 justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-0 border-border/60">
+                      <button
+                        onClick={() => void copyLink(room.id)}
+                        className="rounded-xl bg-muted px-2.5 py-1.5 font-mono text-xs tracking-widest text-muted-foreground transition-colors hover:bg-primary-soft hover:text-primary"
+                        aria-label={t("Copy invite link")}
+                        title={t("Copy invite link")}
                       >
-                        <Trash2 className="size-4" />
+                        {room.code} <Copy className="inline size-3" />
+                      </button>
+                      <Button
+                        size="sm"
+                        className="cursor-pointer rounded-xl px-4"
+                        onClick={() => void openRoom(room)}
+                      >
+                        {t("Join")}
                       </Button>
-                    )}
+                      {canDelete && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 cursor-pointer rounded-xl text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                          aria-label={t("Delete room")}
+                          title={t("Delete room")}
+                          onClick={() => setPendingDelete(room)}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      )}
+                    </div>
                   </li>
                 );
               })}
@@ -378,7 +382,7 @@ function RoomsPage() {
       </div>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="w-[92vw] sm:max-w-md rounded-3xl">
           <DialogHeader>
             <DialogTitle>{t("Create a study room")}</DialogTitle>
             <DialogDescription>{t("Pick a name and session length to begin.")}</DialogDescription>
@@ -445,7 +449,7 @@ function RoomsPage() {
           }
         }}
       >
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="w-[92vw] sm:max-w-sm rounded-3xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Lock className="size-4 text-primary" />
