@@ -115,8 +115,8 @@ function MemberCard({
       }`}
     >
       <div className="flex items-center gap-3">
-        <span className="relative shrink-0 overflow-hidden">
-          <span className="grid size-10 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+        <span className="relative shrink-0">
+          <span className="grid size-10 place-items-center overflow-hidden rounded-3xl bg-primary text-sm font-semibold text-primary-foreground">
             {avatar?.startsWith("data:") || avatar?.startsWith("http") ? (
               <img src={avatar} alt="Avatar" className="size-full object-cover" />
             ) : (
