@@ -28,6 +28,10 @@ type TimerCtx = {
 
 const Ctx = createContext<TimerCtx | null>(null);
 
+// Minimum elapsed time (seconds) before a stopped-but-unfinished session is
+// credited, to prevent starting and immediately ending from farming EXP.
+const MIN_PARTIAL_SEC = 60;
+
 export function TimerProvider({ children }: { children: ReactNode }) {
   const { addSession } = useMindSeed();
   const [durationMin, setDurationMin] = useState(25);
@@ -65,8 +69,11 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       setEndsAt(null);
       setRemaining(0);
       setFinishedTick((v) => v + 1);
+      void addSession(durationMin, true).catch((err) =>
+        console.error("[Timer] Failed to log completed session:", err),
+      );
     }
-  }, [running, endsAt, left]);
+  }, [running, endsAt, left, durationMin, addSession]);
 
   const setDuration = useCallback((min: number) => {
     completedRef.current = false;
@@ -97,7 +104,13 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   const stop = useCallback(() => {
     const elapsedSec = durationMin * 60 - left;
-    if (elapsedSec > 0 && elapsedSec < durationMin * 60) addSession(durationMin, false);
+    // Only credit a partial session when the user actually spent a meaningful
+    // amount of time focusing. Starting and immediately ending must not farm EXP.
+    if (elapsedSec >= MIN_PARTIAL_SEC && elapsedSec < durationMin * 60) {
+      void addSession(durationMin, false).catch((err) =>
+        console.error("[Timer] Failed to log partial session:", err),
+      );
+    }
     completedRef.current = false;
     setRunning(false);
     setEndsAt(null);
