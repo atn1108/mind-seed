@@ -414,7 +414,10 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
         typeof window !== "undefined" ? `${window.location.origin}/dashboard` : null;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        ...(redirectTo ? { options: { redirectTo } } : {}),
+        options: {
+          ...(redirectTo ? { redirectTo } : {}),
+          queryParams: { prompt: "select_account" },
+        },
       });
       if (error) throw error;
       return null;
