@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -90,7 +91,13 @@ export const QUOTES = [
 
 /* --------------------------------- utils --------------------------------- */
 
-export const dayKey = (d: Date | string) => new Date(d).toISOString().slice(0, 10);
+export const dayKey = (d: Date | string) => {
+  const date = new Date(d);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
 
 function mapProfile(row: {
   name: string;
@@ -263,6 +270,13 @@ const MindSeedContext = createContext<Ctx | null>(null);
 export function MindSeedProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<MindSeedState>(EMPTY_STATE);
   const [ready, setReady] = useState(false);
+  // Tracks the latest EXP so concurrent async mutations (addSession/updateTask)
+  // never read a stale exp from the closure and overwrite the DB value.
+  const expRef = useRef(0);
+
+  useEffect(() => {
+    expRef.current = state.exp;
+  }, [state.exp]);
 
   const loadUserData = useCallback(async (userId: string) => {
     const [profileResult, sessionsResult, tasksResult, reflectionsResult, treesResult] =
@@ -456,7 +470,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       const gained = completed ? minutes : Math.round(minutes * 0.2);
-      let exp = state.exp + gained;
+      let exp = expRef.current + gained;
       const forest = [...state.forest];
       const newTrees: TreeRecord[] = [];
 
@@ -479,6 +493,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       const profileUpdate = await supabase.from("profiles").update({ exp }).eq("id", userId);
 
       if (profileUpdate.error) throw profileUpdate.error;
+      expRef.current = exp;
 
       if (newTrees.length > 0) {
         const { error: treeError } = await supabase.from("garden_trees").insert(
@@ -500,7 +515,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
         sessions: [...s.sessions, mapSession(inserted)],
       }));
     },
-    [state.exp, state.forest],
+    [state.forest],
   );
 
   const addTask = useCallback(async (t: Omit<Task, "id" | "createdAt" | "done">) => {
@@ -557,12 +572,13 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
         const userId = authData.user?.id;
         if (!userId) throw new Error("You are not signed in.");
 
-        const nextExp = state.exp + 12;
+        const nextExp = expRef.current + 12;
         const { error: profileError } = await supabase
           .from("profiles")
           .update({ exp: nextExp })
           .eq("id", userId);
         if (profileError) throw profileError;
+        expRef.current = nextExp;
 
         setState((s) => ({
           ...s,
@@ -577,7 +593,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
         tasks: s.tasks.map((task) => (task.id === id ? mapTask(data) : task)),
       }));
     },
-    [state.exp, state.tasks],
+    [state.tasks],
   );
 
   const removeTask = useCallback(async (id: string) => {

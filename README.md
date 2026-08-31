@@ -21,7 +21,7 @@ MindSeed không chỉ là một ứng dụng quản lý công việc thông thư
 
 * **Cảm hứng thiết kế:** Kết hợp từ Apple, Notion, Forest App và Material Design 3.
 * **Đặc trưng visual:** Góc bo tròn lớn, khoảng cách thoáng đãng (generous spacing), chuyển động mượt mà, hiệu ứng glassmorphism nhẹ và bóng đổ mềm.
-* **Phông chữ:** Poppins
+* **Phông chữ:** Plus Jakarta Sans
 * **Bảng màu chủ đạo:**
   * **Primary:** `#4CAF50` (Xanh lá chính)
   * **Secondary:** `#81C784` (Xanh lá nhạt)
@@ -107,10 +107,43 @@ Trang bị hệ thống tính điểm tùy chỉnh từ **0 – 100**, dựa tr�
 
 ## 🛠️ Công nghệ Sử dụng
 
-* **UI Framework:** React, HTML5, CSS3, JavaScript
-* **Styling:** TailwindCSS, Lucide Icons
-* **Animation:** Framer Motion
-* **Charts:** Chart.js
+* **UI Framework:** React 19, TanStack Router / Start, TypeScript
+* **Styling:** TailwindCSS, shadcn/ui, Lucide Icons
+* **Animation:** Motion
+* **Charts:** Recharts
+* **Backend:** Supabase (Auth, Database, Realtime, RLS)
+* **Deploy:** Netlify (Vite + Nitro preset)
+
+---
+
+## 🔑 Cấu hình Môi trường (Environment)
+
+Sao chép `.env.example` thành `.env` và điền các giá trị Supabase của bạn:
+
+```sh
+cp .env.example .env
+```
+
+Các biến cần thiết:
+
+| Biến | Mô tả |
+|------|-------|
+| `SUPABASE_PROJECT_ID` | ID dự án Supabase |
+| `SUPABASE_PUBLISHABLE_KEY` / `VITE_SUPABASE_PUBLISHABLE_KEY` | Khóa publishable (anon) |
+| `SUPABASE_URL` / `VITE_SUPABASE_URL` | URL của Supabase project |
+| `SUPABASE_SERVICE_ROLE_KEY` | Khóa service role (chỉ dùng phía server, **không** đưa vào bundle) |
+
+## 🗄️ Cấu hình Database (Supabase)
+
+Các migration nằm trong `supabase/migrations/` và cần được apply vào project. Chạy:
+
+```sh
+npx supabase db push
+# hoặc
+supabase db push
+```
+
+> ⚠️ Phòng học (Study Rooms), phân quyền admin và RLS **phụ thuộc** vào các migration này. Nếu không apply, app sẽ không hoạt động đầy đủ.
 
 ---
 
@@ -132,6 +165,17 @@ cd mindseed
 # 3. Cài đặt các gói phụ thuộc
 npm install
 
-# 4. Chạy ứng dụng ở môi trường Development
+# 4. Cấu hình .env (xem bảng ở trên)
+
+# 5. Chạy ứng dụng ở môi trường Development
 npm run dev
 ```
+
+---
+
+## 🧑‍🤝‍🧑 Phòng học chung (Study Rooms)
+
+* Tạo hoặc tham gia phòng học bằng mã mời, chọn thời lượng phiên chung (timer dùng chung).
+* Mọi thành viên trong phòng cùng chạy một bộ đếm; khi kết thúc, ai cũng được ghi nhận phiên và cây lớn lên.
+* Hỗ trợ nhắn tin phòng, chế độ mật khẩu, chủ phòng điều khiển timer.
+
