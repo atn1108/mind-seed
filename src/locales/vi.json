@@ -270,5 +270,8 @@
   "Total study hours": "Tổng giờ học",
   "No messages yet — say hello!": "Chưa có tin nhắn nào — hãy gửi lời chào!",
   "Could not load member profile.": "Không thể tải hồ sơ thành viên.",
-  "Loading profile…": "Đang tải hồ sơ…"
+  "Loading profile…": "Đang tải hồ sơ…",
+  "Pair with FocusGuard": "Ghép cùng FocusGuard",
+  "Install the FocusGuard browser extension to block distractions while your timer runs.": "Cài tiện ích trình duyệt FocusGuard để chặn phiền nhiễu trong khi hẹn giờ.",
+  "Get it on GitHub": "Tải từ GitHub"
 }

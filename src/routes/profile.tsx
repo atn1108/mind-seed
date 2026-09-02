@@ -2,7 +2,20 @@
 import { useT, useTf } from "@/lib/ui-language";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Flame, Clock, Sprout, Target, Languages, Bell, SunMoon, Settings2, Pencil, Check, X } from "lucide-react";
+import {
+  Flame,
+  Clock,
+  Sprout,
+  Target,
+  Languages,
+  Bell,
+  SunMoon,
+  Settings2,
+  Pencil,
+  Check,
+  X,
+  Github,
+} from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
 import { ScoreRing } from "@/routes/dashboard";
@@ -103,7 +116,7 @@ function ProfilePage() {
           {state.user?.avatar?.startsWith("data:") || state.user?.avatar?.startsWith("http") ? (
             <img src={state.user.avatar} alt="Avatar" className="size-full object-cover" />
           ) : (
-            state.user?.avatar ?? "M"
+            (state.user?.avatar ?? "M")
           )}
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity grid place-items-center text-white text-xs font-medium">
             {uploadingAvatar ? "..." : t("Change")}
@@ -238,6 +251,30 @@ function ProfilePage() {
           />
         </div>
       </section>
+
+      <a
+        href="https://github.com/atn1108/FocusGuard"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="surface surface-hover mt-4 flex items-center gap-4 p-5"
+      >
+        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+          <Github className="size-6" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-display text-base font-semibold">
+            {t("Pair with FocusGuard")}
+          </span>
+          <span className="block text-sm text-muted-foreground">
+            {t(
+              "Install the FocusGuard browser extension to block distractions while your timer runs.",
+            )}
+          </span>
+        </span>
+        <span className="shrink-0 rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground">
+          {t("Get it on GitHub")}
+        </span>
+      </a>
 
       <ThemeModule open={module === "theme"} onOpenChange={(v) => !v && setModule(null)} />
       <LanguageModule open={module === "language"} onOpenChange={(v) => !v && setModule(null)} />

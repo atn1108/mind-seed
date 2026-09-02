@@ -32,6 +32,27 @@ const Ctx = createContext<TimerCtx | null>(null);
 // credited, to prevent starting and immediately ending from farming EXP.
 const MIN_PARTIAL_SEC = 60;
 
+// Listeners that keep FocusGuard's Pomodoro in sync with this focus timer.
+const FOCUSGUARD_SOURCE = "mindseed-focus";
+
+/**
+ * Broadcast a timer event to the page. FocusGuard's content script
+ * (content/mindseed-bridge.js) picks this up and mirrors it, so starting a
+ * MindSeed focus session also starts FocusGuard's Pomodoro blocker, and
+ * pausing/stopping lets it go idle.
+ */
+function broadcastFocusGuard(
+  action: "start" | "pause" | "resume" | "stop",
+  focusMinutes?: number,
+  remainingSeconds?: number,
+) {
+  if (typeof window === "undefined" || typeof window.postMessage !== "function") return;
+  window.postMessage(
+    { source: FOCUSGUARD_SOURCE, type: "timer", action, focusMinutes, remainingSeconds },
+    window.location.origin,
+  );
+}
+
 export function TimerProvider({ children }: { children: ReactNode }) {
   const { addSession } = useMindSeed();
   const [durationMin, setDurationMin] = useState(25);
@@ -69,6 +90,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       setEndsAt(null);
       setRemaining(0);
       setFinishedTick((v) => v + 1);
+      broadcastFocusGuard("stop");
       void addSession(durationMin, true).catch((err) =>
         console.error("[Timer] Failed to log completed session:", err),
       );
@@ -90,6 +112,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     completedRef.current = false;
     setRunning(true);
     setEndsAt(Date.now() + secs * 1000);
+    broadcastFocusGuard("start", durationMin, secs);
   }, [remaining, durationMin]);
 
   const pause = useCallback(() => {
@@ -98,9 +121,18 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       setRemaining(Math.max(0, Math.ceil((endsAt - Date.now()) / 1000)));
       setEndsAt(null);
     }
+    broadcastFocusGuard("pause");
   }, [endsAt]);
 
-  const resume = start;
+  // Resuming continues from wherever the session was paused, so pass the exact
+  // remaining seconds to keep FocusGuard's Pomodoro in lockstep.
+  const resume = useCallback(() => {
+    const secs = remaining > 0 ? remaining : durationMin * 60;
+    completedRef.current = false;
+    setRunning(true);
+    setEndsAt(Date.now() + secs * 1000);
+    broadcastFocusGuard("resume", durationMin, secs);
+  }, [remaining, durationMin]);
 
   const stop = useCallback(() => {
     const elapsedSec = durationMin * 60 - left;
@@ -115,6 +147,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     setRunning(false);
     setEndsAt(null);
     setRemaining(durationMin * 60);
+    broadcastFocusGuard("stop");
   }, [durationMin, left, addSession]);
 
   const value = useMemo<TimerCtx>(
