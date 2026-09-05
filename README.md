@@ -84,4 +84,3 @@ src/
 ├── start.ts        # Entry server (SSR)
 └── styles.css      # Tailwind + design tokens
 ```
-```
