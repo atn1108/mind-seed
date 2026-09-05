@@ -1,181 +1,87 @@
-﻿
-# MindSeed: Grow Your Focus
+﻿# MindSeed — Grow Your Focus
 
-> **MindSeed** là nền tảng hỗ trợ cải thiện khả năng tập trung, xây dựng thói quen học tập bền vững và giảm thiểu hội chứng "Popcorn Brain" (não bỏng ngô) dành cho học sinh, sinh viên và người học.
+> Nền tảng giúp cải thiện khả năng tập trung, xây dựng thói quen học tập bền vững và giảm thiểu hội chứng "Popcorn Brain" (não bỏng ngô) cho học sinh, sinh viên và người học.
 
----
-
-## 🌟 Triết lý Dự án
-
-> *"Ươm mầm sự tập trung thay vì ép buộc người dùng ngừng sử dụng điện thoại."*
-
-MindSeed không chỉ là một ứng dụng quản lý công việc thông thường. Hệ thống mang lại trải nghiệm:
-
-* **Thư thái & êm dịu**
-* **Tập trung & truyền cảm hứng**
-* **Hiện đại & tối giản** (không chi tiết thừa, không gây rối mắt)
+Triết lý: *"Ươm mầm sự tập trung thay vì ép buộc người dùng ngừng sử dụng điện thoại."*
 
 ---
 
-## 🎨 Phong cách Thiết kế & Giao diện
+## ✨ Tính năng chính
 
-* **Cảm hứng thiết kế:** Kết hợp từ Apple, Notion, Forest App và Material Design 3.
-* **Đặc trưng visual:** Góc bo tròn lớn, khoảng cách thoáng đãng (generous spacing), chuyển động mượt mà, hiệu ứng glassmorphism nhẹ và bóng đổ mềm.
-* **Phông chữ:** Plus Jakarta Sans
-* **Bảng màu chủ đạo:**
-  * **Primary:** `#4CAF50` (Xanh lá chính)
-  * **Secondary:** `#81C784` (Xanh lá nhạt)
-  * **Background:** `#F6FFF8` (Xanh nhạt dịu)
-  * **Card:** `#FFFFFF` (Trắng)
-  * **Accent:** `#FFD54F` (Vàng nhấn)
-  * **Text:** `#222222` (Xám đen)
-* **Tính tương thích:** Responsive hoàn hảo trên Desktop, Tablet và Mobile.
+| Module                          | Mô tả                                                                                                                |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 🔐**Đăng nhập**        | Google / Email / Đăng ký                                                                                            |
+| 🏠**Dashboard**           | Lời chào cá nhân, 4 thẻ tổng quan (Garden, Focus Time, Tasks, Score), nút "Start a focus session"               |
+| 🌳**Focus Garden**        | Tiến trình Hạt giống ➔ Cây non ➔ Cây trưởng thành ➔ Khu rừng; hoàn thành phiên giúp cây phát triển |
+| ⏱️**Focus Timer**       | Pomodoro tùy chỉnh (25–60 phút), vòng tiến trình, hiệu ứng confetti                                           |
+| 📋**Task Manager**        | Thêm/sửa/xóa nhiệm vụ, deadline, độ ưu tiên, tích lũy EXP                                                   |
+| 📊**Focus Insight**       | Báo cáo tuần, phân tích khung giờ hiệu quả, Pie/Line/Bar chart                                                 |
+| 🔔**Smart Reminder**      | Nhắc giữ chuỗi (streak), hoàn thành bài học, mục tiêu bỏ dở                                                 |
+| 📝**Reflection**          | Đánh giá 1–5 sao sau mỗi phiên, ghi nhận nguyên nhân xao nhãng                                               |
+| 👤**Profile**             | Thông tin người dùng, streak, tổng cây/giờ học, điểm trung bình, mục tiêu tháng                          |
+| 🧑‍🤝‍🧑**Study Rooms** | Phòng học chung (mã mời, timer dùng chung, nhắn tin, mật khẩu, chủ phòng điều khiển)                      |
 
----
-
-## 🎯 Tính năng Chính & Các Module
-
-### 1. 🔐 Trang Đăng nhập (Login)
-
-* Logo MindSeed (kết hợp hình ảnh Hạt giống ➔ Cây lớn ➔ Lá & Não bộ).
-* Thông điệp: *"Grow your focus one day at a time."*
-* Các tùy chọn: Đăng nhập bằng Google, Email, Đăng ký.
-
-### 2. 🏠 Trang chủ (Dashboard)
-
-* Lời chào cá nhân hóa (`Hello [User name]`) & Câu nói truyền cảm hứng.
-* **4 thẻ tổng quan:**
-  * **Focus Garden:** Số lượng cây, cây hiện tại, cấp độ.
-  * **Focus Time:** Tổng thời gian tập trung trong ngày.
-  * **Today's Tasks:** Danh sách nhiệm vụ cần làm.
-  * **Focus Score:** Điểm tập trung hôm nay.
-* Nút hành động nổi bật: **"Start a focus session"**.
-
-### 3. 🌳 Module 1: Vườn Tập Trung (Focus Garden)
-
-* Tiến trình phát triển: **Hạt giống ➔ Cây non ➔ Cây trưởng thành ➔ Khu rừng**.
-* Hoàn thành phiên tập trung giúp cây phát triển và mở khóa các loài cây mới.
-* Tích hợp hiệu ứng chuyển động lớn của cây & lịch sử khu rừng.
-
-### 4. ⏱️ Module 2: Đồng Hồ Tập Trung (Focus Timer)
-
-* Đồng hồ Pomodoro tùy chỉnh: 25, 30, 45, 60 phút.
-* Giao diện đồng hồ lớn kèm vòng tiến trình (Progress Circle).
-* Bộ điều khiển: Tạm dừng, Tiếp tục, Dừng lại.
-* Hiệu ứng Confetti và tăng trưởng cây sau khi hoàn thành.
-
-### 5. 📋 Module 3: Quản Lý Nhiệm Vụ (Task Manager)
-
-* Thêm, sửa, xóa nhiệm vụ, đặt hạn chót (Deadline) và độ ưu tiên.
-* Đánh dấu hoàn thành để tích lũy EXP cho cây.
-
-### 6. 📊 Module 4: Phân Tích Thông Minh (Focus Insight)
-
-* Mô phỏng báo cáo tổng kết hàng tuần.
-* Thống kê buổi tập trung, thời gian, tỉ lệ hủy và phần trăm đạt mục tiêu.
-* **Nhận xét thông minh:** Phân tích khung giờ tập trung hiệu quả nhất và đưa ra lời khuyên cải thiện thói quen.
-* Đồ thị trực quan: Pie Chart, Line Chart, Bar Chart.
-
-### 7. 🔔 Module 5: Nhắc Nhở Thông Minh (Smart Reminder)
-
-* Thông báo nhắc nhở duy trì chuỗi (streak), hoàn thành bài học và nhắc nhở khi bỏ dở mục tiêu trong ngày.
-
-### 8. 📝 Module 6: Đánh Giá Sau Phiên (Reflection)
-
-* Hỏi nhanh mức độ tập trung sau mỗi phiên (thang điểm 1–5 sao).
-* Ghi nhận các nguyên nhân gây xao nhãng (TikTok, Facebook, Game, Tiếng ồn, Buồn ngủ,...).
-
-### 9. 👤 Module 7: Cá Nhân (Profile)
-
-* Thông tin người dùng, chuỗi ngày (streak), tổng số cây, tổng số giờ học, điểm tập trung trung bình và mục tiêu hàng tháng.
+**Focus Score (0–100):** tính từ thời gian tập trung, số phiên & nhiệm vụ hoàn thành, tỉ lệ bỏ dở và streak. Xếp loại: Excellent → Good → Average → Need Improvement.
 
 ---
 
-## 💯 Hệ thống Điểm Tập Trung (Focus Score)
+## 🎨 Thiết kế
 
-Trang bị hệ thống tính điểm tùy chỉnh từ **0 – 100**, dựa trên:
-
-1. Thời gian tập trung.
-2. Số phiên hoàn thành.
-3. Số nhiệm vụ hoàn thành.
-4. Tỉ lệ bỏ dở (Drop-off rate).
-5. Chuỗi ngày liên tục (Streak).
-
-**Xếp loại:** Excellent | Good | Average | Need Improvement (kèm giải thích chi tiết).
+- Cảm hứng: Apple, Notion, Forest App, Material Design 3
+- Bo góc lớn, spacing thoáng, glassmorphism nhẹ, bóng đổ mềm, responsive mọi kích thước
+- Font: **Plus Jakarta Sans** · Primary: `#4CAF50` · Background: `#F6FFF8` · Accent: `#FFD54F`
 
 ---
 
-## 🛠️ Công nghệ Sử dụng
+## 🛠️ Công nghệ
 
-* **UI Framework:** React 19, TanStack Router / Start, TypeScript
-* **Styling:** TailwindCSS, shadcn/ui, Lucide Icons
-* **Animation:** Motion
-* **Charts:** Recharts
-* **Backend:** Supabase (Auth, Database, Realtime, RLS)
-* **Deploy:** Netlify (Vite + Nitro preset)
-
----
-
-## 🔑 Cấu hình Môi trường (Environment)
-
-Sao chép `.env.example` thành `.env` và điền các giá trị Supabase của bạn:
-
-```sh
-cp .env.example .env
-```
-
-Các biến cần thiết:
-
-| Biến | Mô tả |
-|------|-------|
-| `SUPABASE_PROJECT_ID` | ID dự án Supabase |
-| `SUPABASE_PUBLISHABLE_KEY` / `VITE_SUPABASE_PUBLISHABLE_KEY` | Khóa publishable (anon) |
-| `SUPABASE_URL` / `VITE_SUPABASE_URL` | URL của Supabase project |
-| `SUPABASE_SERVICE_ROLE_KEY` | Khóa service role (chỉ dùng phía server, **không** đưa vào bundle) |
-
-## 🗄️ Cấu hình Database (Supabase)
-
-Các migration nằm trong `supabase/migrations/` và cần được apply vào project. Chạy:
-
-```sh
-npx supabase db push
-# hoặc
-supabase db push
-```
-
-> ⚠️ Phòng học (Study Rooms), phân quyền admin và RLS **phụ thuộc** vào các migration này. Nếu không apply, app sẽ không hoạt động đầy đủ.
+- **UI:** React 19, TanStack Router / Start, TypeScript
+- **Styling:** TailwindCSS, shadcn/ui, Lucide
+- **Animation / Charts:** Motion, Recharts
+- **Backend:** Supabase (Auth, Database, Realtime, RLS)
+- **Deploy:** Netlify (`Nitro` preset `netlify`)
 
 ---
 
-## 🚀 Hướng dẫn Cài đặt & Phát triển
+## 🚀 Bắt đầu
 
 ### Yêu cầu
 
-* Node.js & npm
+Node.js ≥ 24 & npm
 
-### Cài đặt cục bộ
+### Cài đặt
 
 ```sh
-# 1. Clone repository
 git clone https://github.com/atn1108/mind-seed.git
-
-# 2. Di chuyển vào thư mục dự án
-cd mindseed
-
-# 3. Cài đặt các gói phụ thuộc
+cd mind-seed
 npm install
-
-# 4. Cấu hình .env (xem bảng ở trên)
-
-# 5. Chạy ứng dụng ở môi trường Development
+cp .env.example .env   # điền giá trị Supabase
 npm run dev
 ```
 
+### Biến môi trường
+
+| Biến                             | Mô tả                                                              |
+| --------------------------------- | -------------------------------------------------------------------- |
+| `VITE_SUPABASE_URL`             | URL Supabase project                                                 |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Khóa publishable (anon) — public                                   |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Khóa service role —**chỉ server, không đưa vào bundle** |
+
 ---
 
-## 🧑‍🤝‍🧑 Phòng học chung (Study Rooms)
+## 📁 Cấu trúc dự án
 
-* Tạo hoặc tham gia phòng học bằng mã mời, chọn thời lượng phiên chung (timer dùng chung).
-* Mọi thành viên trong phòng cùng chạy một bộ đếm; khi kết thúc, ai cũng được ghi nhận phiên và cây lớn lên.
-* Hỗ trợ nhắn tin phòng, chế độ mật khẩu, chủ phòng điều khiển timer.
-
+```
+src/
+├── components/     # UI components (shadcn/ui, layout, module widgets)
+├── hooks/          # Custom hooks
+├── integrations/   # Kết nối Supabase (client, server)
+├── lib/            # Tiện ích dùng chung
+├── locales/        # Bản địa hóa / i18n
+├── routes/         # TanStack Router routes
+├── router.tsx      # Khởi tạo router
+├── server.ts       # Entry server (dev)
+├── start.ts        # Entry server (SSR)
+└── styles.css      # Tailwind + design tokens
+```
+```
