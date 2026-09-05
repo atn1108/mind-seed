@@ -450,73 +450,46 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
     setState(EMPTY_STATE);
   }, []);
 
-  const addSession = useCallback(
-    async (minutes: number, completed: boolean) => {
-      const { data: authData } = await supabase.auth.getUser();
-      const userId = authData.user?.id;
-      if (!userId) throw new Error("You are not signed in.");
+  const addSession = useCallback(async (minutes: number, completed: boolean) => {
+    const { data: authData } = await supabase.auth.getUser();
+    const userId = authData.user?.id;
+    if (!userId) throw new Error("You are not signed in.");
 
-      const { data: inserted, error } = await supabase
-        .from("focus_sessions")
-        .insert({
-          user_id: userId,
-          started_at: new Date().toISOString(),
-          minutes,
-          completed,
-        })
-        .select("id,started_at,minutes,completed")
-        .single();
+    // Server-authoritative: inserts the session, validates minutes, applies
+    // per-day anti-farming caps, grants EXP and materializes trees. Clients
+    // can no longer write arbitrary exp straight into profiles.
+    const { data: rpcData, error } = await supabase.rpc("complete_focus_session", {
+      p_minutes: minutes,
+      p_completed: completed,
+    });
 
-      if (error) throw error;
+    if (error) throw error;
 
-      const gained = completed ? minutes : Math.round(minutes * 0.2);
-      let exp = expRef.current + gained;
-      const forest = [...state.forest];
-      const newTrees: TreeRecord[] = [];
+    const result = rpcData as {
+      exp: number;
+      session_id: string;
+      started_at: string;
+      minutes: number;
+      completed: boolean;
+      trees: { id: string; species: string; planted_at: string; minutes: number }[];
+    };
 
-      while (exp >= STAGES[STAGES.length - 1]!.need) {
-        exp -= STAGES[STAGES.length - 1]!.need;
-        const speciesIdx = Math.min(
-          SPECIES.length - 1,
-          SPECIES.filter((sp) => forest.length >= sp.unlockAt).length - 1,
-        );
-        const tree: TreeRecord = {
-          id: crypto.randomUUID(),
-          species: SPECIES[Math.max(0, speciesIdx)]!.name,
-          plantedAt: new Date().toISOString(),
-          minutes,
-        };
-        forest.push(tree);
-        newTrees.push(tree);
-      }
-
-      const profileUpdate = await supabase.from("profiles").update({ exp }).eq("id", userId);
-
-      if (profileUpdate.error) throw profileUpdate.error;
-      expRef.current = exp;
-
-      if (newTrees.length > 0) {
-        const { error: treeError } = await supabase.from("garden_trees").insert(
-          newTrees.map((tree) => ({
-            id: tree.id,
-            user_id: userId,
-            species: tree.species,
-            planted_at: tree.plantedAt,
-            minutes: tree.minutes,
-          })),
-        );
-        if (treeError) throw treeError;
-      }
-
-      setState((s) => ({
-        ...s,
-        exp,
-        forest,
-        sessions: [...s.sessions, mapSession(inserted)],
-      }));
-    },
-    [state.forest],
-  );
+    expRef.current = result.exp;
+    setState((s) => ({
+      ...s,
+      exp: result.exp,
+      forest: [...s.forest, ...result.trees.map(mapTree)],
+      sessions: [
+        ...s.sessions,
+        mapSession({
+          id: result.session_id,
+          started_at: result.started_at,
+          minutes: result.minutes,
+          completed: result.completed,
+        }),
+      ],
+    }));
+  }, []);
 
   const addTask = useCallback(async (t: Omit<Task, "id" | "createdAt" | "done">) => {
     const { data: authData } = await supabase.auth.getUser();
@@ -544,6 +517,8 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       const current = state.tasks.find((task) => task.id === id);
       if (!current) return;
 
+      const completing = patch.done === true && !current.done;
+
       const dbPatch: {
         title?: string;
         deadline?: string | null;
@@ -554,7 +529,9 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       if (patch.title !== undefined) dbPatch.title = patch.title;
       if (patch.deadline !== undefined) dbPatch.deadline = patch.deadline || null;
       if (patch.priority !== undefined) dbPatch.priority = patch.priority;
-      if (patch.done !== undefined) dbPatch.done = patch.done;
+      // `done` transitions to true are handled server-side by complete_task()
+      // (atomic flip + EXP grant, once per task) — never by the client.
+      if (patch.done !== undefined && !completing) dbPatch.done = patch.done;
 
       const { data, error } = await supabase
         .from("tasks")
@@ -565,25 +542,20 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
 
-      // Keep the original prototype's +12 EXP behavior, but only when a task
-      // actually changes from incomplete -> complete.
-      if (patch.done === true && !current.done) {
-        const { data: authData } = await supabase.auth.getUser();
-        const userId = authData.user?.id;
-        if (!userId) throw new Error("You are not signed in.");
-
-        const nextExp = expRef.current + 12;
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .update({ exp: nextExp })
-          .eq("id", userId);
-        if (profileError) throw profileError;
+      // Task completion is server-authoritative: complete_task() flips `done`
+      // and grants the +12 EXP atomically — only once per task, only to its
+      // owner — so a repeated/forged request cannot farm EXP.
+      if (completing) {
+        const { data: expData, error: expError } = await supabase.rpc("complete_task", {
+          p_task_id: id,
+        });
+        if (expError) throw expError;
+        const nextExp = expData as number;
         expRef.current = nextExp;
-
         setState((s) => ({
           ...s,
           exp: nextExp,
-          tasks: s.tasks.map((task) => (task.id === id ? mapTask(data) : task)),
+          tasks: s.tasks.map((task) => (task.id === id ? { ...task, done: true } : task)),
         }));
         return;
       }
@@ -657,16 +629,11 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       reader.readAsDataURL(file);
     });
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({ avatar: dataUrl })
-      .eq("id", userId);
+    const { error } = await supabase.from("profiles").update({ avatar: dataUrl }).eq("id", userId);
 
     if (error) throw error;
 
-    setState((s) =>
-      s.user ? { ...s, user: { ...s.user, avatar: dataUrl } } : s,
-    );
+    setState((s) => (s.user ? { ...s, user: { ...s.user, avatar: dataUrl } } : s));
   }, []);
 
   const updateName = useCallback(async (name: string) => {
@@ -677,16 +644,11 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
     const userId = authData.user?.id;
     if (!userId) throw new Error("You are not signed in.");
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({ name: trimmed })
-      .eq("id", userId);
+    const { error } = await supabase.from("profiles").update({ name: trimmed }).eq("id", userId);
 
     if (error) throw error;
 
-    setState((s) =>
-      s.user ? { ...s, user: { ...s.user, name: trimmed } } : s,
-    );
+    setState((s) => (s.user ? { ...s, user: { ...s.user, name: trimmed } } : s));
   }, []);
 
   const value = useMemo(

@@ -26,13 +26,20 @@ export type RoomMessage = {
 export type MemberPublicProfile = {
   id: string;
   name: string;
-  email: string | null;
   avatar: string | null;
   monthly_goal_hours: number;
   exp: number;
   total_trees: number;
   total_minutes: number;
 };
+
+/** Only local data-URI images are treated as renderable avatars. External
+ *  http(s) URLs are rejected client-side too: they act as tracking pixels
+ *  (IP + referer leak — the room URL is sent in the request) and abuse the
+ *  victim's browser as a load source. */
+export function isSafeAvatar(avatar: string | null | undefined): avatar is string {
+  return typeof avatar === "string" && avatar.startsWith("data:image/");
+}
 
 export async function sendRoomMessage(roomId: string, content: string) {
   const userId = await requireUserId();
@@ -54,7 +61,11 @@ export async function sendRoomMessage(roomId: string, content: string) {
 
 export async function fetchMemberPublicProfile(userId: string): Promise<MemberPublicProfile> {
   const [profileRes, treesRes, sessionsRes] = await Promise.all([
-    supabase.from("profiles").select("id, name, email, avatar, monthly_goal_hours, exp").eq("id", userId).single(),
+    supabase
+      .from("profiles")
+      .select("id, name, avatar, monthly_goal_hours, exp")
+      .eq("id", userId)
+      .single(),
     supabase.from("garden_trees").select("id", { count: "exact" }).eq("user_id", userId),
     supabase.from("focus_sessions").select("minutes").eq("user_id", userId).eq("completed", true),
   ]);
@@ -66,7 +77,6 @@ export async function fetchMemberPublicProfile(userId: string): Promise<MemberPu
   return {
     id: p.id,
     name: p.name,
-    email: p.email,
     avatar: p.avatar,
     monthly_goal_hours: p.monthly_goal_hours,
     exp: p.exp,
@@ -353,7 +363,12 @@ export function useRoom(roomId: string) {
           .channel(`room-chat:${roomId}`)
           .on(
             "postgres_changes",
-            { event: "INSERT", schema: "public", table: "room_messages", filter: `room_id=eq.${roomId}` },
+            {
+              event: "INSERT",
+              schema: "public",
+              table: "room_messages",
+              filter: `room_id=eq.${roomId}`,
+            },
             (payload) => {
               const msg = payload.new as RoomMessage;
               setMessages((prev) => [...prev, msg]);

@@ -33,16 +33,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { STAGES, useMindSeed } from "@/lib/mindseed-store";
-import { deleteRoom, fetchMemberPublicProfile, leaveRoom, makeInviteLink, MemberPublicProfile, useRoom } from "@/lib/room-store";
+import {
+  deleteRoom,
+  fetchMemberPublicProfile,
+  isSafeAvatar,
+  leaveRoom,
+  makeInviteLink,
+  MemberPublicProfile,
+  useRoom,
+} from "@/lib/room-store";
 
 export const Route = createFileRoute("/rooms/$roomId")({
   head: () => ({
@@ -117,7 +120,7 @@ function MemberCard({
       <div className="flex items-center gap-3">
         <span className="relative shrink-0">
           <span className="grid size-10 place-items-center overflow-hidden rounded-3xl bg-primary text-sm font-semibold text-primary-foreground">
-            {avatar?.startsWith("data:") || avatar?.startsWith("http") ? (
+            {isSafeAvatar(avatar) ? (
               <img src={avatar} alt="Avatar" className="size-full object-cover" />
             ) : (
               avatar || name.trim().charAt(0).toUpperCase() || "?"
@@ -654,7 +657,11 @@ function RoomPage() {
                 return (
                   <div key={m.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
                     <span className="text-[10px] text-muted-foreground px-1 mb-0.5">
-                      {m.user_name} · {new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      {m.user_name} ·{" "}
+                      {new Date(m.created_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </span>
                     <div
                       className={`rounded-2xl px-3.5 py-2 max-w-[85%] text-xs leading-relaxed ${
@@ -678,14 +685,22 @@ function RoomPage() {
               maxLength={500}
               className="h-10 rounded-xl text-xs"
             />
-            <Button type="submit" size="sm" disabled={!chatInput.trim() || sendingChat} className="h-10 px-4 rounded-xl cursor-pointer">
+            <Button
+              type="submit"
+              size="sm"
+              disabled={!chatInput.trim() || sendingChat}
+              className="h-10 px-4 rounded-xl cursor-pointer"
+            >
               <Send className="size-3.5" />
             </Button>
           </form>
         </div>
       </div>
 
-      <Dialog open={selectedMemberId !== null} onOpenChange={(v) => !v && setSelectedMemberId(null)}>
+      <Dialog
+        open={selectedMemberId !== null}
+        onOpenChange={(v) => !v && setSelectedMemberId(null)}
+      >
         <DialogContent className="w-[92vw] sm:max-w-sm rounded-3xl text-center">
           <DialogHeader>
             <DialogTitle className="text-center">{t("Member Profile")}</DialogTitle>
@@ -695,14 +710,13 @@ function RoomPage() {
           ) : memberProfile ? (
             <div className="flex flex-col items-center py-2">
               <div className="grid size-20 place-items-center rounded-3xl bg-primary text-3xl font-semibold text-primary-foreground overflow-hidden shadow-sm">
-                {memberProfile.avatar?.startsWith("data:") || memberProfile.avatar?.startsWith("http") ? (
+                {isSafeAvatar(memberProfile.avatar) ? (
                   <img src={memberProfile.avatar} alt="Avatar" className="size-full object-cover" />
                 ) : (
                   memberProfile.avatar || memberProfile.name.trim().charAt(0).toUpperCase() || "?"
                 )}
               </div>
               <h3 className="mt-4 font-display text-lg font-semibold">{memberProfile.name}</h3>
-              <p className="text-xs text-muted-foreground">{memberProfile.email}</p>
               <div className="mt-5 grid grid-cols-2 gap-3 w-full">
                 <div className="surface p-3 text-center rounded-xl bg-muted/40">
                   <p className="text-xs text-muted-foreground">EXP</p>
@@ -710,7 +724,9 @@ function RoomPage() {
                 </div>
                 <div className="surface p-3 text-center rounded-xl bg-muted/40">
                   <p className="text-xs text-muted-foreground">{t("Total trees")}</p>
-                  <p className="mt-1 font-display text-base font-semibold">{memberProfile.total_trees} 🌳</p>
+                  <p className="mt-1 font-display text-base font-semibold">
+                    {memberProfile.total_trees} 🌳
+                  </p>
                 </div>
                 <div className="surface p-3 text-center rounded-xl bg-muted/40">
                   <p className="text-xs text-muted-foreground">{t("Study hours")}</p>
@@ -720,7 +736,9 @@ function RoomPage() {
                 </div>
                 <div className="surface p-3 text-center rounded-xl bg-muted/40">
                   <p className="text-xs text-muted-foreground">{t("Monthly goal")}</p>
-                  <p className="mt-1 font-display text-base font-semibold">{memberProfile.monthly_goal_hours}h</p>
+                  <p className="mt-1 font-display text-base font-semibold">
+                    {memberProfile.monthly_goal_hours}h
+                  </p>
                 </div>
               </div>
             </div>

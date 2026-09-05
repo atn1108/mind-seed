@@ -50,6 +50,3 @@ design-system/
 .env.*.local
 node_modules/
 .netlify/
-
-# Supabase migrations (local-only)
-supabase/migrations/

@@ -241,6 +241,44 @@ export type Database = {
           },
         ];
       };
+      room_messages: {
+        Row: {
+          id: string;
+          room_id: string;
+          user_id: string;
+          user_name: string;
+          user_avatar: string | null;
+          content: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          room_id: string;
+          user_id: string;
+          user_name: string;
+          user_avatar?: string | null;
+          content: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          room_id?: string;
+          user_id?: string;
+          user_name?: string;
+          user_avatar?: string | null;
+          content?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "room_messages_room_id_fkey";
+            columns: ["room_id"];
+            isOneToOne: false;
+            referencedRelation: "study_rooms";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -253,6 +291,14 @@ export type Database = {
       join_room_with_password: {
         Args: { p_room_id: string; p_password: string };
         Returns: undefined;
+      };
+      complete_focus_session: {
+        Args: { p_minutes: number; p_completed: boolean };
+        Returns: Json;
+      };
+      complete_task: {
+        Args: { p_task_id: string };
+        Returns: number;
       };
     };
     Enums: {
