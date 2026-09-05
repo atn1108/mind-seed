@@ -111,6 +111,10 @@ export function makeInviteLink(roomId: string) {
 const ROOM_COLUMNS =
   "id,name,code,host_id,status,duration_min,remaining_sec,ends_at,has_password,created_at";
 
+// Keep only the most recent messages in memory so an active room with heavy
+// chat doesn't grow React state (and DOM) without bound.
+const MAX_ROOM_MESSAGES = 200;
+
 export async function createRoom(
   name: string,
   durationMin: number,
@@ -330,9 +334,9 @@ export function useRoom(roomId: string) {
           .from("room_messages")
           .select("id, room_id, user_id, user_name, user_avatar, content, created_at")
           .eq("room_id", roomId)
-          .order("created_at", { ascending: true })
-          .limit(100);
-        if (initialMessages && !cancelled) setMessages(initialMessages);
+          .order("created_at", { ascending: false })
+          .limit(MAX_ROOM_MESSAGES);
+        if (initialMessages && !cancelled) setMessages([...initialMessages].reverse());
 
         const channel = supabase
           .channel(`room:${roomId}`)
@@ -371,7 +375,10 @@ export function useRoom(roomId: string) {
             },
             (payload) => {
               const msg = payload.new as RoomMessage;
-              setMessages((prev) => [...prev, msg]);
+              setMessages((prev) => {
+                const from = prev.length >= MAX_ROOM_MESSAGES ? prev.length - MAX_ROOM_MESSAGES + 1 : 0;
+                return [...prev.slice(from), msg];
+              });
             },
           )
           .subscribe();
