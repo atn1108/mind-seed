@@ -56,6 +56,21 @@ export const Route = createFileRoute("/rooms/$roomId")({
 
 const DURATIONS = [25, 30, 45, 60];
 
+/** Formats a message timestamp: time for today, "Yesterday", "N days ago", else a date. */
+function messageTime(t: ReturnType<typeof useT>, tf: ReturnType<typeof useTf>, raw: string) {
+  const date = new Date(raw);
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfMsgDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  const dayDiff = Math.round((startOfToday - startOfMsgDay) / 86_400_000);
+  const time = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  if (dayDiff <= 0) return time;
+  if (dayDiff === 1) return `${tf("Yesterday")} · ${time}`;
+  if (dayDiff < 7) return `${tf("{n} days ago", { n: dayDiff })} · ${time}`;
+  return `${date.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · ${time}`;
+}
+
 /** Tree grows through the 4 MindSeed stages as the shared session progresses. */
 function stageFor(progressPct: number) {
   const idx = Math.min(3, Math.floor((Math.max(0, Math.min(100, progressPct)) / 100) * 4));
@@ -646,7 +661,7 @@ function RoomPage() {
             <MessageSquare className="size-4 text-primary" />
             {t("Room chat")}
           </h2>
-          <div ref={chatScrollRef} className="mt-3 flex-1 overflow-y-auto space-y-2.5 pr-1 text-sm">
+          <div ref={chatScrollRef} className="mt-3 flex-1 overflow-y-auto space-y-2.5 pr-1 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {view.messages.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-12">
                 {t("No messages yet — say hello!")}
@@ -657,11 +672,7 @@ function RoomPage() {
                 return (
                   <div key={m.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
                     <span className="text-[10px] text-muted-foreground px-1 mb-0.5">
-                      {m.user_name} ·{" "}
-                      {new Date(m.created_at).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {m.user_name} · {messageTime(t, tf, m.created_at)}
                     </span>
                     <div
                       className={`rounded-2xl px-3.5 py-2 max-w-[85%] text-xs leading-relaxed ${

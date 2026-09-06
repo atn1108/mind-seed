@@ -273,5 +273,7 @@
   "Loading profile…": "Loading profile…",
   "Pair with FocusGuard": "Pair with FocusGuard",
   "Install the FocusGuard browser extension to block distractions while your timer runs.": "Install the FocusGuard browser extension to block distractions while your timer runs.",
-  "Get it on GitHub": "Get it on GitHub"
+  "Get it on GitHub": "Get it on GitHub",
+  "Yesterday": "Yesterday",
+  "{n} days ago": "{n} days ago"
 }

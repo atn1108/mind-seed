@@ -273,5 +273,7 @@
   "Loading profile…": "Đang tải hồ sơ…",
   "Pair with FocusGuard": "Ghép cùng FocusGuard",
   "Install the FocusGuard browser extension to block distractions while your timer runs.": "Cài tiện ích trình duyệt FocusGuard để chặn phiền nhiễu trong khi hẹn giờ.",
-  "Get it on GitHub": "Tải từ GitHub"
+  "Get it on GitHub": "Tải từ GitHub",
+  "Yesterday": "Hôm qua",
+  "{n} days ago": "{n} ngày trước"
 }
