@@ -192,6 +192,7 @@ function RoomPage() {
   const { room } = view;
 
   const [copied, setCopied] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -384,6 +385,17 @@ function RoomPage() {
     }
   };
 
+  const copyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(room.code);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+      toast.success(t("Room code copied!"));
+    } catch {
+      toast.error(t("Could not copy the code."));
+    }
+  };
+
   return (
     <AppShell>
       <Confetti show={confetti} />
@@ -441,12 +453,12 @@ function RoomPage() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => void copyInvite()}
+            onClick={() => void copyCode()}
             className="flex items-center gap-2 rounded-full bg-muted px-3 py-1.5 font-mono text-xs tracking-widest text-muted-foreground transition-colors hover:bg-primary-soft hover:text-primary"
-            aria-label={t("Copy invite link")}
-            title={t("Copy invite link")}
+            aria-label={t("Copy room code")}
+            title={t("Copy room code")}
           >
-            {room.code} {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+            {room.code} {copiedCode ? <Check className="size-3" /> : <Copy className="size-3" />}
           </button>
           {(view.amHost || view.isAdmin) && (
             <Button

@@ -275,5 +275,8 @@
   "Install the FocusGuard browser extension to block distractions while your timer runs.": "Cài tiện ích trình duyệt FocusGuard để chặn phiền nhiễu trong khi hẹn giờ.",
   "Get it on GitHub": "Tải từ GitHub",
   "Yesterday": "Hôm qua",
-  "{n} days ago": "{n} ngày trước"
+  "{n} days ago": "{n} ngày trước",
+  "Room code copied!": "Đã sao chép mã phòng!",
+  "Could not copy the code.": "Không thể sao chép mã.",
+  "Copy room code": "Sao chép mã phòng"
 }

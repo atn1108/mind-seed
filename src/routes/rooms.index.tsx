@@ -207,12 +207,12 @@ function RoomsPage() {
     }
   };
 
-  const copyLink = async (roomId: string) => {
+  const copyCode = async (code: string) => {
     try {
-      await navigator.clipboard.writeText(`${window.location.origin}/rooms/${roomId}`);
-      toast.success(t("Invite link copied!"));
+      await navigator.clipboard.writeText(code);
+      toast.success(t("Room code copied!"));
     } catch {
-      toast.error(t("Could not copy the link."));
+      toast.error(t("Could not copy the code."));
     }
   };
 
@@ -301,10 +301,10 @@ function RoomsPage() {
                     </div>
                     <div className="flex items-center gap-2 justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-0 border-border/60">
                       <button
-                        onClick={() => void copyLink(room.id)}
+                        onClick={() => void copyCode(room.code)}
                         className="rounded-xl bg-muted px-2.5 py-1.5 font-mono text-xs tracking-widest text-muted-foreground transition-colors hover:bg-primary-soft hover:text-primary"
-                        aria-label={t("Copy invite link")}
-                        title={t("Copy invite link")}
+                        aria-label={t("Copy room code")}
+                        title={t("Copy room code")}
                       >
                         {room.code} <Copy className="inline size-3" />
                       </button>
@@ -366,7 +366,7 @@ function RoomsPage() {
               placeholder="ABC123"
               maxLength={6}
               autoComplete="off"
-              className="mt-4 rounded-2xl text-center font-mono text-lg uppercase tracking-widest"
+              className="mt-4 rounded-2xl text-center font-mono text-lg uppercase tracking-widest placeholder:opacity-60"
               aria-label={t("Invite code")}
             />
             <Button
