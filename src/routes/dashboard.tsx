@@ -1,5 +1,6 @@
 ﻿import { createFileRoute, Link } from "@tanstack/react-router";
-import { useT, useTf } from "@/lib/ui-language";
+import { useEffect, useMemo, useState } from "react";
+import { useT, useTf, useUiLanguage } from "@/lib/ui-language";
 import { motion } from "motion/react";
 import { Clock, Flame, ListTodo, Play, Sprout, Target } from "lucide-react";
 
@@ -11,11 +12,13 @@ import {
   QUOTES,
   dayKey,
   focusScore,
+  loadQuotes,
   minutesOn,
   scoreLabel,
   stageOf,
   streakOf,
   useMindSeed,
+  type Quote,
 } from "@/lib/mindseed-store";
 
 export const Route = createFileRoute("/dashboard")({
@@ -36,14 +39,34 @@ export const Route = createFileRoute("/dashboard")({
 function DashboardPage() {
   const t = useT();
   const tf = useTf();
+  const { lang } = useUiLanguage();
   const { state } = useMindSeed();
+  const [dbQuotes, setDbQuotes] = useState<Quote[] | null>(null);
   const today = dayKey(new Date());
   const minutes = minutesOn(state, today);
   const score = focusScore(state);
   const label = scoreLabel(score);
   const streak = streakOf(state);
   const { stage, progress, next } = stageOf(state.exp);
-  const quote = t(QUOTES[new Date().getDate() % QUOTES.length]!);
+
+  useEffect(() => {
+    let live = true;
+    loadQuotes().then((quotes) => {
+      if (live && quotes) setDbQuotes(quotes);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const quotesByLang = useMemo(
+    () => (dbQuotes ?? []).filter((q) => q.lang === lang),
+    [dbQuotes, lang],
+  );
+  const fallbackIndex = (new Date().getDate() + (lang === "vi" ? 31 : 0)) % QUOTES.length;
+  const quoteIndex = new Date().getDate() % Math.max(quotesByLang.length, 1);
+  const fallbackQuote = t(QUOTES[fallbackIndex]!);
+  const quote = quotesByLang.length > 0 ? quotesByLang[quoteIndex] : null;
   const openTasks = state.tasks.filter((t) => !t.done);
 
   return (
@@ -53,7 +76,14 @@ function DashboardPage() {
           <h1 className="truncate font-display text-2xl font-semibold tracking-tight sm:text-3xl">
             {t("Hi")}, {state.user?.name ?? t("namePlaceholder")} 👋
           </h1>
-          <p className="mt-1.5 max-w-xl text-sm text-muted-foreground sm:text-[15px]">“{quote}”</p>
+          <p className="mt-1.5 max-w-xl text-sm text-muted-foreground sm:text-[15px]">
+            “{quote?.content ?? fallbackQuote}”
+            {quote?.author ? (
+              <span className="mt-0.5 block text-xs font-medium text-muted-foreground/60">
+                — {quote.author}
+              </span>
+            ) : null}
+          </p>
         </div>
         <div className="flex shrink-0 items-center gap-2 rounded-2xl bg-accent/25 px-3.5 py-2 text-sm font-semibold text-accent-foreground">
           <Flame className="size-4" />
@@ -71,11 +101,15 @@ function DashboardPage() {
           <div className="flex items-center gap-4">
             <TreeVisual exp={state.exp} size={92} />
             <div className="min-w-0">
-              <p className="text-2xl font-semibold">{state.forest.length} {t("trees")}</p>
+              <p className="text-2xl font-semibold">
+                {state.forest.length} {t("trees")}
+              </p>
               <p className="truncate text-sm text-muted-foreground">{t(stage.name)}</p>
               <Progress value={progress} className="mt-3 h-2" />
               <p className="mt-1.5 text-xs text-muted-foreground">
-                {next ? tf("{p}% to reach {name}", { p: progress, name: t(next.name) }) : t("Ready to grow")}
+                {next
+                  ? tf("{p}% to reach {name}", { p: progress, name: t(next.name) })
+                  : t("Ready to grow")}
               </p>
             </div>
           </div>
@@ -95,7 +129,9 @@ function DashboardPage() {
 
         <Card title={t("Today's Tasks")} icon={ListTodo} to="/tasks">
           {openTasks.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t("You completed everything today 🎉")}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("You completed everything today 🎉")}
+            </p>
           ) : (
             <ul className="space-y-2.5">
               {openTasks.slice(0, 3).map((t) => (

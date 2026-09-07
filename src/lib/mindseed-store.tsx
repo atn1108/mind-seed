@@ -89,6 +89,43 @@ export const QUOTES = [
   "Your phone can wait. Your dreams cannot.",
 ];
 
+export interface Quote {
+  content: string;
+  author: string | null;
+  lang: "vi" | "en";
+}
+
+let quotesCache: Quote[] | null = null;
+let quotesPromise: Promise<Quote[] | null> | null = null;
+
+/** Load quotes from Supabase (cached for the session). Returns null to fall back to QUOTES. */
+export async function loadQuotes(): Promise<Quote[] | null> {
+  if (quotesCache !== null) return quotesCache;
+  if (quotesPromise) return quotesPromise;
+  quotesPromise = (async () => {
+    try {
+      const { data, error } = await supabase
+        .from("quotes")
+        .select("content, author, lang")
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      const items = (data ?? [])
+        .map((r) => ({
+          content: r.content,
+          author: r.author ?? null,
+          lang: (r.lang === "vi" ? "vi" : "en") as "vi" | "en",
+        }))
+        .filter((q) => q.content);
+      quotesCache = items.length > 0 ? items : null;
+    } catch (e) {
+      console.error("[MindSeed] failed to load quotes, using fallback:", e);
+      quotesCache = null;
+    }
+    return quotesCache;
+  })();
+  return quotesPromise;
+}
+
 /* --------------------------------- utils --------------------------------- */
 
 export const dayKey = (d: Date | string) => {

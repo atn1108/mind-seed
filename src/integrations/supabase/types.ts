@@ -6,6 +6,33 @@ export type Database = {
   };
   public: {
     Tables: {
+      quotes: {
+        Row: {
+          id: string;
+          content: string;
+          author: string | null;
+          category: string | null;
+          lang: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          content: string;
+          author?: string | null;
+          category?: string | null;
+          lang?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          content?: string;
+          author?: string | null;
+          category?: string | null;
+          lang?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           id: string;
