@@ -12,6 +12,7 @@ import { type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { MindSeedProvider } from "@/lib/mindseed-store";
 import { TimerProvider } from "@/lib/timer-store";
+import { TaskReminders } from "@/components/TaskReminders";
 import { UiLanguageProvider } from "@/lib/ui-language";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -153,6 +154,7 @@ function RootComponent() {
           <TimerProvider>
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
+            <TaskReminders />
             <Toaster position="top-center" />
           </TimerProvider>
         </MindSeedProvider>

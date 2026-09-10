@@ -46,6 +46,7 @@ import {
   MemberPublicProfile,
   useRoom,
 } from "@/lib/room-store";
+import { useCountdownTitle } from "@/lib/use-countdown-title";
 
 export const Route = createFileRoute("/rooms/$roomId")({
   head: () => ({
@@ -190,6 +191,7 @@ function RoomPage() {
 
   const view = useRoom(roomId);
   const { room } = view;
+  useCountdownTitle(view.left, view.running);
 
   const [copied, setCopied] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);

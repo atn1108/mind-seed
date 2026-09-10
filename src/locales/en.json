@@ -278,5 +278,7 @@
   "{n} days ago": "{n} days ago",
   "Room code copied!": "Room code copied!",
   "Could not copy the code.": "Could not copy the code.",
-  "Copy room code": "Copy room code"
+  "Copy room code": "Copy room code",
+  "Task reminder": "Task reminder",
+  "Don't forget your task “{title}” — still in progress.": "Don't forget your task “{title}” — still in progress."
 }

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMindSeed } from "@/lib/mindseed-store";
 import { useTimer } from "@/lib/timer-store";
+import { useCountdownTitle } from "@/lib/use-countdown-title";
 
 const OPTIONS = [25, 30, 45, 60];
 const MIN_CUSTOM = 5;
@@ -43,6 +44,7 @@ function TimerPage() {
   const { state } = useMindSeed();
   const timer = useTimer();
   const { durationMin, running, left, total, finishedTick } = timer;
+  useCountdownTitle(left, running);
 
   const [customOpen, setCustomOpen] = useState(false);
   const [customValue, setCustomValue] = useState("45");

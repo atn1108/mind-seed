@@ -34,6 +34,7 @@ import {
   ensureJoined,
   joinRoomByCode,
   joinRoomWithPassword,
+  useRoomPresenceCounts,
 } from "@/lib/room-store";
 
 export const Route = createFileRoute("/rooms/")({
@@ -75,7 +76,7 @@ function RoomsPage() {
   const isAdmin = state.user?.role === "admin";
 
   const [rooms, setRooms] = useState<LobbyRoom[]>([]);
-  const [presenceCounts, setPresenceCounts] = useState<Record<string, number>>({});
+  const presenceCounts = useRoomPresenceCounts();
   const [myId, setMyId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<LobbyRoom | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -108,29 +109,6 @@ function RoomsPage() {
 
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => setMyId(data.user?.id ?? null));
-  }, []);
-
-  useEffect(() => {
-    // Live "currently studying" counts: every connected room member tracks
-    // their presence on this shared channel, so disconnected tabs disappear
-    // from the counts automatically.
-    const presenceChannel = supabase
-      .channel("rooms-presence")
-      .on("presence", { event: "sync" }, () => {
-        const state = presenceChannel.presenceState<{ room_id?: string }>();
-        const counts: Record<string, number> = {};
-        for (const entries of Object.values(state)) {
-          for (const entry of entries) {
-            if (entry.room_id) counts[entry.room_id] = (counts[entry.room_id] ?? 0) + 1;
-          }
-        }
-        setPresenceCounts(counts);
-      })
-      .subscribe();
-
-    return () => {
-      void supabase.removeChannel(presenceChannel);
-    };
   }, []);
 
   useEffect(() => {

@@ -242,6 +242,66 @@ export async function leaveRoom(roomId: string) {
   if (error) throw error;
 }
 
+type RoomPresencePayload = RoomMember & { room_id: string };
+
+let roomPresenceReady: Promise<ReturnType<typeof supabase.channel>> | null = null;
+const roomPresenceListeners = new Set<(counts: Record<string, number>) => void>();
+
+function presenceCounts(channel: ReturnType<typeof supabase.channel>) {
+  const state = channel.presenceState<RoomPresencePayload>();
+  const counts: Record<string, number> = {};
+  for (const entries of Object.values(state)) {
+    for (const entry of entries) {
+      if (entry.room_id) counts[entry.room_id] = (counts[entry.room_id] ?? 0) + 1;
+    }
+  }
+  return counts;
+}
+
+/** One shared realtime channel powers the lobby's live "studying now" counts.
+ *  Handlers must be attached before subscribe() — realtime-js throws if you
+ *  add them afterwards. Created lazily and subscribed exactly once per session;
+ *  open rooms track on it and untrack when they leave. Kept as a module-level
+ *  singleton so `supabase.channel()` never returns an already-subscribed
+ *  channel that another component then tries to attach handlers to. */
+function ensureRoomPresenceChannel() {
+  if (!roomPresenceReady) {
+    const channel = supabase.channel("rooms-presence");
+    channel.on("presence", { event: "sync" }, () => {
+      if (roomPresenceListeners.size === 0) return;
+      const counts = presenceCounts(channel);
+      for (const listener of roomPresenceListeners) listener(counts);
+    });
+    roomPresenceReady = new Promise((resolve) => {
+      channel.subscribe((status) => {
+        if (status === "SUBSCRIBED") resolve(channel);
+      });
+    });
+  }
+  return roomPresenceReady;
+}
+
+/** Live per-room online counts for the lobby's room list. */
+export function useRoomPresenceCounts() {
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const listener = (c: Record<string, number>) => setCounts(c);
+    roomPresenceListeners.add(listener);
+    let active = true;
+    void ensureRoomPresenceChannel()
+      .then((channel) => {
+        if (active) setCounts(presenceCounts(channel));
+        return undefined;
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+      roomPresenceListeners.delete(listener);
+    };
+  }, []);
+  return counts;
+}
+
 /**
  * Shared-timer room state: one row in `study_rooms` drives every client,
  * presence drives the live member list, wall-clock math keeps the countdown
@@ -274,6 +334,7 @@ export function useRoom(roomId: string) {
 
     let cancelled = false;
     let isMember = false;
+    let cleanup: (() => void) | undefined;
 
     const bootstrap = async (): Promise<(() => void) | undefined> => {
       try {
@@ -363,15 +424,15 @@ export function useRoom(roomId: string) {
             void channel.track(selfPayload);
           });
 
-        // Lobby counts come from this shared channel so the room list shows
-        // people *currently* connected — not everyone who ever joined. Closing
-        // the tab removes the tracked presence automatically.
-        const lobbyPresence = supabase.channel("rooms-presence");
-        lobbyPresence.subscribe((status) => {
-          if (status !== "SUBSCRIBED") return;
-          if (!isMember && !cancelled) return;
-          void lobbyPresence.track({ room_id: roomId, ...selfPayload });
-        });
+        // Track on the shared presence channel so the lobby list shows live
+        // per-room online counts. Untracked when the room page unmounts.
+        void ensureRoomPresenceChannel()
+          .then((pc) => {
+            if (cancelled || !isMember) return undefined;
+            void pc.track({ room_id: roomId, ...selfPayload });
+            return undefined;
+          })
+          .catch(() => undefined);
 
         const chatChannel = supabase
           .channel(`room-chat:${roomId}`)
@@ -395,8 +456,11 @@ export function useRoom(roomId: string) {
 
         return () => {
           void supabase.removeChannel(channel);
-          void supabase.removeChannel(lobbyPresence);
           void supabase.removeChannel(chatChannel);
+          // Clear my presence from the shared lobby-count channel.
+          void ensureRoomPresenceChannel()
+            .then((pc) => pc.untrack())
+            .catch(() => undefined);
         };
       } catch (err) {
         console.error("[Room] Failed to open room:", err);
@@ -409,12 +473,14 @@ export function useRoom(roomId: string) {
       }
     };
 
-    void bootstrap().then((cleanup) => {
+    void bootstrap().then((cleanupFn) => {
+      cleanup = cleanupFn;
       if (cancelled) cleanup?.();
     });
 
     return () => {
       cancelled = true;
+      cleanup?.();
     };
   }, [roomId, myId]);
 

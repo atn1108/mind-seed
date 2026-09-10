@@ -278,5 +278,7 @@
   "{n} days ago": "{n} ngày trước",
   "Room code copied!": "Đã sao chép mã phòng!",
   "Could not copy the code.": "Không thể sao chép mã.",
-  "Copy room code": "Sao chép mã phòng"
+  "Copy room code": "Sao chép mã phòng",
+  "Task reminder": "Nhắc nhiệm vụ",
+  "Don't forget your task “{title}” — still in progress.": "Đừng quên nhiệm vụ “{title}” — vẫn còn đang dở."
 }
