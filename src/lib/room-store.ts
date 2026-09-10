@@ -363,6 +363,16 @@ export function useRoom(roomId: string) {
             void channel.track(selfPayload);
           });
 
+        // Lobby counts come from this shared channel so the room list shows
+        // people *currently* connected — not everyone who ever joined. Closing
+        // the tab removes the tracked presence automatically.
+        const lobbyPresence = supabase.channel("rooms-presence");
+        lobbyPresence.subscribe((status) => {
+          if (status !== "SUBSCRIBED") return;
+          if (!isMember && !cancelled) return;
+          void lobbyPresence.track({ room_id: roomId, ...selfPayload });
+        });
+
         const chatChannel = supabase
           .channel(`room-chat:${roomId}`)
           .on(
@@ -385,6 +395,7 @@ export function useRoom(roomId: string) {
 
         return () => {
           void supabase.removeChannel(channel);
+          void supabase.removeChannel(lobbyPresence);
           void supabase.removeChannel(chatChannel);
         };
       } catch (err) {

@@ -59,7 +59,7 @@ const DURATIONS = [25, 30, 45, 60];
 type LobbyRoom = Pick<
   RoomRow,
   "id" | "name" | "code" | "host_id" | "status" | "duration_min" | "has_password" | "created_at"
-> & { room_members: { count: number }[] };
+>;
 
 function statusTone(status: RoomRow["status"]) {
   if (status === "running") return "bg-primary";
@@ -75,6 +75,7 @@ function RoomsPage() {
   const isAdmin = state.user?.role === "admin";
 
   const [rooms, setRooms] = useState<LobbyRoom[]>([]);
+  const [presenceCounts, setPresenceCounts] = useState<Record<string, number>>({});
   const [myId, setMyId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<LobbyRoom | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -94,9 +95,7 @@ function RoomsPage() {
   const fetchRooms = useCallback(async () => {
     const { data, error } = await supabase
       .from("study_rooms")
-      .select(
-        "id,name,code,host_id,status,duration_min,has_password,created_at,room_members(count)",
-      )
+      .select("id,name,code,host_id,status,duration_min,has_password,created_at")
       .order("created_at", { ascending: false })
       .limit(30);
     if (error) {
@@ -112,16 +111,35 @@ function RoomsPage() {
   }, []);
 
   useEffect(() => {
+    // Live "currently studying" counts: every connected room member tracks
+    // their presence on this shared channel, so disconnected tabs disappear
+    // from the counts automatically.
+    const presenceChannel = supabase
+      .channel("rooms-presence")
+      .on("presence", { event: "sync" }, () => {
+        const state = presenceChannel.presenceState<{ room_id?: string }>();
+        const counts: Record<string, number> = {};
+        for (const entries of Object.values(state)) {
+          for (const entry of entries) {
+            if (entry.room_id) counts[entry.room_id] = (counts[entry.room_id] ?? 0) + 1;
+          }
+        }
+        setPresenceCounts(counts);
+      })
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(presenceChannel);
+    };
+  }, []);
+
+  useEffect(() => {
     void fetchRooms();
 
-    // Live-ish lobby: any insert/update/delete on rooms or membership refetches.
+    // Live-ish lobby: any insert/update/delete on rooms refetches.
     const channel = supabase
       .channel("rooms-lobby")
       .on("postgres_changes", { event: "*", schema: "public", table: "study_rooms" }, () => {
-        if (refreshRef.current) clearTimeout(refreshRef.current);
-        refreshRef.current = setTimeout(() => void fetchRooms(), 400);
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "room_members" }, () => {
         if (refreshRef.current) clearTimeout(refreshRef.current);
         refreshRef.current = setTimeout(() => void fetchRooms(), 400);
       })
@@ -267,7 +285,7 @@ function RoomsPage() {
           ) : (
             <ul className="mt-4 flex flex-col gap-3">
               {rooms.map((room) => {
-                const count = room.room_members?.[0]?.count ?? 0;
+                const count = presenceCounts[room.id] ?? 0;
                 const canDelete = isAdmin || (myId !== null && room.host_id === myId);
                 return (
                   <li

@@ -127,9 +127,13 @@ function TasksPage() {
                     setEditing(null);
                   }}
                   onCancel={() => setEditing(null)}
-                  onToggle={() => {
-                    updateTask(task.id, { done: true });
-                    toast.success(t("Nice work! Your tree earned 12 EXP 🌿"));
+                  onToggle={async () => {
+                    try {
+                      await updateTask(task.id, { done: true });
+                      toast.success(t("Nice work! Your tree earned 12 EXP 🌿"));
+                    } catch {
+                      toast.error(t("Couldn't complete the task. Please try again."));
+                    }
                   }}
                   onRemove={() => removeTask(task.id)}
                 />

@@ -556,29 +556,6 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
 
       const completing = patch.done === true && !current.done;
 
-      const dbPatch: {
-        title?: string;
-        deadline?: string | null;
-        priority?: Priority;
-        done?: boolean;
-      } = {};
-
-      if (patch.title !== undefined) dbPatch.title = patch.title;
-      if (patch.deadline !== undefined) dbPatch.deadline = patch.deadline || null;
-      if (patch.priority !== undefined) dbPatch.priority = patch.priority;
-      // `done` transitions to true are handled server-side by complete_task()
-      // (atomic flip + EXP grant, once per task) — never by the client.
-      if (patch.done !== undefined && !completing) dbPatch.done = patch.done;
-
-      const { data, error } = await supabase
-        .from("tasks")
-        .update(dbPatch)
-        .eq("id", id)
-        .select("id,title,deadline,priority,done,created_at")
-        .single();
-
-      if (error) throw error;
-
       // Task completion is server-authoritative: complete_task() flips `done`
       // and grants the +12 EXP atomically — only once per task, only to its
       // owner — so a repeated/forged request cannot farm EXP.
@@ -596,6 +573,27 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
         }));
         return;
       }
+
+      const dbPatch: {
+        title?: string;
+        deadline?: string | null;
+        priority?: Priority;
+        done?: boolean;
+      } = {};
+
+      if (patch.title !== undefined) dbPatch.title = patch.title;
+      if (patch.deadline !== undefined) dbPatch.deadline = patch.deadline || null;
+      if (patch.priority !== undefined) dbPatch.priority = patch.priority;
+      if (patch.done !== undefined) dbPatch.done = patch.done;
+
+      const { data, error } = await supabase
+        .from("tasks")
+        .update(dbPatch)
+        .eq("id", id)
+        .select("id,title,deadline,priority,done,created_at")
+        .single();
+
+      if (error) throw error;
 
       setState((s) => ({
         ...s,
