@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useT, useTf } from "@/lib/ui-language";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -9,6 +9,7 @@ import {
   Copy,
   Link2,
   LockKeyhole,
+  MessageSquare,
   Pause,
   Play,
   Shield,
@@ -105,6 +106,12 @@ function RoomPage() {
   const [gateBusy, setGateBusy] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [sendingChat, setSendingChat] = useState(false);
+  // YouTube-style chat panel: side column on desktop, overlay sheet below xl.
+  const [chatOpen, setChatOpen] = useState(
+    () => typeof window === "undefined" || window.innerWidth >= 1280,
+  );
+  const [unread, setUnread] = useState(0);
+  const prevMsgLenRef = useRef(0);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [memberProfile, setMemberProfile] = useState<MemberPublicProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
@@ -115,6 +122,14 @@ function RoomPage() {
       chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
     }
   }, [view.messages]);
+
+  // Count messages that arrive while the panel is closed (unread badge).
+  useEffect(() => {
+    const len = view.messages.length;
+    const delta = len - prevMsgLenRef.current;
+    prevMsgLenRef.current = len;
+    if (delta > 0 && !chatOpen) setUnread((u) => u + delta);
+  }, [view.messages, chatOpen]);
 
   const handleSendChat = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -568,18 +583,52 @@ function RoomPage() {
             )}
           </p>
         </div>
-
-        {/* room chat */}
-        <RoomChat
-          messages={view.messages}
-          myId={view.myId}
-          chatInput={chatInput}
-          setChatInput={setChatInput}
-          sendingChat={sendingChat}
-          onSend={handleSendChat}
-          chatScrollRef={chatScrollRef}
-        />
       </div>
+
+      {/* floating chat toggle */}
+      {!chatOpen && (
+        <button
+          onClick={() => {
+            setChatOpen(true);
+            setUnread(0);
+          }}
+          className="fixed right-4 bottom-24 z-50 grid size-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-lift transition-transform active:scale-95 lg:right-8 lg:bottom-8"
+          aria-label={t("Open chat")}
+          title={t("Open chat")}
+        >
+          <MessageSquare className="size-6" />
+          {unread > 0 && (
+            <span className="absolute -top-1 -right-1 grid min-w-6 place-items-center rounded-full border-2 border-background bg-destructive px-1 py-px text-[11px] font-bold text-white tabular-nums">
+              {unread > 99 ? "99+" : unread}
+            </span>
+          )}
+        </button>
+      )}
+
+      {/* floating chat panel — slides up Messenger-style, never covers the timer */}
+      <AnimatePresence>
+        {chatOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 48, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 32, scale: 0.97 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed right-4 bottom-24 z-50 w-[min(480px,calc(100vw-2rem))] lg:right-8 lg:bottom-8"
+          >
+            <RoomChat
+              messages={view.messages}
+              myId={view.myId}
+              chatInput={chatInput}
+              setChatInput={setChatInput}
+              sendingChat={sendingChat}
+              onSend={handleSendChat}
+              chatScrollRef={chatScrollRef}
+              onClose={() => setChatOpen(false)}
+              className="h-[min(600px,calc(100dvh-12rem))] shadow-lift"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Dialog
         open={selectedMemberId !== null}

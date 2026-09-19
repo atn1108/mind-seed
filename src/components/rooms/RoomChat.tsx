@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import { MessageSquare, Send } from "lucide-react";
+import { ChevronDown, MessageSquare, Send } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,8 @@ export function RoomChat({
   sendingChat,
   onSend,
   chatScrollRef,
+  className,
+  onClose,
 }: {
   messages: RoomMessage[];
   myId: string | null;
@@ -37,15 +39,29 @@ export function RoomChat({
   sendingChat: boolean;
   onSend: (e: React.FormEvent) => void;
   chatScrollRef: RefObject<HTMLDivElement | null>;
+  className?: string;
+  onClose?: () => void;
 }) {
   const t = useT();
   const tf = useTf();
   return (
-    <div className="surface mt-4 p-6 sm:p-7 flex flex-col h-[320px] lg:col-span-2">
-      <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
-        <MessageSquare className="size-4 text-primary" />
-        {t("Room chat")}
-      </h2>
+    <div className={`surface flex min-h-0 flex-col p-6 sm:p-7 ${className ?? "h-[320px]"}`}>
+      <div className="flex items-center gap-2">
+        <h2 className="flex min-w-0 flex-1 items-center gap-2 font-display text-lg font-semibold">
+          <MessageSquare className="size-4 shrink-0 text-primary" />
+          <span className="truncate">{t("Room chat")}</span>
+        </h2>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="grid size-11 shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            aria-label={t("Minimize chat")}
+            title={t("Minimize chat")}
+          >
+            <ChevronDown className="size-5" />
+          </button>
+        )}
+      </div>
       <div
         ref={chatScrollRef}
         className="mt-3 flex-1 overflow-y-auto space-y-2.5 pr-1 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
