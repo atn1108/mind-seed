@@ -327,6 +327,10 @@ export type Database = {
         Args: { p_task_id: string };
         Returns: number;
       };
+      finish_room_timer: {
+        Args: { p_room_id: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       task_priority: "low" | "medium" | "high";

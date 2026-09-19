@@ -43,17 +43,13 @@ export function isSafeAvatar(avatar: string | null | undefined): avatar is strin
 
 export async function sendRoomMessage(roomId: string, content: string) {
   const userId = await requireUserId();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("name, avatar")
-    .eq("id", userId)
-    .single();
-
+  // user_name/user_avatar are overwritten server-side by
+  // fill_room_message_author() — never trust client values.
   const { error } = await supabase.from("room_messages").insert({
     room_id: roomId,
     user_id: userId,
-    user_name: profile?.name ?? "User",
-    user_avatar: profile?.avatar ?? null,
+    user_name: "User",
+    user_avatar: null,
     content: content.trim().slice(0, 500),
   });
   if (error) throw error;
@@ -318,6 +314,7 @@ export function useRoom(roomId: string) {
   const [joinedOk, setJoinedOk] = useState<boolean | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [finishedTick, setFinishedTick] = useState(0);
+  const [joinNonce, setJoinNonce] = useState(0);
   const completedEndRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -447,7 +444,8 @@ export function useRoom(roomId: string) {
             (payload) => {
               const msg = payload.new as RoomMessage;
               setMessages((prev) => {
-                const from = prev.length >= MAX_ROOM_MESSAGES ? prev.length - MAX_ROOM_MESSAGES + 1 : 0;
+                const from =
+                  prev.length >= MAX_ROOM_MESSAGES ? prev.length - MAX_ROOM_MESSAGES + 1 : 0;
                 return [...prev.slice(from), msg];
               });
             },
@@ -482,15 +480,15 @@ export function useRoom(roomId: string) {
       cancelled = true;
       cleanup?.();
     };
-  }, [roomId, myId]);
+  }, [roomId, myId, joinNonce]);
 
   /** Called by the room page's password gate once the user submits a pass.
-   *  Reload afterwards so bootstrap re-runs as a confirmed member. */
+   *  Re-runs bootstrap as a confirmed member — no full page reload. */
   const submitRoomPassword = useCallback(
     async (password: string) => {
       await joinRoomWithPassword(roomId, password);
       setJoinedOk(true);
-      window.location.reload();
+      setJoinNonce((n) => n + 1);
     },
     [roomId],
   );
@@ -576,18 +574,22 @@ export function useRoom(roomId: string) {
   );
 
   // Natural completion fires exactly once per armed session, on every client.
+  // Any member may close an expired timer via finish_room_timer() so rooms
+  // never stick at 00:00 when the host is offline.
   useEffect(() => {
     if (!room || room.status !== "running" || !room.ends_at) return;
     if (left > 0) return;
     if (completedEndRef.current === room.ends_at) return;
     completedEndRef.current = room.ends_at;
     setFinishedTick((v) => v + 1);
-    if (canControl) {
-      void patch({ status: "idle", remaining_sec: room.duration_min * 60, ends_at: null }).catch(
-        () => undefined,
-      );
-    }
-  }, [room, left, canControl, patch]);
+    void (async () => {
+      try {
+        await supabase.rpc("finish_room_timer", { p_room_id: roomId });
+      } catch {
+        // expired-timer close is best-effort; realtime sync covers the rest
+      }
+    })();
+  }, [room, left, roomId]);
 
   const claimHost = useCallback(async () => {
     if (!myId) return;

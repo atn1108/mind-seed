@@ -7,13 +7,10 @@ import {
   Check,
   Clock,
   Copy,
-  Crown,
   Link2,
   LockKeyhole,
-  MessageSquare,
   Pause,
   Play,
-  Send,
   Shield,
   Square,
   Trash2,
@@ -23,6 +20,8 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/AppShell";
 import { Confetti } from "@/components/ReflectionDialog";
+import { MemberCard } from "@/components/rooms/MemberCard";
+import { RoomChat } from "@/components/rooms/RoomChat";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,7 +35,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { STAGES, useMindSeed } from "@/lib/mindseed-store";
+import { useMindSeed } from "@/lib/mindseed-store";
 import {
   deleteRoom,
   fetchMemberPublicProfile,
@@ -56,27 +55,6 @@ export const Route = createFileRoute("/rooms/$roomId")({
 });
 
 const DURATIONS = [25, 30, 45, 60];
-
-/** Formats a message timestamp: time for today, "Yesterday", "N days ago", else a date. */
-function messageTime(t: ReturnType<typeof useT>, tf: ReturnType<typeof useTf>, raw: string) {
-  const date = new Date(raw);
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const startOfMsgDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-  const dayDiff = Math.round((startOfToday - startOfMsgDay) / 86_400_000);
-  const time = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-  if (dayDiff <= 0) return time;
-  if (dayDiff === 1) return `${tf("Yesterday")} · ${time}`;
-  if (dayDiff < 7) return `${tf("{n} days ago", { n: dayDiff })} · ${time}`;
-  return `${date.toLocaleDateString(undefined, { month: "short", day: "numeric" })} · ${time}`;
-}
-
-/** Tree grows through the 4 MindSeed stages as the shared session progresses. */
-function stageFor(progressPct: number) {
-  const idx = Math.min(3, Math.floor((Math.max(0, Math.min(100, progressPct)) / 100) * 4));
-  return STAGES[idx]!;
-}
 
 function StatusPill({ status }: { status: "idle" | "running" | "paused" }) {
   const t = useT();
@@ -101,84 +79,6 @@ function StatusPill({ status }: { status: "idle" | "running" | "paused" }) {
       />
       {t(status === "running" ? "In focus…" : status === "paused" ? "Paused" : "Ready")}
     </span>
-  );
-}
-
-function MemberCard({
-  name,
-  avatar,
-  isHost,
-  isMe,
-  progress,
-  delay,
-  onClick,
-}: {
-  name: string;
-  avatar: string;
-  isHost: boolean;
-  isMe: boolean;
-  progress: number;
-  delay: number;
-  onClick: () => void;
-}) {
-  const t = useT();
-  const stage = stageFor(progress);
-  return (
-    <motion.li
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay, ease: [0.22, 1, 0.36, 1] }}
-      onClick={onClick}
-      className={`cursor-pointer rounded-2xl border p-3 transition-colors hover:border-primary/60 ${
-        isMe ? "border-primary/40 bg-primary-soft/50" : "border-border bg-card"
-      }`}
-    >
-      <div className="flex items-center gap-3">
-        <span className="relative shrink-0">
-          <span className="grid size-10 place-items-center overflow-hidden rounded-3xl bg-primary text-sm font-semibold text-primary-foreground">
-            {isSafeAvatar(avatar) ? (
-              <img src={avatar} alt="Avatar" className="size-full object-cover" />
-            ) : (
-              avatar || name.trim().charAt(0).toUpperCase() || "?"
-            )}
-          </span>
-          <span className="absolute -right-0.5 -bottom-0.5 size-3 rounded-full border-2 border-card bg-emerald-500" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold">
-            {name || t("Anonymous")}
-            {isMe && (
-              <span className="ml-1.5 text-xs font-normal text-muted-foreground">({t("you")})</span>
-            )}
-          </p>
-          {isHost && (
-            <span className="mt-0.5 inline-flex items-center gap-1 rounded-full bg-accent/30 px-2 py-0.5 text-[11px] font-semibold">
-              <Crown className="size-3" />
-              {t("Host")}
-            </span>
-          )}
-        </div>
-        <motion.span
-          key={stage.name}
-          initial={{ scale: 0.5, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 300, damping: 18 }}
-          className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary-soft text-xl"
-          aria-label={t(stage.name)}
-          title={t(stage.name)}
-        >
-          {stage.emoji}
-        </motion.span>
-      </div>
-      <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-muted">
-        <motion.div
-          className="h-full rounded-full bg-primary"
-          initial={false}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.6, ease: "linear" }}
-        />
-      </div>
-    </motion.li>
   );
 }
 
@@ -670,56 +570,15 @@ function RoomPage() {
         </div>
 
         {/* room chat */}
-        <div className="surface mt-4 p-6 sm:p-7 flex flex-col h-[320px] lg:col-span-2">
-          <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
-            <MessageSquare className="size-4 text-primary" />
-            {t("Room chat")}
-          </h2>
-          <div ref={chatScrollRef} className="mt-3 flex-1 overflow-y-auto space-y-2.5 pr-1 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {view.messages.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-12">
-                {t("No messages yet — say hello!")}
-              </p>
-            ) : (
-              view.messages.map((m) => {
-                const isMe = m.user_id === view.myId;
-                return (
-                  <div key={m.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
-                    <span className="text-[10px] text-muted-foreground px-1 mb-0.5">
-                      {m.user_name} · {messageTime(t, tf, m.created_at)}
-                    </span>
-                    <div
-                      className={`rounded-2xl px-3.5 py-2 max-w-[85%] text-xs leading-relaxed ${
-                        isMe
-                          ? "bg-primary text-primary-foreground rounded-br-sm"
-                          : "bg-muted text-foreground rounded-bl-sm"
-                      }`}
-                    >
-                      {m.content}
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-          <form onSubmit={handleSendChat} className="mt-3 flex gap-2 pt-2 border-t border-border">
-            <Input
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              placeholder={t("Type a message...")}
-              maxLength={500}
-              className="h-10 rounded-xl text-xs"
-            />
-            <Button
-              type="submit"
-              size="sm"
-              disabled={!chatInput.trim() || sendingChat}
-              className="h-10 px-4 rounded-xl cursor-pointer"
-            >
-              <Send className="size-3.5" />
-            </Button>
-          </form>
-        </div>
+        <RoomChat
+          messages={view.messages}
+          myId={view.myId}
+          chatInput={chatInput}
+          setChatInput={setChatInput}
+          sendingChat={sendingChat}
+          onSend={handleSendChat}
+          chatScrollRef={chatScrollRef}
+        />
       </div>
 
       <Dialog

@@ -7,6 +7,7 @@ import { Logo } from "@/components/Logo";
 import { SmartReminders } from "@/components/SmartReminders";
 import { useMindSeed } from "@/lib/mindseed-store";
 import { EASE_OUT } from "@/lib/motion";
+import { isSafeAvatar } from "@/lib/room-store";
 import { useTimer } from "@/lib/timer-store";
 import { useT } from "@/lib/ui-language";
 
@@ -100,10 +101,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             }`}
           >
             <span className="grid size-7 shrink-0 overflow-hidden place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-              {state.user?.avatar?.startsWith("data:") || state.user?.avatar?.startsWith("http") ? (
-                <img src={state.user.avatar} alt="Avatar" className="size-full object-cover" />
+              {isSafeAvatar(state.user?.avatar) ? (
+                <img src={state.user!.avatar} alt="Avatar" className="size-full object-cover" />
               ) : (
-                state.user?.avatar ?? "M"
+                (state.user?.avatar ?? "M")
               )}
             </span>
             <span className="min-w-0 truncate">{state.user?.name ?? t("namePlaceholder")}</span>

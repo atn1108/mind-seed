@@ -4,7 +4,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -307,13 +306,6 @@ const MindSeedContext = createContext<Ctx | null>(null);
 export function MindSeedProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<MindSeedState>(EMPTY_STATE);
   const [ready, setReady] = useState(false);
-  // Tracks the latest EXP so concurrent async mutations (addSession/updateTask)
-  // never read a stale exp from the closure and overwrite the DB value.
-  const expRef = useRef(0);
-
-  useEffect(() => {
-    expRef.current = state.exp;
-  }, [state.exp]);
 
   const loadUserData = useCallback(async (userId: string) => {
     const [profileResult, sessionsResult, tasksResult, reflectionsResult, treesResult] =
@@ -511,7 +503,6 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
       trees: { id: string; species: string; planted_at: string; minutes: number }[];
     };
 
-    expRef.current = result.exp;
     setState((s) => ({
       ...s,
       exp: result.exp,
@@ -549,59 +540,50 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, tasks: [mapTask(data), ...s.tasks] }));
   }, []);
 
-  const updateTask = useCallback(
-    async (id: string, patch: Partial<Task>) => {
-      const current = state.tasks.find((task) => task.id === id);
-      if (!current) return;
-
-      const completing = patch.done === true && !current.done;
-
-      // Task completion is server-authoritative: complete_task() flips `done`
-      // and grants the +12 EXP atomically — only once per task, only to its
-      // owner — so a repeated/forged request cannot farm EXP.
-      if (completing) {
-        const { data: expData, error: expError } = await supabase.rpc("complete_task", {
-          p_task_id: id,
-        });
-        if (expError) throw expError;
-        const nextExp = expData as number;
-        expRef.current = nextExp;
-        setState((s) => ({
-          ...s,
-          exp: nextExp,
-          tasks: s.tasks.map((task) => (task.id === id ? { ...task, done: true } : task)),
-        }));
-        return;
-      }
-
-      const dbPatch: {
-        title?: string;
-        deadline?: string | null;
-        priority?: Priority;
-        done?: boolean;
-      } = {};
-
-      if (patch.title !== undefined) dbPatch.title = patch.title;
-      if (patch.deadline !== undefined) dbPatch.deadline = patch.deadline || null;
-      if (patch.priority !== undefined) dbPatch.priority = patch.priority;
-      if (patch.done !== undefined) dbPatch.done = patch.done;
-
-      const { data, error } = await supabase
-        .from("tasks")
-        .update(dbPatch)
-        .eq("id", id)
-        .select("id,title,deadline,priority,done,created_at")
-        .single();
-
-      if (error) throw error;
-
+  const updateTask = useCallback(async (id: string, patch: Partial<Task>) => {
+    // Task completion is server-authoritative: complete_task() flips `done`
+    // and grants the +12 EXP atomically — idempotent, so no need to read
+    // the local task first (and no state.tasks dep causing re-renders).
+    if (patch.done === true) {
+      const { data: expData, error: expError } = await supabase.rpc("complete_task", {
+        p_task_id: id,
+      });
+      if (expError) throw expError;
+      const nextExp = expData as number;
       setState((s) => ({
         ...s,
-        tasks: s.tasks.map((task) => (task.id === id ? mapTask(data) : task)),
+        exp: nextExp,
+        tasks: s.tasks.map((task) => (task.id === id ? { ...task, done: true } : task)),
       }));
-    },
-    [state.tasks],
-  );
+      return;
+    }
+
+    const dbPatch: {
+      title?: string;
+      deadline?: string | null;
+      priority?: Priority;
+      done?: boolean;
+    } = {};
+
+    if (patch.title !== undefined) dbPatch.title = patch.title;
+    if (patch.deadline !== undefined) dbPatch.deadline = patch.deadline || null;
+    if (patch.priority !== undefined) dbPatch.priority = patch.priority;
+    if (patch.done !== undefined) dbPatch.done = patch.done;
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .update(dbPatch)
+      .eq("id", id)
+      .select("id,title,deadline,priority,done,created_at")
+      .single();
+
+    if (error) throw error;
+
+    setState((s) => ({
+      ...s,
+      tasks: s.tasks.map((task) => (task.id === id ? mapTask(data) : task)),
+    }));
+  }, []);
 
   const removeTask = useCallback(async (id: string) => {
     const { error } = await supabase.from("tasks").delete().eq("id", id);
