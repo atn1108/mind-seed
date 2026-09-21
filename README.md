@@ -71,21 +71,6 @@ npm install
 cp .env.example .env   # điền giá trị Supabase
 npm run dev
 ```
-
-### Biến môi trường (Netlify chỉ cần 3 biến)
-
-| Biến                            | Mô tả                        |
-| ------------------------------- | ---------------------------- |
-| `VITE_SUPABASE_URL`             | URL Supabase project         |
-| `VITE_SUPABASE_PROJECT_ID`      | ID Supabase project          |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Khóa publishable — public    |
-
-> ⚠️ Netlify quét secrets khi build: giá trị `*_PROJECT_ID` trùng với `project_id` trong
-> `supabase/config.toml` sẽ làm rớt build. Thêm biến `SECRETS_SCAN_OMIT_PATHS=supabase/config.toml`
-> để bỏ qua. Không đưa `SUPABASE_DB_URL` hay service role key lên Netlify.
-
-Migration DB nằm trong `supabase/migrations` (đánh số theo thời gian).
-
 ---
 
 ## 📁 Cấu trúc dự án
