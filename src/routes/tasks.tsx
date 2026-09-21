@@ -83,7 +83,7 @@ function isOverdue(task: Task, now = Date.now()) {
   return !Number.isNaN(ms) && ms < now;
 }
 
-type OpenTab = "all" | "upcoming" | "overdue";
+type OpenTab = "all" | "ontime";
 
 function TasksPage() {
   const t = useT();
@@ -116,30 +116,22 @@ function TasksPage() {
   };
 
   const done = state.tasks.filter((t) => t.done);
-  const open = state.tasks.filter((t) => !t.done);
+  // Overdue tasks automatically move to the Completed side, locked.
+  const expired = state.tasks.filter((t) => !t.done && isOverdue(t, now));
+  const open = state.tasks.filter((t) => !t.done && !isOverdue(t, now));
 
   const counts = useMemo(
     () => ({
       all: open.length,
-      upcoming: open.filter((t) => t.deadline && !isOverdue(t, now)).length,
-      overdue: open.filter((t) => isOverdue(t, now)).length,
+      ontime: open.filter((t) => t.deadline).length,
     }),
-    [open, now],
+    [open],
   );
 
-  // Overdue first, then earliest deadline, deadline-less last (newest first).
+  // Earliest deadline first, deadline-less last (newest first).
   const visible = useMemo(() => {
-    const list =
-      tab === "upcoming"
-        ? open.filter((t) => t.deadline && !isOverdue(t, now))
-        : tab === "overdue"
-          ? open.filter((t) => isOverdue(t, now))
-          : open;
+    const list = tab === "ontime" ? open.filter((t) => t.deadline) : open;
     return [...list].sort((a, b) => {
-      const rank = (t: Task) => (isOverdue(t, now) ? 0 : t.deadline ? 1 : 2);
-      const ra = rank(a);
-      const rb = rank(b);
-      if (ra !== rb) return ra - rb;
       const da = deadlineMs(a);
       const db = deadlineMs(b);
       if (!Number.isNaN(da) && !Number.isNaN(db) && da !== db) return da - db;
@@ -147,12 +139,16 @@ function TasksPage() {
       if (!Number.isNaN(db)) return 1;
       return +new Date(b.createdAt) - +new Date(a.createdAt);
     });
-  }, [open, tab, now]);
+  }, [open, tab]);
+
+  const closed = useMemo(
+    () => [...[...expired].sort((a, b) => deadlineMs(b) - deadlineMs(a)), ...done],
+    [expired, done],
+  );
 
   const TABS: { key: OpenTab; label: string; count: number }[] = [
     { key: "all", label: t("All"), count: counts.all },
-    { key: "upcoming", label: t("Upcoming"), count: counts.upcoming },
-    { key: "overdue", label: t("Overdue"), count: counts.overdue },
+    { key: "ontime", label: t("On time"), count: counts.ontime },
   ];
 
   return (
@@ -266,11 +262,11 @@ function TasksPage() {
 
         <section>
           <h2 className="mb-3 px-1 text-sm font-semibold text-muted-foreground">
-            {tf("Completed ({n})", { n: done.length })}
+            {tf("Completed ({n})", { n: closed.length })}
           </h2>
           <ul className="space-y-3">
             <AnimatePresence initial={false}>
-              {done.map((task) => (
+              {closed.map((task) => (
                 <TaskRow
                   key={task.id}
                   task={task}
@@ -284,7 +280,7 @@ function TasksPage() {
                   onEdit={() => {}}
                   onSave={() => {}}
                   onCancel={() => {}}
-                  onToggle={() => updateTask(task.id, { done: false })}
+                  onToggle={() => {}}
                   onRemove={() => removeTask(task.id)}
                 />
               ))}
@@ -345,7 +341,7 @@ function TaskRow({
       <button
         onClick={onToggle}
         aria-label={t("Mark complete")}
-        disabled={task.done}
+        disabled={task.done || overdue}
         className={`grid size-6 shrink-0 place-items-center rounded-lg border transition-all duration-200 ${
           task.done
             ? "cursor-default border-primary bg-primary text-primary-foreground"
@@ -421,7 +417,8 @@ function TaskRow({
             </IconBtn>
           </>
         ) : (
-          !task.done && (
+          !task.done &&
+          !overdue && (
             <IconBtn onClick={onEdit} label={t("Edit")}>
               <Pencil className="size-4" />
             </IconBtn>
