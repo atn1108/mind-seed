@@ -289,5 +289,9 @@
   "Task due soon": "Sắp tới hạn",
   "“{title}” is due in less than 2 hours.": "“{title}” còn dưới 2 tiếng nữa là tới hạn.",
   "Task overdue": "Quá hạn",
-  "“{title}” is past its deadline.": "“{title}” đã quá hạn."
+  "“{title}” is past its deadline.": "“{title}” đã quá hạn.",
+  "Set date & time": "Chọn ngày & giờ",
+  "Clear": "Xóa",
+  "Hour": "Giờ",
+  "Minute": "Phút"
 }

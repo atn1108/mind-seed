@@ -6,6 +6,7 @@ import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/AppShell";
+import { DateTimePicker } from "@/components/DateTimePicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -183,12 +184,7 @@ function TasksPage() {
             <SelectItem value="low">{t("Low priority")}</SelectItem>
           </SelectContent>
         </Select>
-        <Input
-          type="datetime-local"
-          value={deadline}
-          onChange={(e) => setDeadline(e.target.value)}
-          className="h-11 rounded-2xl sm:w-56"
-        />
+        <DateTimePicker value={deadline} onChange={setDeadline} className="sm:w-56" />
         <Button type="submit" className="h-11 rounded-2xl px-5 transition-transform active:scale-[0.97]">
           <Plus className="size-4" />
           {t("Add")}
@@ -369,11 +365,10 @@ function TaskRow({
               autoFocus
             />
             <div className="mt-2 flex gap-2">
-              <Input
-                type="datetime-local"
+              <DateTimePicker
                 value={draftDeadline}
-                onChange={(e) => setDraftDeadline(e.target.value)}
-                className="h-9 rounded-xl text-xs"
+                onChange={setDraftDeadline}
+                className="h-9 min-w-0 flex-1 rounded-xl text-xs"
               />
               <Select value={draftPriority} onValueChange={(v) => setDraftPriority(v as Priority)}>
                 <SelectTrigger className="!h-9 rounded-xl text-xs">

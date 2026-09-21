@@ -289,5 +289,9 @@
   "Task due soon": "Task due soon",
   "“{title}” is due in less than 2 hours.": "“{title}” is due in less than 2 hours.",
   "Task overdue": "Task overdue",
-  "“{title}” is past its deadline.": "“{title}” is past its deadline."
+  "“{title}” is past its deadline.": "“{title}” is past its deadline.",
+  "Set date & time": "Set date & time",
+  "Clear": "Clear",
+  "Hour": "Hour",
+  "Minute": "Minute"
 }
