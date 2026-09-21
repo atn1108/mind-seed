@@ -349,8 +349,11 @@ function TaskRow({
       <button
         onClick={onToggle}
         aria-label={t("Mark complete")}
-        className={`grid size-6 shrink-0 cursor-pointer place-items-center rounded-lg border transition-all duration-200 active:scale-90 ${
-          task.done ? "border-primary bg-primary text-primary-foreground" : "border-border"
+        disabled={task.done}
+        className={`grid size-6 shrink-0 place-items-center rounded-lg border transition-all duration-200 ${
+          task.done
+            ? "cursor-default border-primary bg-primary text-primary-foreground"
+            : "cursor-pointer border-border active:scale-90"
         }`}
       >
         {task.done && <Check className="size-3.5" />}
