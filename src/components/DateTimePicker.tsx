@@ -95,34 +95,45 @@ export function DateTimePicker({
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto rounded-3xl p-3" align="start">
+      <PopoverContent className="w-auto max-h-[80vh] overflow-y-auto rounded-3xl p-3" align="start">
         <Calendar mode="single" selected={current} onSelect={setKeepingTime} />
-        <div className="flex items-center justify-center gap-2 border-t border-border px-3 py-3">
-          <select
-            aria-label={t("Hour")}
-            value={current?.getHours() ?? 9}
-            onChange={(e) => setTime(Number(e.target.value), current?.getMinutes() ?? 0)}
-            className="h-9 cursor-pointer rounded-xl border border-input bg-transparent px-2 text-sm tabular-nums"
-          >
+        <div className="border-t border-border px-1 py-3">
+          <p className="mb-1.5 px-1 text-[11px] font-medium text-muted-foreground">{t("Hour")}</p>
+          <div className="grid grid-cols-6 gap-1">
             {HOURS.map((h) => (
-              <option key={h} value={h}>
+              <button
+                key={h}
+                type="button"
+                onClick={() => setTime(h, current?.getMinutes() ?? 0)}
+                className={`h-8 rounded-lg text-xs tabular-nums transition-colors ${
+                  current?.getHours() === h
+                    ? "bg-primary font-semibold text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
                 {p2(h)}
-              </option>
+              </button>
             ))}
-          </select>
-          <span className="font-semibold text-muted-foreground">:</span>
-          <select
-            aria-label={t("Minute")}
-            value={current ? Math.round(current.getMinutes() / 5) * 5 : 0}
-            onChange={(e) => setTime(current?.getHours() ?? 9, Number(e.target.value))}
-            className="h-9 cursor-pointer rounded-xl border border-input bg-transparent px-2 text-sm tabular-nums"
-          >
+          </div>
+          <p className="mb-1.5 mt-2.5 px-1 text-[11px] font-medium text-muted-foreground">
+            {t("Minute")}
+          </p>
+          <div className="grid grid-cols-6 gap-1">
             {MINUTES.map((m) => (
-              <option key={m} value={m}>
+              <button
+                key={m}
+                type="button"
+                onClick={() => setTime(current?.getHours() ?? 9, m)}
+                className={`h-8 rounded-lg text-xs tabular-nums transition-colors ${
+                  (current?.getMinutes() ?? 0) === m
+                    ? "bg-primary font-semibold text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
                 {p2(m)}
-              </option>
+              </button>
             ))}
-          </select>
+          </div>
         </div>
       </PopoverContent>
     </Popover>
