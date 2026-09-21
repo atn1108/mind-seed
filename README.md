@@ -21,20 +21,6 @@ Triết lý: *"Ươm mầm sự tập trung thay vì ép buộc người dùng n
 | 👤 **Profile**           | Avatar, tên, streak, tổng cây/giờ học, mục tiêu tháng                                                  |
 | 🧑‍🤝‍🧑 **Study Rooms**  | Phòng học chung (mã mời, timer dùng chung, nhắn tin, mật khẩu, hiện diện trực tiếp)                    |
 
-**Kinh tế EXP:**
-
-| Phiên học | EXP |
-| --------- | --- |
-| 5 phút    | 10  |
-| 10 phút   | 20  |
-| 25 phút   | 45  |
-| 45 phút   | 90  |
-| Mốc khác  | ×2 số phút |
-
-Xong phiên nhận full; bấm End sớm nhận theo số mốc đã qua (mỗi mốc = 1/5). Xong nhiệm vụ +12 EXP. Trồng cây tốn EXP tăng dần theo số cây đã có.
-
-**Focus Score (0–100):** tính từ thời gian tập trung, số phiên & nhiệm vụ hoàn thành, tỉ lệ bỏ dở và streak. Xếp loại: Excellent → Good → Average → Need Improvement.
-
 ---
 
 ## 🎨 Thiết kế
