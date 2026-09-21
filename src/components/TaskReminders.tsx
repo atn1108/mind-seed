@@ -1,10 +1,14 @@
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
-import { useMindSeed } from "@/lib/mindseed-store";
+import { useMindSeed, type Priority } from "@/lib/mindseed-store";
 import { useT, useTf } from "@/lib/ui-language";
 
-const REMIND_EVERY_MS = 2 * 60 * 60 * 1000; // 2 hours
+const REMIND_EVERY_MS: Record<Priority, number> = {
+  high: 1 * 60 * 60 * 1000, // 1 hour
+  medium: 2 * 60 * 60 * 1000, // 2 hours
+  low: 3 * 60 * 60 * 1000, // 3 hours
+};
 const CHECK_EVERY_MS = 60 * 1000; // check once a minute
 const DUE_SOON_MS = 2 * 60 * 60 * 1000; // due within 2 hours
 const OVERDUE_NOTICE_MS = 24 * 60 * 60 * 1000; // crossed the deadline within 24 hours
@@ -86,8 +90,9 @@ export function TaskReminders() {
       for (const task of tasks) {
         if (task.done) continue;
         // First reminder counts from creation; afterwards from the last one.
+        // Higher priority nudges more often: high hourly, medium 2-hourly, low 3-hourly.
         const baseline = map[task.id] ?? new Date(task.createdAt).getTime();
-        if (now - baseline < REMIND_EVERY_MS) continue;
+        if (now - baseline < (REMIND_EVERY_MS[task.priority] ?? REMIND_EVERY_MS.medium)) continue;
 
         map[task.id] = now;
         changed = true;
