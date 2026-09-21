@@ -295,5 +295,6 @@
   "Hour": "Giờ",
   "Minute": "Phút",
   "Date": "Ngày",
-  "Done": "Xong"
+  "Done": "Xong",
+  "Couldn't complete the task. Please try again.": "Không hoàn thành được nhiệm vụ. Vui lòng thử lại."
 }
