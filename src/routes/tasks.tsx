@@ -173,7 +173,7 @@ function TasksPage() {
                   onToggle={async () => {
                     try {
                       await updateTask(task.id, { done: true });
-                      toast.success("Nhận +12 EXP 🌿");
+                      toast.success("Làm tốt lắm! Bạn đã nhận được +12 EXP 🌿");
                     } catch {
                       toast.error(t("Couldn't complete the task. Please try again."));
                     }

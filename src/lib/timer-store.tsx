@@ -97,7 +97,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       // The toast shows the actual EXP gained for this duration.
       void addSession(durationMin, true, durationMin).then(
         (gained) => {
-          toast.success(`Nhận +${gained} EXP 🌿`);
+          toast.success(`Làm tốt lắm! Bạn đã nhận được +${gained} EXP 🌿`);
         },
         (err) => {
           console.error("[Timer] Failed to log completed session:", err);
