@@ -124,8 +124,8 @@ export function DateTimePicker({
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[300px] max-w-[calc(100vw-2rem)] rounded-3xl p-3"
-        align="start"
+        className="w-[280px] max-w-[calc(100vw-2rem)] rounded-3xl p-3"
+        align="center"
         collisionPadding={16}
       >
         <div className="mb-2 flex items-center justify-center gap-1.5">
@@ -155,12 +155,12 @@ export function DateTimePicker({
                   mode="single"
                   selected={current}
                   onSelect={setKeepingTime}
-                  className="w-fit max-w-full p-1"
+                  className="w-fit max-w-full p-1 [--cell-size:1.75rem]"
                 />
               </div>
             ) : mode === "hour" ? (
               <ClockDial
-                size={272}
+                size={248}
                 rings={HOUR_RINGS}
                 format={(h) => String(h)}
                 selected={hour}

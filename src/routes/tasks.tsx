@@ -171,7 +171,7 @@ function TasksPage() {
           className="h-11 rounded-2xl"
         />
         <Select value={priority} onValueChange={(v) => setPriority(v as Priority)}>
-          <SelectTrigger className="!h-11 rounded-2xl sm:w-36">
+          <SelectTrigger className="!h-11 shrink-0 rounded-2xl sm:w-44">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
