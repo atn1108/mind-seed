@@ -128,17 +128,21 @@ export function DateTimePicker({
         align="start"
         collisionPadding={16}
       >
-        <div className="mb-2 flex items-center justify-center gap-1.5">
-          <Seg active={mode === "date"} onClick={() => setMode("date")}>
-            {current ? current.toLocaleDateString() : t("Date")}
+        <div className="mb-2 flex flex-col items-center gap-1.5">
+          <Seg active={mode === "date"} onClick={() => setMode("date")} className="w-full">
+            <span className="block max-w-full truncate tabular-nums">
+              {current ? current.toLocaleDateString() : t("Date")}
+            </span>
           </Seg>
-          <Seg active={mode === "hour"} onClick={() => setMode("hour")}>
-            <span className="tabular-nums">{p2(hour)}</span>
-          </Seg>
-          <span className="font-semibold text-muted-foreground">:</span>
-          <Seg active={mode === "minute"} onClick={() => setMode("minute")}>
-            <span className="tabular-nums">{p2(minute)}</span>
-          </Seg>
+          <div className="flex items-center justify-center gap-1.5">
+            <Seg active={mode === "hour"} onClick={() => setMode("hour")} className="w-12">
+              <span className="tabular-nums">{p2(hour)}</span>
+            </Seg>
+            <span className="font-semibold text-muted-foreground">:</span>
+            <Seg active={mode === "minute"} onClick={() => setMode("minute")} className="w-12">
+              <span className="tabular-nums">{p2(minute)}</span>
+            </Seg>
+          </div>
         </div>
 
         <AnimatePresence mode="wait" initial={false}>
@@ -195,21 +199,23 @@ export function DateTimePicker({
 function Seg({
   active,
   onClick,
+  className,
   children,
 }: {
   active: boolean;
   onClick: () => void;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+      className={`rounded-full px-3 py-1.5 text-center text-xs font-semibold transition-colors ${
         active
           ? "bg-primary text-primary-foreground"
           : "bg-muted text-muted-foreground hover:text-foreground"
-      }`}
+      } ${className ?? ""}`}
     >
       {children}
     </button>
