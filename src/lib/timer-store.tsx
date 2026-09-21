@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { useMindSeed } from "@/lib/mindseed-store";
+import { toast } from "sonner";
 
 type TimerCtx = {
   durationMin: number;
@@ -91,9 +92,12 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       setRemaining(0);
       setFinishedTick((v) => v + 1);
       broadcastFocusGuard("stop");
-      void addSession(durationMin, true).catch((err) =>
-        console.error("[Timer] Failed to log completed session:", err),
-      );
+      // Surface failures: the celebration UI already fired, so a silent
+      // failure would look like a saved session that never appears in Insight.
+      void addSession(durationMin, true).catch((err) => {
+        console.error("[Timer] Failed to log completed session:", err);
+        toast.error("Couldn't save this session — it won't appear in Insight. Please try again.");
+      });
     }
   }, [running, endsAt, left, durationMin, addSession]);
 
@@ -141,9 +145,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     // Log the minutes actually studied — never the full duration.
     if (elapsedSec >= MIN_PARTIAL_SEC && elapsedSec < durationMin * 60) {
       const elapsedMin = Math.max(1, Math.round(elapsedSec / 60));
-      void addSession(elapsedMin, false).catch((err) =>
-        console.error("[Timer] Failed to log partial session:", err),
-      );
+      void addSession(elapsedMin, false).catch((err) => {
+        console.error("[Timer] Failed to log partial session:", err);
+        toast.error("Couldn't save this session — it won't appear in Insight. Please try again.");
+      });
     }
     completedRef.current = false;
     setRunning(false);
