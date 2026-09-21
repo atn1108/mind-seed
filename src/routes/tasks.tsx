@@ -147,10 +147,9 @@ function TasksPage() {
   );
 
   // Earliest deadline first, deadline-less last (newest first).
-  // The Trễ hẹn / Hoàn thành tabs are read-only views of locked rows.
+  // Gần đến / Sắp tới / Tất cả filter the left list; Trễ hẹn / Hoàn thành
+  // filter the Completed list instead.
   const visible = useMemo(() => {
-    if (tab === "overdue") return [...expired].sort((a, b) => deadlineMs(b) - deadlineMs(a));
-    if (tab === "done") return done;
     const list =
       tab === "far"
         ? open.filter((t) => isFar(t, now))
@@ -165,11 +164,21 @@ function TasksPage() {
       if (!Number.isNaN(db)) return 1;
       return +new Date(b.createdAt) - +new Date(a.createdAt);
     });
-  }, [open, tab, expired, done, now]);
+  }, [open, tab, now]);
 
   const closed = useMemo(
     () => [...[...expired].sort((a, b) => deadlineMs(b) - deadlineMs(a)), ...done],
     [expired, done],
+  );
+
+  const closedVisible = useMemo(
+    () =>
+      tab === "overdue"
+        ? closed.filter((t) => !t.done)
+        : tab === "done"
+          ? closed.filter((t) => t.done)
+          : closed,
+    [closed, tab],
   );
 
   const TABS: { key: OpenTab; label: string; count: number }[] = [
@@ -265,8 +274,6 @@ function TasksPage() {
                   }}
                   onCancel={() => setEditing(null)}
                   onToggle={async () => {
-                    // Locked rows (Trễ hẹn / Hoàn thành tabs) can't be toggled.
-                    if (task.done || isOverdue(task)) return;
                     try {
                       await updateTask(task.id, { done: true });
                       toast.success("Làm tốt lắm! Bạn đã nhận được +12 EXP 🌿");
@@ -297,7 +304,7 @@ function TasksPage() {
           </h2>
           <ul className="space-y-3">
             <AnimatePresence initial={false}>
-              {closed.map((task) => (
+              {closedVisible.map((task) => (
                 <TaskRow
                   key={task.id}
                   task={task}
