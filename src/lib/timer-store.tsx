@@ -97,11 +97,11 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       // The toast shows the actual EXP gained for this duration.
       void addSession(durationMin, true, durationMin).then(
         (gained) => {
-          toast.success(`Session complete! +${gained} EXP 🌿`);
+          toast.success(`+${gained} EXP 🌿`);
         },
         (err) => {
           console.error("[Timer] Failed to log completed session:", err);
-          toast.error("Couldn't save this session — it won't appear in Insight. Please try again.");
+          toast.error("Couldn't save session");
         },
       );
     }
@@ -153,7 +153,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       const elapsedMin = Math.max(1, Math.round(elapsedSec / 60));
       void addSession(elapsedMin, false, durationMin).catch((err) => {
         console.error("[Timer] Failed to log partial session:", err);
-        toast.error("Couldn't save this session — it won't appear in Insight. Please try again.");
+        toast.error("Couldn't save session");
       });
     }
     completedRef.current = false;
