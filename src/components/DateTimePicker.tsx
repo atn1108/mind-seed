@@ -20,8 +20,11 @@ function toLocalValue(d: Date) {
 
 const p2 = (n: number) => String(n).padStart(2, "0");
 
-// Dials always show 12 positions; hours map through the AM/PM period.
-const HOUR_DIAL = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+// Dials always show 12 positions per ring; hours use two rings (0-11, 12-23).
+const HOUR_RINGS = [
+  Array.from({ length: 12 }, (_, i) => i),
+  Array.from({ length: 12 }, (_, i) => i + 12),
+];
 const MINUTE_STEPS = Array.from({ length: 12 }, (_, i) => i * 5);
 
 type Mode = "date" | "hour" | "minute";
@@ -47,7 +50,6 @@ export function DateTimePicker({
 
   const hour = current?.getHours() ?? 9;
   const minute = current?.getMinutes() ?? 0;
-  const isPM = hour >= 12;
 
   const setKeepingTime = (date: Date | undefined) => {
     if (!date) {
@@ -65,9 +67,7 @@ export function DateTimePicker({
     onChange(toLocalValue(base));
   };
 
-  const pickHourDial = (index: number) => {
-    const h12 = HOUR_DIAL[index]!;
-    const h = isPM ? (h12 === 12 ? 12 : h12 + 12) : h12 === 12 ? 0 : h12;
+  const pickHour = (h: number) => {
     setTime(h, minute);
     setMode("minute");
   };
@@ -152,40 +152,20 @@ export function DateTimePicker({
             {mode === "date" ? (
               <Calendar mode="single" selected={current} onSelect={setKeepingTime} />
             ) : mode === "hour" ? (
-              <div>
-                <ClockDial
-                  labels={HOUR_DIAL.map(String)}
-                  selected={hour % 12}
-                  onPick={pickHourDial}
-                />
-                <div className="mt-2 flex justify-center gap-2">
-                  {(["AM", "PM"] as const).map((period) => {
-                    const active = isPM === (period === "PM");
-                    return (
-                      <button
-                        key={period}
-                        type="button"
-                        onClick={() => {
-                          if (period === "AM" && isPM) setTime(hour - 12, minute);
-                          if (period === "PM" && !isPM) setTime(hour + 12, minute);
-                        }}
-                        className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
-                          active
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        {t(period)}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <ClockDial
+                size={272}
+                rings={HOUR_RINGS}
+                format={(h) => String(h)}
+                selected={hour}
+                onPick={pickHour}
+              />
             ) : (
               <ClockDial
-                labels={MINUTE_STEPS.map(p2)}
-                selected={MINUTE_STEPS.indexOf(minute)}
-                onPick={(i) => pickMinute(MINUTE_STEPS[i]!)}
+                size={232}
+                rings={[MINUTE_STEPS]}
+                format={p2}
+                selected={MINUTE_STEPS.includes(minute) ? minute : -1}
+                onPick={pickMinute}
               />
             )}
           </motion.div>
@@ -236,50 +216,59 @@ function Seg({
   );
 }
 
-/** Analog dial: 12 tappable numbers around a face, with a hand under the
- *  selected one. `selected` is the dial index (0 = top), -1 hides the hand. */
+/** Analog dial with one ring per value set (hours: outer 0-11, inner 12-23).
+ *  Tapping a number selects it; a hand under the numbers points at it.
+ *  `selected` is the value itself (-1 hides the hand). */
 function ClockDial({
-  labels,
+  size,
+  rings,
+  format,
   selected,
   onPick,
 }: {
-  labels: string[];
+  size: number;
+  rings: number[][];
+  format: (v: number) => string;
   selected: number;
-  onPick: (index: number) => void;
+  onPick: (value: number) => void;
 }) {
-  const size = 232;
-  const r = size / 2 - 28;
+  const center = size / 2;
+  const radii = rings.map((_, r) => center - 24 - r * 40);
+  const hit = rings.map((values, r) => ({ r, i: values.indexOf(selected) })).find((h) => h.i >= 0);
+
   return (
     <div className="relative mx-auto" style={{ width: size, height: size }}>
       <div className="absolute inset-0 rounded-full bg-muted/60" />
-      {selected >= 0 && (
+      {hit && (
         <div
           className="absolute left-1/2 top-1/2 z-0 h-0.5 origin-left rounded-full bg-primary/70"
-          style={{ width: r, transform: `rotate(${-90 + selected * 30}deg)` }}
+          style={{ width: radii[hit.r], transform: `rotate(${-90 + hit.i * 30}deg)` }}
         />
       )}
       <div className="absolute left-1/2 top-1/2 z-10 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary" />
-      {labels.map((label, i) => {
-        const a = ((i * 30 - 90) * Math.PI) / 180;
-        const x = Math.cos(a) * r;
-        const y = Math.sin(a) * r;
-        const isSel = i === selected;
-        return (
-          <button
-            key={`${label}-${i}`}
-            type="button"
-            onClick={() => onPick(i)}
-            style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)` }}
-            className={`absolute z-10 grid size-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-sm tabular-nums transition-all active:scale-90 ${
-              isSel
-                ? "bg-primary font-semibold text-primary-foreground shadow"
-                : "text-foreground hover:bg-muted"
-            }`}
-          >
-            {label}
-          </button>
-        );
-      })}
+      {rings.map((values, r) =>
+        values.map((v, i) => {
+          const a = ((i * 30 - 90) * Math.PI) / 180;
+          const x = Math.cos(a) * radii[r]!;
+          const y = Math.sin(a) * radii[r]!;
+          const isSel = v === selected;
+          return (
+            <button
+              key={`${r}-${v}`}
+              type="button"
+              onClick={() => onPick(v)}
+              style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)` }}
+              className={`absolute z-10 grid size-8 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-[13px] tabular-nums transition-all active:scale-90 ${
+                isSel
+                  ? "bg-primary font-semibold text-primary-foreground shadow"
+                  : "text-foreground hover:bg-muted"
+              }`}
+            >
+              {format(v)}
+            </button>
+          );
+        }),
+      )}
     </div>
   );
 }

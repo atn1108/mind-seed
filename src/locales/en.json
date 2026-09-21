@@ -295,7 +295,5 @@
   "Hour": "Hour",
   "Minute": "Minute",
   "Date": "Date",
-  "Done": "Done",
-  "AM": "AM",
-  "PM": "PM"
+  "Done": "Done"
 }
