@@ -293,5 +293,9 @@
   "Set date & time": "Chọn ngày & giờ",
   "Clear": "Xóa",
   "Hour": "Giờ",
-  "Minute": "Phút"
+  "Minute": "Phút",
+  "Date": "Ngày",
+  "Done": "Xong",
+  "AM": "Sáng",
+  "PM": "Chiều"
 }

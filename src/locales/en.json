@@ -293,5 +293,9 @@
   "Set date & time": "Set date & time",
   "Clear": "Clear",
   "Hour": "Hour",
-  "Minute": "Minute"
+  "Minute": "Minute",
+  "Date": "Date",
+  "Done": "Done",
+  "AM": "AM",
+  "PM": "PM"
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { CalendarClock, ChevronDown, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { CalendarClock, X } from "lucide-react";
 
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -17,15 +18,18 @@ function toLocalValue(d: Date) {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
-const HOURS = Array.from({ length: 24 }, (_, h) => h);
-const MINUTES = Array.from({ length: 12 }, (_, i) => i * 5);
-
 const p2 = (n: number) => String(n).padStart(2, "0");
 
+// Dials always show 12 positions; hours map through the AM/PM period.
+const HOUR_DIAL = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+const MINUTE_STEPS = Array.from({ length: 12 }, (_, i) => i * 5);
+
+type Mode = "date" | "hour" | "minute";
+
 /**
- * Pretty datetime picker: a button opening a calendar + hour/minute selects.
- * Same string model as datetime-local ("YYYY-MM-DDTHH:mm", "" when unset),
- * so it swaps in anywhere a datetime input was used.
+ * Datetime picker with a clock-face time dial: tap a number and the hand
+ * points at it. The calendar fades out to make room for the dial.
+ * Same string model as datetime-local ("YYYY-MM-DDTHH:mm", "" when unset).
  */
 export function DateTimePicker({
   value,
@@ -38,8 +42,12 @@ export function DateTimePicker({
 }) {
   const t = useT();
   const [open, setOpen] = useState(false);
-  const [menu, setMenu] = useState<"hour" | "minute" | null>(null);
+  const [mode, setMode] = useState<Mode>("date");
   const current = parseLocal(value);
+
+  const hour = current?.getHours() ?? 9;
+  const minute = current?.getMinutes() ?? 0;
+  const isPM = hour >= 12;
 
   const setKeepingTime = (date: Date | undefined) => {
     if (!date) {
@@ -51,14 +59,26 @@ export function DateTimePicker({
     onChange(toLocalValue(date));
   };
 
-  const setTime = (hour: number, minute: number) => {
+  const setTime = (h: number, m: number) => {
     const base = current ?? new Date();
-    base.setHours(hour, minute, 0, 0);
+    base.setHours(h, m, 0, 0);
     onChange(toLocalValue(base));
   };
 
+  const pickHourDial = (index: number) => {
+    const h12 = HOUR_DIAL[index]!;
+    const h = isPM ? (h12 === 12 ? 12 : h12 + 12) : h12 === 12 ? 0 : h12;
+    setTime(h, minute);
+    setMode("minute");
+  };
+
+  const pickMinute = (m: number) => {
+    setTime(hour, m);
+    setOpen(false);
+  };
+
   const label = current
-    ? `${current.toLocaleDateString()} · ${p2(current.getHours())}:${p2(current.getMinutes())}`
+    ? `${current.toLocaleDateString()} · ${p2(hour)}:${p2(minute)}`
     : t("Set date & time");
 
   return (
@@ -66,7 +86,7 @@ export function DateTimePicker({
       open={open}
       onOpenChange={(v) => {
         setOpen(v);
-        if (!v) setMenu(null);
+        if (v) setMode("date");
       }}
     >
       <PopoverTrigger asChild>
@@ -103,101 +123,163 @@ export function DateTimePicker({
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto rounded-3xl p-3" align="start">
-        <Calendar mode="single" selected={current} onSelect={setKeepingTime} />
-        <div className="flex items-center justify-center gap-2 border-t border-border px-3 py-3">
-          <TimeMenu
-            label={t("Hour")}
-            value={current?.getHours() ?? 9}
-            options={HOURS}
-            open={menu === "hour"}
-            onOpen={() => setMenu("hour")}
-            onClose={() => setMenu(null)}
-            onPick={(h) => setTime(h, current?.getMinutes() ?? 0)}
-          />
+      <PopoverContent
+        className="w-[300px] max-w-[calc(100vw-2rem)] rounded-3xl p-3"
+        align="start"
+        collisionPadding={16}
+      >
+        <div className="mb-2 flex items-center justify-center gap-1.5">
+          <Seg active={mode === "date"} onClick={() => setMode("date")}>
+            {current ? current.toLocaleDateString() : t("Date")}
+          </Seg>
+          <Seg active={mode === "hour"} onClick={() => setMode("hour")}>
+            <span className="tabular-nums">{p2(hour)}</span>
+          </Seg>
           <span className="font-semibold text-muted-foreground">:</span>
-          <TimeMenu
-            label={t("Minute")}
-            value={current?.getMinutes() ?? 0}
-            options={MINUTES}
-            open={menu === "minute"}
-            onOpen={() => setMenu("minute")}
-            onClose={() => setMenu(null)}
-            onPick={(m) => setTime(current?.getHours() ?? 9, m)}
-          />
+          <Seg active={mode === "minute"} onClick={() => setMode("minute")}>
+            <span className="tabular-nums">{p2(minute)}</span>
+          </Seg>
+        </div>
+
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={mode}
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.97 }}
+            transition={{ duration: 0.16 }}
+          >
+            {mode === "date" ? (
+              <Calendar mode="single" selected={current} onSelect={setKeepingTime} />
+            ) : mode === "hour" ? (
+              <div>
+                <ClockDial
+                  labels={HOUR_DIAL.map(String)}
+                  selected={hour % 12}
+                  onPick={pickHourDial}
+                />
+                <div className="mt-2 flex justify-center gap-2">
+                  {(["AM", "PM"] as const).map((period) => {
+                    const active = isPM === (period === "PM");
+                    return (
+                      <button
+                        key={period}
+                        type="button"
+                        onClick={() => {
+                          if (period === "AM" && isPM) setTime(hour - 12, minute);
+                          if (period === "PM" && !isPM) setTime(hour + 12, minute);
+                        }}
+                        className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
+                          active
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {t(period)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <ClockDial
+                labels={MINUTE_STEPS.map(p2)}
+                selected={MINUTE_STEPS.indexOf(minute)}
+                onPick={(i) => pickMinute(MINUTE_STEPS[i]!)}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="mt-1 flex items-center justify-between border-t border-border px-1 pt-2.5">
+          <button
+            type="button"
+            onClick={() => onChange("")}
+            className="rounded-xl px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            {t("Clear")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="rounded-xl bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground transition-transform active:scale-95"
+          >
+            {t("Done")}
+          </button>
         </div>
       </PopoverContent>
     </Popover>
   );
 }
 
-/** Custom dropdown: trigger button + floating option menu. Same pattern as a
- *  native select, but styled to match the app and tappable everywhere. */
-function TimeMenu({
-  label,
-  value,
-  options,
-  open,
-  onOpen,
-  onClose,
-  onPick,
+function Seg({
+  active,
+  onClick,
+  children,
 }: {
-  label: string;
-  value: number;
-  options: number[];
-  open: boolean;
-  onOpen: () => void;
-  onClose: () => void;
-  onPick: (v: number) => void;
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
 }) {
   return (
-    <div className="relative">
-      <button
-        type="button"
-        aria-label={label}
-        onClick={() => (open ? onClose() : onOpen())}
-        className={`flex h-9 min-w-[4.25rem] items-center justify-between gap-1.5 rounded-xl border px-3 text-sm tabular-nums transition-colors ${
-          open
-            ? "border-primary bg-primary-soft text-primary"
-            : "border-input bg-transparent text-foreground hover:bg-muted/60"
-        }`}
-      >
-        {p2(value)}
-        <ChevronDown
-          className={`size-3.5 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+        active
+          ? "bg-primary text-primary-foreground"
+          : "bg-muted text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Analog dial: 12 tappable numbers around a face, with a hand under the
+ *  selected one. `selected` is the dial index (0 = top), -1 hides the hand. */
+function ClockDial({
+  labels,
+  selected,
+  onPick,
+}: {
+  labels: string[];
+  selected: number;
+  onPick: (index: number) => void;
+}) {
+  const size = 232;
+  const r = size / 2 - 28;
+  return (
+    <div className="relative mx-auto" style={{ width: size, height: size }}>
+      <div className="absolute inset-0 rounded-full bg-muted/60" />
+      {selected >= 0 && (
+        <div
+          className="absolute left-1/2 top-1/2 z-0 h-0.5 origin-left rounded-full bg-primary/70"
+          style={{ width: r, transform: `rotate(${-90 + selected * 30}deg)` }}
         />
-      </button>
-      {open && (
-        <>
-          <button
-            type="button"
-            aria-hidden
-            tabIndex={-1}
-            onClick={onClose}
-            className="fixed inset-0 z-40 cursor-default"
-          />
-          <ul className="absolute left-1/2 top-full z-50 mt-1.5 max-h-44 w-full min-w-[4.25rem] -translate-x-1/2 overflow-y-auto rounded-xl border border-border bg-popover p-1 shadow-lg [scrollbar-width:thin]">
-            {options.map((o) => (
-              <li key={o}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onPick(o);
-                    onClose();
-                  }}
-                  className={`w-full rounded-lg px-2 py-1.5 text-center text-sm tabular-nums transition-colors ${
-                    o === value
-                      ? "bg-primary font-semibold text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  }`}
-                >
-                  {p2(o)}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </>
       )}
+      <div className="absolute left-1/2 top-1/2 z-10 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary" />
+      {labels.map((label, i) => {
+        const a = ((i * 30 - 90) * Math.PI) / 180;
+        const x = Math.cos(a) * r;
+        const y = Math.sin(a) * r;
+        const isSel = i === selected;
+        return (
+          <button
+            key={`${label}-${i}`}
+            type="button"
+            onClick={() => onPick(i)}
+            style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)` }}
+            className={`absolute z-10 grid size-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-sm tabular-nums transition-all active:scale-90 ${
+              isSel
+                ? "bg-primary font-semibold text-primary-foreground shadow"
+                : "text-foreground hover:bg-muted"
+            }`}
+          >
+            {label}
+          </button>
+        );
+      })}
     </div>
   );
 }
