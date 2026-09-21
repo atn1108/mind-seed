@@ -281,5 +281,13 @@
   "Copy room code": "Copy room code",
   "Task reminder": "Task reminder",
   "Don't forget your task “{title}” — still in progress.": "Don't forget your task “{title}” — still in progress.",
-  "Milestone {done}/5 · +{n} EXP on finish": "Milestone {done}/5 · +{n} EXP on finish"
+  "Milestone {done}/5 · +{n} EXP on finish": "Milestone {done}/5 · +{n} EXP on finish",
+  "Overdue": "Overdue",
+  "All": "All",
+  "Upcoming": "Upcoming",
+  "Nothing here.": "Nothing here.",
+  "Task due soon": "Task due soon",
+  "“{title}” is due in less than 2 hours.": "“{title}” is due in less than 2 hours.",
+  "Task overdue": "Task overdue",
+  "“{title}” is past its deadline.": "“{title}” is past its deadline."
 }

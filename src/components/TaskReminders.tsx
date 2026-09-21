@@ -6,6 +6,8 @@ import { useT, useTf } from "@/lib/ui-language";
 
 const REMIND_EVERY_MS = 2 * 60 * 60 * 1000; // 2 hours
 const CHECK_EVERY_MS = 60 * 1000; // check once a minute
+const DUE_SOON_MS = 2 * 60 * 60 * 1000; // due within 2 hours
+const OVERDUE_NOTICE_MS = 24 * 60 * 60 * 1000; // crossed the deadline within 24 hours
 const TASK_REMINDER_KEY = "mindseed-task-reminders";
 const NOTIF_KEY = "mindseed-notifications";
 
@@ -98,10 +100,34 @@ export function TaskReminders() {
         showSystemNotification(title, message);
       }
 
+      // Deadline nudges: once when due within 2 hours, once when the deadline
+      // was crossed within the last 24 hours. Long-overdue tasks already show
+      // a red badge, so they don't get a toast.
+      for (const task of tasks) {
+        if (task.done || !task.deadline) continue;
+        const due = new Date(task.deadline).getTime();
+        if (Number.isNaN(due)) continue;
+        if (due > now && due - now <= DUE_SOON_MS && !map[`${task.id}:soon`]) {
+          map[`${task.id}:soon`] = now;
+          changed = true;
+          const message = tf("“{title}” is due in less than 2 hours.", { title: task.title });
+          toast.info(t("Task due soon"), { description: message });
+          showSystemNotification(t("Task due soon"), message);
+        } else if (due <= now && now - due <= OVERDUE_NOTICE_MS && !map[`${task.id}:overdue`]) {
+          map[`${task.id}:overdue`] = now;
+          changed = true;
+          const message = tf("“{title}” is past its deadline.", { title: task.title });
+          toast.info(t("Task overdue"), { description: message });
+          showSystemNotification(t("Task overdue"), message);
+        }
+      }
+
       // Drop reminder history once a task is completed or removed.
+      // Deadline flags are stored as "<id>:soon" / "<id>:overdue".
       const openIds = new Set(tasks.filter((task) => !task.done).map((task) => task.id));
       for (const id of Object.keys(map)) {
-        if (!openIds.has(id)) {
+        const base = id.includes(":") ? id.slice(0, id.indexOf(":")) : id;
+        if (!openIds.has(base)) {
           delete map[id];
           changed = true;
         }

@@ -1,7 +1,7 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
 import { useT, useTf } from "@/lib/ui-language";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -71,6 +71,19 @@ function formatDeadline(iso: string) {
   return `${date}, ${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 }
 
+function deadlineMs(task: Task) {
+  if (!task.deadline) return Number.NaN;
+  return parseDeadline(task.deadline).getTime();
+}
+
+function isOverdue(task: Task, now = Date.now()) {
+  if (task.done || !task.deadline) return false;
+  const ms = deadlineMs(task);
+  return !Number.isNaN(ms) && ms < now;
+}
+
+type OpenTab = "all" | "upcoming" | "overdue";
+
 function TasksPage() {
   const t = useT();
   const tf = useTf();
@@ -82,6 +95,14 @@ function TasksPage() {
   const [draft, setDraft] = useState("");
   const [draftDeadline, setDraftDeadline] = useState("");
   const [draftPriority, setDraftPriority] = useState<Priority>("medium");
+  const [tab, setTab] = useState<OpenTab>("all");
+
+  // Re-evaluate overdue state as time passes while the page stays open.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,6 +116,43 @@ function TasksPage() {
 
   const done = state.tasks.filter((t) => t.done);
   const open = state.tasks.filter((t) => !t.done);
+
+  const counts = useMemo(
+    () => ({
+      all: open.length,
+      upcoming: open.filter((t) => t.deadline && !isOverdue(t, now)).length,
+      overdue: open.filter((t) => isOverdue(t, now)).length,
+    }),
+    [open, now],
+  );
+
+  // Overdue first, then earliest deadline, deadline-less last (newest first).
+  const visible = useMemo(() => {
+    const list =
+      tab === "upcoming"
+        ? open.filter((t) => t.deadline && !isOverdue(t, now))
+        : tab === "overdue"
+          ? open.filter((t) => isOverdue(t, now))
+          : open;
+    return [...list].sort((a, b) => {
+      const rank = (t: Task) => (isOverdue(t, now) ? 0 : t.deadline ? 1 : 2);
+      const ra = rank(a);
+      const rb = rank(b);
+      if (ra !== rb) return ra - rb;
+      const da = deadlineMs(a);
+      const db = deadlineMs(b);
+      if (!Number.isNaN(da) && !Number.isNaN(db) && da !== db) return da - db;
+      if (!Number.isNaN(da)) return -1;
+      if (!Number.isNaN(db)) return 1;
+      return +new Date(b.createdAt) - +new Date(a.createdAt);
+    });
+  }, [open, tab, now]);
+
+  const TABS: { key: OpenTab; label: string; count: number }[] = [
+    { key: "all", label: t("All"), count: counts.all },
+    { key: "upcoming", label: t("Upcoming"), count: counts.upcoming },
+    { key: "overdue", label: t("Overdue"), count: counts.overdue },
+  ];
 
   return (
     <AppShell>
@@ -142,9 +200,24 @@ function TasksPage() {
           <h2 className="mb-3 px-1 text-sm font-semibold text-muted-foreground">
             {tf("In progress ({n})", { n: open.length })}
           </h2>
+          <div className="mb-3 flex gap-2 px-1">
+            {TABS.map((tabItem) => (
+              <button
+                key={tabItem.key}
+                onClick={() => setTab(tabItem.key)}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
+                  tab === tabItem.key
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-primary-soft hover:text-primary"
+                }`}
+              >
+                {tabItem.label} ({tabItem.count})
+              </button>
+            ))}
+          </div>
           <ul className="space-y-3">
             <AnimatePresence initial={false}>
-              {open.map((task) => (
+              {visible.map((task) => (
                 <TaskRow
                   key={task.id}
                   task={task}
@@ -186,6 +259,11 @@ function TasksPage() {
           {open.length === 0 && (
             <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
               {t("All clear. Take a moment to breathe.")}
+            </p>
+          )}
+          {open.length > 0 && visible.length === 0 && (
+            <p className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+              {t("Nothing here.")}
             </p>
           )}
         </section>
@@ -254,6 +332,7 @@ function TaskRow({
   const t = useT();
   const tf = useTf();
   const p = PRIORITY[task.priority];
+  const overdue = !task.done && isOverdue(task);
   return (
     <motion.li
       layout
@@ -312,12 +391,19 @@ function TaskRow({
             {task.title}
           </p>
         )}
-        <div className="mt-1.5 flex items-center gap-2">
+        <div className="mt-1.5 flex flex-wrap items-center gap-2">
           <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${p.className}`}>
             {t(p.label)}
           </span>
+          {overdue && (
+            <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold text-destructive">
+              {t("Overdue")}
+            </span>
+          )}
           {task.deadline && (
-            <span className="text-[11px] text-muted-foreground">
+            <span
+              className={`text-[11px] ${overdue ? "font-medium text-destructive" : "text-muted-foreground"}`}
+            >
               {tf("Due {date}", { date: formatDeadline(task.deadline) })}
             </span>
           )}

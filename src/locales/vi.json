@@ -281,5 +281,13 @@
   "Copy room code": "Sao chép mã phòng",
   "Task reminder": "Nhắc nhiệm vụ",
   "Don't forget your task “{title}” — still in progress.": "Đừng quên nhiệm vụ “{title}” — vẫn còn đang dở.",
-  "Milestone {done}/5 · +{n} EXP on finish": "Cột mốc {done}/5 · +{n} EXP khi xong"
+  "Milestone {done}/5 · +{n} EXP on finish": "Cột mốc {done}/5 · +{n} EXP khi xong",
+  "Overdue": "Quá hạn",
+  "All": "Tất cả",
+  "Upcoming": "Sắp tới",
+  "Nothing here.": "Không có gì ở đây.",
+  "Task due soon": "Sắp tới hạn",
+  "“{title}” is due in less than 2 hours.": "“{title}” còn dưới 2 tiếng nữa là tới hạn.",
+  "Task overdue": "Quá hạn",
+  "“{title}” is past its deadline.": "“{title}” đã quá hạn."
 }
