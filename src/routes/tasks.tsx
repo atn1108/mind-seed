@@ -83,7 +83,22 @@ function isOverdue(task: Task, now = Date.now()) {
   return !Number.isNaN(ms) && ms < now;
 }
 
-type OpenTab = "all" | "ontime";
+function isFar(task: Task, now = Date.now()) {
+  if (!task.deadline) return false;
+  const ms = deadlineMs(task);
+  return !Number.isNaN(ms) && ms - now > DUE_SOON_MS;
+}
+
+function isSoon(task: Task, now = Date.now()) {
+  if (!task.deadline) return false;
+  const ms = deadlineMs(task);
+  return !Number.isNaN(ms) && ms - now <= DUE_SOON_MS;
+}
+
+type OpenTab = "all" | "far" | "soon" | "overdue" | "done";
+
+// "Sắp tới" = due within 3 days; "Gần đến" = further out.
+const DUE_SOON_MS = 3 * 24 * 60 * 60 * 1000;
 
 function TasksPage() {
   const t = useT();
@@ -123,14 +138,25 @@ function TasksPage() {
   const counts = useMemo(
     () => ({
       all: open.length,
-      ontime: open.filter((t) => t.deadline).length,
+      far: open.filter((t) => isFar(t, now)).length,
+      soon: open.filter((t) => isSoon(t, now)).length,
+      overdue: expired.length,
+      done: done.length,
     }),
-    [open],
+    [open, expired, done, now],
   );
 
   // Earliest deadline first, deadline-less last (newest first).
+  // The Trễ hẹn / Hoàn thành tabs are read-only views of locked rows.
   const visible = useMemo(() => {
-    const list = tab === "ontime" ? open.filter((t) => t.deadline) : open;
+    if (tab === "overdue") return [...expired].sort((a, b) => deadlineMs(b) - deadlineMs(a));
+    if (tab === "done") return done;
+    const list =
+      tab === "far"
+        ? open.filter((t) => isFar(t, now))
+        : tab === "soon"
+          ? open.filter((t) => isSoon(t, now))
+          : open;
     return [...list].sort((a, b) => {
       const da = deadlineMs(a);
       const db = deadlineMs(b);
@@ -139,7 +165,7 @@ function TasksPage() {
       if (!Number.isNaN(db)) return 1;
       return +new Date(b.createdAt) - +new Date(a.createdAt);
     });
-  }, [open, tab]);
+  }, [open, tab, expired, done, now]);
 
   const closed = useMemo(
     () => [...[...expired].sort((a, b) => deadlineMs(b) - deadlineMs(a)), ...done],
@@ -148,7 +174,10 @@ function TasksPage() {
 
   const TABS: { key: OpenTab; label: string; count: number }[] = [
     { key: "all", label: t("All"), count: counts.all },
-    { key: "ontime", label: t("On time"), count: counts.ontime },
+    { key: "far", label: t("Gần đến"), count: counts.far },
+    { key: "soon", label: t("Sắp tới"), count: counts.soon },
+    { key: "overdue", label: t("Trễ hẹn"), count: counts.overdue },
+    { key: "done", label: t("Hoàn thành"), count: counts.done },
   ];
 
   return (
@@ -192,7 +221,7 @@ function TasksPage() {
           <h2 className="mb-3 px-1 text-sm font-semibold text-muted-foreground">
             {tf("In progress ({n})", { n: open.length })}
           </h2>
-          <div className="mb-3 flex gap-2 px-1">
+          <div className="mb-3 flex flex-wrap gap-2 px-1">
             {TABS.map((tabItem) => (
               <button
                 key={tabItem.key}
@@ -236,6 +265,8 @@ function TasksPage() {
                   }}
                   onCancel={() => setEditing(null)}
                   onToggle={async () => {
+                    // Locked rows (Trễ hẹn / Hoàn thành tabs) can't be toggled.
+                    if (task.done || isOverdue(task)) return;
                     try {
                       await updateTask(task.id, { done: true });
                       toast.success("Làm tốt lắm! Bạn đã nhận được +12 EXP 🌿");
