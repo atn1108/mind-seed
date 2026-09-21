@@ -128,21 +128,17 @@ export function DateTimePicker({
         align="start"
         collisionPadding={16}
       >
-        <div className="mb-2 flex flex-col items-center gap-1.5">
-          <Seg active={mode === "date"} onClick={() => setMode("date")} className="w-full">
-            <span className="block max-w-full truncate tabular-nums">
-              {current ? current.toLocaleDateString() : t("Date")}
-            </span>
+        <div className="mb-2 flex items-center justify-center gap-1.5">
+          <Seg active={mode === "date"} onClick={() => setMode("date")}>
+            {current ? current.toLocaleDateString() : t("Date")}
           </Seg>
-          <div className="flex items-center justify-center gap-1.5">
-            <Seg active={mode === "hour"} onClick={() => setMode("hour")} className="w-12">
-              <span className="tabular-nums">{p2(hour)}</span>
-            </Seg>
-            <span className="font-semibold text-muted-foreground">:</span>
-            <Seg active={mode === "minute"} onClick={() => setMode("minute")} className="w-12">
-              <span className="tabular-nums">{p2(minute)}</span>
-            </Seg>
-          </div>
+          <Seg active={mode === "hour"} onClick={() => setMode("hour")}>
+            <span className="tabular-nums">{p2(hour)}</span>
+          </Seg>
+          <span className="font-semibold text-muted-foreground">:</span>
+          <Seg active={mode === "minute"} onClick={() => setMode("minute")}>
+            <span className="tabular-nums">{p2(minute)}</span>
+          </Seg>
         </div>
 
         <AnimatePresence mode="wait" initial={false}>
@@ -154,7 +150,14 @@ export function DateTimePicker({
             transition={{ duration: 0.16 }}
           >
             {mode === "date" ? (
-              <Calendar mode="single" selected={current} onSelect={setKeepingTime} />
+              <div className="flex justify-center">
+                <Calendar
+                  mode="single"
+                  selected={current}
+                  onSelect={setKeepingTime}
+                  className="w-fit max-w-full p-1"
+                />
+              </div>
             ) : mode === "hour" ? (
               <ClockDial
                 size={272}
@@ -199,12 +202,10 @@ export function DateTimePicker({
 function Seg({
   active,
   onClick,
-  className,
   children,
 }: {
   active: boolean;
   onClick: () => void;
-  className?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -215,7 +216,7 @@ function Seg({
         active
           ? "bg-primary text-primary-foreground"
           : "bg-muted text-muted-foreground hover:text-foreground"
-      } ${className ?? ""}`}
+      }`}
     >
       {children}
     </button>
