@@ -54,7 +54,9 @@ function InsightPage() {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const key = dayKey(d);
-      const ss = state.sessions.filter((s) => dayKey(s.startedAt) === key && s.completed);
+      // All logged minutes count — including unfinished sessions, which now
+      // store the minutes actually studied (see timer stop()).
+      const ss = state.sessions.filter((s) => dayKey(s.startedAt) === key);
       out.push({
         day: t(DAY_LABEL[d.getDay()]!),
         minutes: ss.reduce((a, s) => a + s.minutes, 0),
@@ -74,7 +76,7 @@ function InsightPage() {
       const mins = state.sessions
         .filter((s) => {
           const t = new Date(s.startedAt);
-          return s.completed && t >= start && t <= end;
+          return t >= start && t <= end;
         })
         .reduce((a, s) => a + s.minutes, 0);
       out.push({ label: `${t("Week")} ${4 - i}`, hours: Math.round((mins / 60) * 10) / 10 });
@@ -87,9 +89,10 @@ function InsightPage() {
     since.setDate(since.getDate() - 6);
     const ss = state.sessions.filter((s) => new Date(s.startedAt) >= since);
     const done = ss.filter((s) => s.completed);
-    const minutes = done.reduce((a, s) => a + s.minutes, 0);
+    // Focus hours count every studied minute, including unfinished sessions.
+    const minutes = ss.reduce((a, s) => a + s.minutes, 0);
     const byHour: Record<string, number> = { Morning: 0, Afternoon: 0, Evening: 0 };
-    done.forEach((s) => {
+    ss.forEach((s) => {
       const h = new Date(s.startedAt).getHours();
       const slot = h < 12 ? "Morning" : h < 18 ? "Afternoon" : "Evening";
       byHour[slot] = (byHour[slot] ?? 0) + s.minutes;

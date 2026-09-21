@@ -41,6 +41,36 @@ const PRIORITY: Record<Priority, { label: string; className: string }> = {
   low: { label: "Low", className: "bg-primary-soft text-primary" },
 };
 
+/** Parse a stored deadline (ISO, or legacy date-only / space-separated timestamptz). */
+function parseDeadline(iso: string) {
+  const s = iso.includes(" ") ? iso.replace(" ", "T") : iso;
+  return new Date(/^\d{4}-\d{2}-\d{2}$/.test(s) ? `${s}T00:00` : s);
+}
+
+/** ISO deadline -> "YYYY-MM-DDTHH:mm" for datetime-local inputs (viewer timezone). */
+function toLocalInputValue(iso: string) {
+  if (!iso) return "";
+  const d = parseDeadline(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+/** datetime-local value -> ISO string for storage, or null when empty/invalid. */
+function toStoredDeadline(local: string) {
+  if (!local) return null;
+  const ms = new Date(local).getTime();
+  return Number.isNaN(ms) ? null : new Date(ms).toISOString();
+}
+
+/** "21/9/2026, 14:30" — the time part is hidden when none was set (midnight). */
+function formatDeadline(iso: string) {
+  const d = parseDeadline(iso);
+  const date = d.toLocaleDateString();
+  if (d.getHours() === 0 && d.getMinutes() === 0) return date;
+  return `${date}, ${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+}
+
 function TasksPage() {
   const t = useT();
   const tf = useTf();
@@ -50,11 +80,14 @@ function TasksPage() {
   const [deadline, setDeadline] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [draftDeadline, setDraftDeadline] = useState("");
+  const [draftPriority, setDraftPriority] = useState<Priority>("medium");
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    addTask({ title: title.trim(), priority, ...(deadline ? { deadline } : {}) });
+    const iso = toStoredDeadline(deadline);
+    addTask({ title: title.trim(), priority, ...(iso ? { deadline: iso } : {}) });
     setTitle("");
     setDeadline("");
     toast.success(t("New task added"));
@@ -93,10 +126,10 @@ function TasksPage() {
           </SelectContent>
         </Select>
         <Input
-          type="date"
+          type="datetime-local"
           value={deadline}
           onChange={(e) => setDeadline(e.target.value)}
-          className="h-11 rounded-2xl sm:w-44"
+          className="h-11 rounded-2xl sm:w-56"
         />
         <Button type="submit" className="h-11 rounded-2xl px-5 transition-transform active:scale-[0.97]">
           <Plus className="size-4" />
@@ -118,12 +151,22 @@ function TasksPage() {
                   editing={editing === task.id}
                   draft={draft}
                   setDraft={setDraft}
+                  draftDeadline={draftDeadline}
+                  setDraftDeadline={setDraftDeadline}
+                  draftPriority={draftPriority}
+                  setDraftPriority={setDraftPriority}
                   onEdit={() => {
                     setEditing(task.id);
                     setDraft(task.title);
+                    setDraftDeadline(task.deadline ? toLocalInputValue(task.deadline) : "");
+                    setDraftPriority(task.priority);
                   }}
                   onSave={() => {
-                    updateTask(task.id, { title: draft.trim() || task.title });
+                    updateTask(task.id, {
+                      title: draft.trim() || task.title,
+                      deadline: toStoredDeadline(draftDeadline),
+                      priority: draftPriority,
+                    });
                     setEditing(null);
                   }}
                   onCancel={() => setEditing(null)}
@@ -160,6 +203,10 @@ function TasksPage() {
                   editing={false}
                   draft={draft}
                   setDraft={setDraft}
+                  draftDeadline={draftDeadline}
+                  setDraftDeadline={setDraftDeadline}
+                  draftPriority={draftPriority}
+                  setDraftPriority={setDraftPriority}
                   onEdit={() => {}}
                   onSave={() => {}}
                   onCancel={() => {}}
@@ -180,6 +227,10 @@ function TaskRow({
   editing,
   draft,
   setDraft,
+  draftDeadline,
+  setDraftDeadline,
+  draftPriority,
+  setDraftPriority,
   onEdit,
   onSave,
   onCancel,
@@ -190,6 +241,10 @@ function TaskRow({
   editing: boolean;
   draft: string;
   setDraft: (v: string) => void;
+  draftDeadline: string;
+  setDraftDeadline: (v: string) => void;
+  draftPriority: Priority;
+  setDraftPriority: (v: Priority) => void;
   onEdit: () => void;
   onSave: () => void;
   onCancel: () => void;
@@ -224,12 +279,32 @@ function TaskRow({
 
       <div className="min-w-0 flex-1">
         {editing ? (
-          <Input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            className="h-9 rounded-xl"
-            autoFocus
-          />
+          <>
+            <Input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              className="h-9 rounded-xl"
+              autoFocus
+            />
+            <div className="mt-2 flex gap-2">
+              <Input
+                type="datetime-local"
+                value={draftDeadline}
+                onChange={(e) => setDraftDeadline(e.target.value)}
+                className="h-9 rounded-xl text-xs"
+              />
+              <Select value={draftPriority} onValueChange={(v) => setDraftPriority(v as Priority)}>
+                <SelectTrigger className="!h-9 rounded-xl text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">{t("High priority")}</SelectItem>
+                  <SelectItem value="medium">{t("Medium priority")}</SelectItem>
+                  <SelectItem value="low">{t("Low priority")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </>
         ) : (
           <p
             className={`truncate text-sm font-medium ${task.done ? "text-muted-foreground line-through" : ""}`}
@@ -243,7 +318,7 @@ function TaskRow({
           </span>
           {task.deadline && (
             <span className="text-[11px] text-muted-foreground">
-              {tf("Due {date}", { date: new Date(task.deadline).toLocaleDateString() })}
+              {tf("Due {date}", { date: formatDeadline(task.deadline) })}
             </span>
           )}
         </div>

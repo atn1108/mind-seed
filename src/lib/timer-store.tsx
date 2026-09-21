@@ -138,8 +138,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     const elapsedSec = durationMin * 60 - left;
     // Only credit a partial session when the user actually spent a meaningful
     // amount of time focusing. Starting and immediately ending must not farm EXP.
+    // Log the minutes actually studied — never the full duration.
     if (elapsedSec >= MIN_PARTIAL_SEC && elapsedSec < durationMin * 60) {
-      void addSession(durationMin, false).catch((err) =>
+      const elapsedMin = Math.max(1, Math.round(elapsedSec / 60));
+      void addSession(elapsedMin, false).catch((err) =>
         console.error("[Timer] Failed to log partial session:", err),
       );
     }

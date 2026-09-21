@@ -271,6 +271,9 @@ export function minutesOn(state: MindSeedState, day: string) {
 
 export type AuthOutcome = { tone: "error" | "info"; message?: string };
 
+/** Patch for task updates — deadline accepts null to clear it. */
+export type TaskPatch = Omit<Partial<Task>, "deadline"> & { deadline?: string | null };
+
 type Ctx = {
   state: MindSeedState;
   ready: boolean;
@@ -284,7 +287,7 @@ type Ctx = {
   logout: () => Promise<void>;
   addSession: (minutes: number, completed: boolean) => Promise<void>;
   addTask: (t: Omit<Task, "id" | "createdAt" | "done">) => Promise<void>;
-  updateTask: (id: string, patch: Partial<Task>) => Promise<void>;
+  updateTask: (id: string, patch: TaskPatch) => Promise<void>;
   removeTask: (id: string) => Promise<void>;
   addReflection: (rating: number, reasons: string[]) => Promise<void>;
   setGoal: (hours: number) => Promise<void>;
@@ -540,7 +543,7 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, tasks: [mapTask(data), ...s.tasks] }));
   }, []);
 
-  const updateTask = useCallback(async (id: string, patch: Partial<Task>) => {
+  const updateTask = useCallback(async (id: string, patch: TaskPatch) => {
     // Task completion is server-authoritative: complete_task() flips `done`
     // and grants the +12 EXP atomically — idempotent, so no need to read
     // the local task first (and no state.tasks dep causing re-renders).
