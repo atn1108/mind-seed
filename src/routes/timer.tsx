@@ -1,5 +1,5 @@
 ﻿import { createFileRoute } from "@tanstack/react-router";
-import { useT } from "@/lib/ui-language";
+import { useT, useTf } from "@/lib/ui-language";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Minus, Pause, Play, Plus, Square } from "lucide-react";
@@ -10,7 +10,7 @@ import { Confetti, ReflectionDialog } from "@/components/ReflectionDialog";
 import { TreeVisual } from "@/components/TreeVisual";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useMindSeed } from "@/lib/mindseed-store";
+import { MILESTONES, milestonesReached, sessionExpFor, useMindSeed } from "@/lib/mindseed-store";
 import { useTimer } from "@/lib/timer-store";
 import { useCountdownTitle } from "@/lib/use-countdown-title";
 
@@ -41,6 +41,7 @@ export const Route = createFileRoute("/timer")({
 
 function TimerPage() {
   const t = useT();
+  const tf = useTf();
   const { state } = useMindSeed();
   const timer = useTimer();
   const { durationMin, running, left, total, finishedTick } = timer;
@@ -51,21 +52,22 @@ function TimerPage() {
 
   const isCustom = !OPTIONS.includes(durationMin);
   const progress = ((total - left) / total) * 100;
+  const milestonesHit = milestonesReached(total - left, total);
+  const expPreview = sessionExpFor(durationMin);
   const size = 300;
   const r = size / 2 - 16;
   const c = 2 * Math.PI * r;
 
   // Celebrate only when a NEW completion happens while this page is open —
-  // never re-fire for an old finishedTick on mount.
+  // never re-fire for an old finishedTick on mount. The success toast (with
+  // the actual EXP gained) comes from the timer store once saving resolves.
   const celebratedRef = useRef(finishedTick);
   useEffect(() => {
     if (finishedTick === celebratedRef.current) return;
     celebratedRef.current = finishedTick;
-    toast.success(t("Session complete! Your tree just grew 🌿"));
     setConfetti(true);
     setTimeout(() => setConfetti(false), 3000);
     setTimeout(() => setReflect(true), 900);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- celebrate once per tick; t is stable enough here
   }, [finishedTick]);
 
   const select = (m: number) => {
@@ -216,6 +218,24 @@ function TimerPage() {
             </div>
           </div>
 
+          <div className="mt-6 flex items-center justify-center gap-2">
+            {MILESTONES.map((m, i) => (
+              <span
+                key={m}
+                title={`${m}%`}
+                className={`size-2 rounded-full transition-colors duration-300 ${
+                  i < milestonesHit ? "bg-primary" : "bg-muted"
+                }`}
+              />
+            ))}
+          </div>
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            {tf("Milestone {done}/5 · +{n} EXP on finish", {
+              done: milestonesHit,
+              n: expPreview,
+            })}
+          </p>
+
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Button
               className="h-12 rounded-2xl px-8 text-[15px] transition-transform active:scale-[0.97]"
@@ -239,7 +259,7 @@ function TimerPage() {
         </div>
 
         <div className="surface flex flex-col items-center justify-center gap-4 p-7">
-          <TreeVisual exp={state.exp} size={180} />
+          <TreeVisual exp={state.exp} forest={state.forest.length} size={180} />
           <p className="text-center text-sm text-muted-foreground">
             {t("Your tree grows after each completed session. If you leave mid-session, it only earns a little EXP.")}
           </p>

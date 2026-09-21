@@ -2,8 +2,16 @@ import { motion } from "motion/react";
 
 import { stageOf } from "@/lib/mindseed-store";
 
-export function TreeVisual({ exp, size = 160 }: { exp: number; size?: number }) {
-  const { index, stage } = stageOf(exp);
+export function TreeVisual({
+  exp,
+  forest = 0,
+  size = 160,
+}: {
+  exp: number;
+  forest?: number;
+  size?: number;
+}) {
+  const { index, stage } = stageOf(exp, forest);
   const scale = [0.5, 0.68, 0.85, 1][index] ?? 1;
 
   return (

@@ -47,7 +47,7 @@ function DashboardPage() {
   const score = focusScore(state);
   const label = scoreLabel(score);
   const streak = streakOf(state);
-  const { stage, progress, next } = stageOf(state.exp);
+  const { stage, progress, next } = stageOf(state.exp, state.forest.length);
 
   useEffect(() => {
     let live = true;
@@ -99,7 +99,7 @@ function DashboardPage() {
       >
         <Card title={t("Focus Garden")} icon={Sprout} to="/garden">
           <div className="flex items-center gap-4">
-            <TreeVisual exp={state.exp} size={92} />
+            <TreeVisual exp={state.exp} forest={state.forest.length} size={92} />
             <div className="min-w-0">
               <p className="text-2xl font-semibold">
                 {state.forest.length} {t("trees")}

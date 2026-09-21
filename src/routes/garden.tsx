@@ -31,7 +31,7 @@ function GardenPage() {
   const t = useT();
   const tf = useTf();
   const { state } = useMindSeed();
-  const { stage, next, progress } = stageOf(state.exp);
+  const { stage, next, progress } = stageOf(state.exp, state.forest.length);
 
   return (
     <AppShell>
@@ -44,7 +44,7 @@ function GardenPage() {
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[1.1fr_1fr]">
         <div className="surface flex flex-col items-center p-7">
-          <TreeVisual exp={state.exp} size={200} />
+          <TreeVisual exp={state.exp} forest={state.forest.length} size={200} />
           <p className="mt-5 font-display text-xl font-semibold">{t(stage.name)}</p>
           <p className="text-sm text-muted-foreground">{state.exp} EXP</p>
           <Progress value={progress} className="mt-5 h-2.5 w-full max-w-sm" />

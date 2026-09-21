@@ -280,5 +280,6 @@
   "Could not copy the code.": "Could not copy the code.",
   "Copy room code": "Copy room code",
   "Task reminder": "Task reminder",
-  "Don't forget your task “{title}” — still in progress.": "Don't forget your task “{title}” — still in progress."
+  "Don't forget your task “{title}” — still in progress.": "Don't forget your task “{title}” — still in progress.",
+  "Milestone {done}/5 · +{n} EXP on finish": "Milestone {done}/5 · +{n} EXP on finish"
 }

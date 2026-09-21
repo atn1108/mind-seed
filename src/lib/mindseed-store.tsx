@@ -71,11 +71,33 @@ export const SPECIES = [
 ] as const;
 
 export const STAGES = [
-  { name: "Seed", emoji: "🌰", need: 0 },
-  { name: "Sprout", emoji: "🌱", need: 40 },
-  { name: "Young Tree", emoji: "🌿", need: 90 },
-  { name: "Mature Tree", emoji: "🌳", need: 150 },
+  { name: "Seed", emoji: "🌰" },
+  { name: "Sprout", emoji: "🌱" },
+  { name: "Young Tree", emoji: "🌿" },
+  { name: "Mature Tree", emoji: "🌳" },
 ] as const;
+
+/* ------------------------------ focus economy ---------------------------- */
+// Session EXP by planned duration — mirrors complete_focus_session RPC.
+const SESSION_EXP_TABLE: Record<number, number> = { 5: 10, 10: 20, 25: 45, 45: 90 };
+export function sessionExpFor(durationMin: number) {
+  return SESSION_EXP_TABLE[durationMin] ?? Math.max(1, Math.round(durationMin * 2));
+}
+
+// Milestone cutoffs, as % of the planned duration: 20/40/60/80/100.
+export const MILESTONES = [20, 40, 60, 80, 100];
+export function milestonesReached(elapsedSec: number, totalSec: number) {
+  if (totalSec <= 0) return 0;
+  const pct = (elapsedSec / totalSec) * 100;
+  return MILESTONES.filter((m) => pct >= m).length;
+}
+
+// Cost of the next tree; grows so higher levels need wider gaps:
+// 120, 180, 280, 420, 600, ... — mirrors complete_focus_session RPC.
+export function treeCostFor(forestCount: number) {
+  const n = Math.max(0, Math.floor(forestCount));
+  return 120 + 40 * n + 20 * n * n;
+}
 
 export const DISTRACTIONS = ["TikTok", "Facebook", "Messenger", "Game", "Sleepy", "Noise", "Other"];
 
@@ -251,12 +273,20 @@ export function streakOf(state: MindSeedState) {
   return streak;
 }
 
-export function stageOf(exp: number) {
+export function stageOf(exp: number, forestCount = 0) {
+  const need = treeCostFor(forestCount);
+  const bounds = [0, 0.3, 0.65, 1].map((f) => Math.round(f * need));
   let idx = 0;
-  STAGES.forEach((s, i) => {
-    if (exp >= s.need) idx = i;
+  bounds.forEach((bound, i) => {
+    if (exp >= bound) idx = i;
   });
-  const next = STAGES[idx + 1];
+  idx = Math.min(idx, STAGES.length - 1);
+  const nextBound = bounds[idx + 1];
+  const nextStage = STAGES[idx + 1];
+  const next =
+    nextBound === undefined || nextStage === undefined
+      ? undefined
+      : { name: nextStage.name, emoji: nextStage.emoji, need: nextBound };
   const progress = next ? Math.min(100, Math.round((exp / next.need) * 100)) : 100;
   return { index: idx, stage: STAGES[idx]!, next, progress };
 }
@@ -285,7 +315,7 @@ type Ctx = {
   ) => Promise<AuthOutcome | null>;
   loginGoogle: () => Promise<AuthOutcome | null>;
   logout: () => Promise<void>;
-  addSession: (minutes: number, completed: boolean) => Promise<void>;
+  addSession: (minutes: number, completed: boolean, durationMin?: number) => Promise<number>;
   addTask: (t: Omit<Task, "id" | "createdAt" | "done">) => Promise<void>;
   updateTask: (id: string, patch: TaskPatch) => Promise<void>;
   removeTask: (id: string) => Promise<void>;
@@ -482,45 +512,51 @@ export function MindSeedProvider({ children }: { children: ReactNode }) {
     setState(EMPTY_STATE);
   }, []);
 
-  const addSession = useCallback(async (minutes: number, completed: boolean) => {
-    const { data: authData } = await supabase.auth.getUser();
-    const userId = authData.user?.id;
-    if (!userId) throw new Error("You are not signed in.");
+  const addSession = useCallback(
+    async (minutes: number, completed: boolean, durationMin?: number) => {
+      const { data: authData } = await supabase.auth.getUser();
+      const userId = authData.user?.id;
+      if (!userId) throw new Error("You are not signed in.");
 
-    // Server-authoritative: inserts the session, validates minutes, applies
-    // per-day anti-farming caps, grants EXP and materializes trees. Clients
-    // can no longer write arbitrary exp straight into profiles.
-    const { data: rpcData, error } = await supabase.rpc("complete_focus_session", {
-      p_minutes: minutes,
-      p_completed: completed,
-    });
+      // Server-authoritative: inserts the session, splits EXP by duration
+      // and milestones, applies per-day anti-farming caps, grants EXP and
+      // materializes trees with growing costs. Returns the EXP gained.
+      const { data: rpcData, error } = await supabase.rpc("complete_focus_session", {
+        p_minutes: minutes,
+        p_completed: completed,
+        ...(durationMin ? { p_duration: durationMin } : {}),
+      });
 
-    if (error) throw error;
+      if (error) throw error;
 
-    const result = rpcData as {
-      exp: number;
-      session_id: string;
-      started_at: string;
-      minutes: number;
-      completed: boolean;
-      trees: { id: string; species: string; planted_at: string; minutes: number }[];
-    };
+      const result = rpcData as {
+        exp: number;
+        gained: number;
+        session_id: string;
+        started_at: string;
+        minutes: number;
+        completed: boolean;
+        trees: { id: string; species: string; planted_at: string; minutes: number }[];
+      };
 
-    setState((s) => ({
-      ...s,
-      exp: result.exp,
-      forest: [...s.forest, ...result.trees.map(mapTree)],
-      sessions: [
-        ...s.sessions,
-        mapSession({
-          id: result.session_id,
-          started_at: result.started_at,
-          minutes: result.minutes,
-          completed: result.completed,
-        }),
-      ],
-    }));
-  }, []);
+      setState((s) => ({
+        ...s,
+        exp: result.exp,
+        forest: [...s.forest, ...result.trees.map(mapTree)],
+        sessions: [
+          ...s.sessions,
+          mapSession({
+            id: result.session_id,
+            started_at: result.started_at,
+            minutes: result.minutes,
+            completed: result.completed,
+          }),
+        ],
+      }));
+      return result.gained;
+    },
+    [],
+  );
 
   const addTask = useCallback(async (t: Omit<Task, "id" | "createdAt" | "done">) => {
     const { data: authData } = await supabase.auth.getUser();
