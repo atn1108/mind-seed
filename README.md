@@ -21,20 +21,6 @@ Triết lý: *"Ươm mầm sự tập trung thay vì ép buộc người dùng n
 | 👤 **Profile**           | Avatar, tên, streak, tổng cây/giờ học, mục tiêu tháng                                                  |
 | 🧑‍🤝‍🧑 **Study Rooms**  | Phòng học chung (mã mời, timer dùng chung, nhắn tin, mật khẩu, hiện diện trực tiếp)                    |
 
-**Kinh tế EXP:**
-
-| Phiên học | EXP |
-| --------- | --- |
-| 5 phút    | 10  |
-| 10 phút   | 20  |
-| 25 phút   | 45  |
-| 45 phút   | 90  |
-| Mốc khác  | ×2 số phút |
-
-Xong phiên nhận full; bấm End sớm nhận theo số mốc đã qua (mỗi mốc = 1/5). Xong nhiệm vụ +12 EXP. Trồng cây tốn EXP tăng dần theo số cây đã có.
-
-**Focus Score (0–100):** tính từ thời gian tập trung, số phiên & nhiệm vụ hoàn thành, tỉ lệ bỏ dở và streak. Xếp loại: Excellent → Good → Average → Need Improvement.
-
 ---
 
 ## 🎨 Thiết kế
@@ -71,21 +57,6 @@ npm install
 cp .env.example .env   # điền giá trị Supabase
 npm run dev
 ```
-
-### Biến môi trường (Netlify chỉ cần 3 biến)
-
-| Biến                            | Mô tả                        |
-| ------------------------------- | ---------------------------- |
-| `VITE_SUPABASE_URL`             | URL Supabase project         |
-| `VITE_SUPABASE_PROJECT_ID`      | ID Supabase project          |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Khóa publishable — public    |
-
-> ⚠️ Netlify quét secrets khi build: giá trị `*_PROJECT_ID` trùng với `project_id` trong
-> `supabase/config.toml` sẽ làm rớt build. Thêm biến `SECRETS_SCAN_OMIT_PATHS=supabase/config.toml`
-> để bỏ qua. Không đưa `SUPABASE_DB_URL` hay service role key lên Netlify.
-
-Migration DB nằm trong `supabase/migrations` (đánh số theo thời gian).
-
 ---
 
 ## 📁 Cấu trúc dự án
