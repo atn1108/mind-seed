@@ -349,10 +349,12 @@ function TaskRow({
         className={`grid size-6 shrink-0 place-items-center rounded-lg border transition-all duration-200 ${
           task.done
             ? "cursor-default border-primary bg-primary text-primary-foreground"
-            : "cursor-pointer border-border active:scale-90"
+            : overdue
+              ? "cursor-pointer border-destructive bg-destructive text-yellow-300 active:scale-90"
+              : "cursor-pointer border-border active:scale-90"
         }`}
       >
-        {task.done && <Check className="size-3.5" />}
+        {task.done ? <Check className="size-3.5" /> : overdue && <X className="size-3.5" />}
       </button>
 
       <div className="min-w-0 flex-1">
